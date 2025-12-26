@@ -8,6 +8,7 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import type { Route } from "next";
 
 export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
+            router.push("/dashboard" as Route);
             toast.success("Sign in successful");
           },
           onError: (error) => {

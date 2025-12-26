@@ -14,6 +14,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 
 import { Button } from "./ui/button";
+import type { Route } from "next";
 
 export default function UserMenu() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function UserMenu() {
               authClient.signOut({
                 fetchOptions: {
                   onSuccess: () => {
-                    router.push("/dashboard");
+                    router.push("/dashboard" as Route);
                   },
                 },
               });

@@ -2,6 +2,7 @@
 import Link from "next/link";
 
 import { ModeToggle } from "./mode-toggle";
+import type { Route } from "next";
 
 export default function Header() {
   const links = [
@@ -16,7 +17,7 @@ export default function Header() {
         <nav className="flex gap-4 text-lg">
           {links.map(({ to, label }) => {
             return (
-              <Link key={to} href={to}>
+              <Link key={to} href={to as Route}>
                 {label}
               </Link>
             );
