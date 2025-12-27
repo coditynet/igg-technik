@@ -1,7 +1,7 @@
 import { convexBetterAuthNextJs } from "@convex-dev/better-auth/nextjs";
 import { env } from "@igg/env/web";
 
-import { isAuthError } from "@/lib/utils";
+// import { isAuthError } from "@/lib/utils";
 
 export const {
   handler,

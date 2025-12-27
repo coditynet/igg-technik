@@ -1,4 +1,4 @@
-import { LogoIcon } from '@/components/logo'
+// import { LogoIcon } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,7 +16,7 @@ export default function LoginPage() {
                             href="/"
                             aria-label="go home"
                             className="mx-auto block w-fit">
-                            <LogoIcon />
+                            {/*<LogoIcon />*/}
                         </Link>
                         <h1 className="mb-1 mt-4 text-xl font-semibold">Bei IGG-Technik anmelden  </h1>
                         <p className="text-sm">Welcome back! Sign in to continue</p>
