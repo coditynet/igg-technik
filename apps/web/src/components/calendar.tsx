@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { de } from "react-day-picker/locale"
@@ -10,7 +8,7 @@ function DayClick(day: Date) {
   console.log("Day:", day);
 }
 
-export function Calendar2() {
+export function CalendarView() {
   const [date, setDate] = React.useState<Date | undefined>(
     new Date(2025, 5, 12)
   )
