@@ -10,7 +10,7 @@ function DayClick(day: Date) {
   console.log("Day:", day);
 }
 
-export function Calendar18() {
+export function Calendar2() {
   const [date, setDate] = React.useState<Date | undefined>(
     new Date(2025, 5, 12)
   )
@@ -23,7 +23,7 @@ export function Calendar18() {
   const [month, setMonth] = React.useState<Date | undefined>(new Date())
 
   return (
-    <div className="flex flex-col items-center justify-center mb-5">
+    <div className="flex flex-col items-center justify-center mb-5 " id="calendar">
       <Calendar
         mode="single"
         selected={date}
