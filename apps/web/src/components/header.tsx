@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import { ArrowDown, CircleQuestionMark } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
-import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
+import { Popover, PopoverTrigger, PopoverContent } from './ui/popoverTouch';
 
 
 export function Header() {
