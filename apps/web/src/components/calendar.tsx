@@ -3,9 +3,9 @@ import { Calendar } from "@/components/ui/calendar"
 import { de } from "react-day-picker/locale"
 import { type DateRange } from "react-day-picker"
 
-// Fix: Change 'typeof Day' to 'Date'
 function DayClick(day: Date) {
   console.log("Day:", day);
+  
 }
 
 export function CalendarView() {

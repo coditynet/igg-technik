@@ -12,6 +12,7 @@
     "@convex-dev/better-auth": "catalog:",
     "@igg/backend": "workspace:*",
     "@igg/env": "workspace:*",
+    "@radix-ui/react-popover": "^1.1.15",
     "@tanstack/react-form": "^1.27.3",
     "babel-plugin-react-compiler": "^1.0.0",
     "better-auth": "catalog:",
