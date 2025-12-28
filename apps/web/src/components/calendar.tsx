@@ -2,10 +2,19 @@ import * as React from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { de } from "react-day-picker/locale"
 import { type DateRange } from "react-day-picker"
+import { Popover, PopoverTrigger, PopoverContent} from "./ui/popover"
 
 function DayClick(day: Date) {
   console.log("Day:", day);
-  
+  return (
+    <div>
+    <Popover>
+      <PopoverTrigger>
+        
+      </PopoverTrigger>
+    </Popover>
+    </div>
+  )
 }
 
 export function CalendarView() {
@@ -18,8 +27,6 @@ export function CalendarView() {
       to: new Date(2025, 5, 20),
   })
 
-  const [month, setMonth] = React.useState<Date | undefined>(new Date())
-
   return (
     <div className="flex flex-col items-center justify-center mb-5 " id="calendar">
       <Calendar
@@ -31,7 +38,7 @@ export function CalendarView() {
         onDayClick={DayClick}
         className="rounded-lg border [--cell-size:--spacing(11)] md:[--cell-size:--spacing(30)]"
         buttonVariant="ghost"
-      />
+        />
     </div>
   )
 }
