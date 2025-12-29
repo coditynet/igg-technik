@@ -26,17 +26,17 @@ export function ChangePasswordDialog() {
 
 	const handleChangePassword = async () => {
 		if (!currentPassword || !newPassword || !confirmPassword) {
-			toast.error("Please fill in all fields");
+			toast.error("Bitte fülle alle Felder aus");
 			return;
 		}
 
 		if (newPassword !== confirmPassword) {
-			toast.error("New passwords do not match");
+			toast.error("Die neuen Passwörter stimmen nicht überein");
 			return;
 		}
 
 		if (newPassword.length < 8) {
-			toast.error("Password must be at least 8 characters long");
+			toast.error("Passwort muss mindestens 8 Zeichen lang sein");
 			return;
 		}
 
@@ -50,16 +50,16 @@ export function ChangePasswordDialog() {
 			});
 
 			if (error) {
-				toast.error(error.message || "Failed to change password");
+				toast.error(error.message || "Passwort konnte nicht geändert werden");
 			} else {
-				toast.success("Password changed successfully");
+				toast.success("Passwort erfolgreich geändert");
 				setOpen(false);
 				setCurrentPassword("");
 				setNewPassword("");
 				setConfirmPassword("");
 			}
 		} catch (error) {
-			toast.error("Failed to change password");
+			toast.error("Passwort konnte nicht geändert werden");
 			console.error(error);
 		} finally {
 			setIsChanging(false);
@@ -70,49 +70,49 @@ export function ChangePasswordDialog() {
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button variant="ghost" size="sm">
-					Change
+					Ändern
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Change Password</DialogTitle>
+					<DialogTitle>Passwort ändern</DialogTitle>
 					<DialogDescription>
-						Enter your current password and choose a new one.
+						Gib dein aktuelles Passwort ein und wähle ein neues.
 					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-4 py-4">
 					<div className="space-y-2">
-						<Label htmlFor="current-password">Current Password</Label>
+						<Label htmlFor="current-password">Aktuelles Passwort</Label>
 						<Input
 							id="current-password"
 							type="password"
 							value={currentPassword}
 							onChange={(e) => setCurrentPassword(e.target.value)}
-							placeholder="Enter current password"
+							placeholder="Aktuelles Passwort eingeben"
 							autoFocus
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="new-password">New Password</Label>
+						<Label htmlFor="new-password">Neues Passwort</Label>
 						<Input
 							id="new-password"
 							type="password"
 							value={newPassword}
 							onChange={(e) => setNewPassword(e.target.value)}
-							placeholder="Enter new password"
+							placeholder="Neues Passwort eingeben"
 						/>
 						<p className="text-muted-foreground text-xs">
-							Password must be at least 8 characters long
+							Passwort muss mindestens 8 Zeichen lang sein
 						</p>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="confirm-password">Confirm New Password</Label>
+						<Label htmlFor="confirm-password">Neues Passwort bestätigen</Label>
 						<Input
 							id="confirm-password"
 							type="password"
 							value={confirmPassword}
 							onChange={(e) => setConfirmPassword(e.target.value)}
-							placeholder="Confirm new password"
+							placeholder="Neues Passwort bestätigen"
 						/>
 					</div>
 				</div>
@@ -127,7 +127,7 @@ export function ChangePasswordDialog() {
 						}}
 						disabled={isChanging}
 					>
-						Cancel
+						Abbrechen
 					</Button>
 					<Button
 						onClick={handleChangePassword}
@@ -138,10 +138,10 @@ export function ChangePasswordDialog() {
 						{isChanging ? (
 							<>
 								<Loader2 className="mr-2 size-4 animate-spin" />
-								Changing...
+								Wird geändert...
 							</>
 						) : (
-							"Change Password"
+							"Passwort ändern"
 						)}
 					</Button>
 				</DialogFooter>

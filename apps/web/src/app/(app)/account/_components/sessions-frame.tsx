@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { ChangePasswordDialog } from "./change-password-dialog";
@@ -43,7 +44,7 @@ type Session = {
 export function SessionsFrame({
 	currentSessionId,
 }: {
-	currentSessionId: string;
+	currentSessionId?: string;
 }) {
 	const [sessions, setSessions] = useState<Session[]>([]);
 	const [isPending, setIsPending] = useState(true);
@@ -54,11 +55,11 @@ export function SessionsFrame({
 		try {
 			const { data, error } = await authClient.listSessions();
 			if (error) {
-				toast.error("Failed to load sessions");
+				toast.error("Sitzungen konnten nicht geladen werden");
 				return;
 			}
 			if (data) {
-				const mapped = data.map((s: any) => ({
+				const mapped = data.map((s) => ({
 					id: s.id,
 					userAgent: s.userAgent ?? null,
 					ipAddress: s.ipAddress ?? null,
@@ -69,7 +70,7 @@ export function SessionsFrame({
 				setSessions(mapped);
 			}
 		} catch (_err) {
-			toast.error("Failed to load sessions");
+			toast.error("Sitzungen konnten nicht geladen werden");
 		} finally {
 			setIsPending(false);
 		}
@@ -96,13 +97,15 @@ export function SessionsFrame({
 					token: session.token,
 				});
 				if (error) {
-					toast.error(error.message || "Failed to revoke session");
+					toast.error(
+						error.message || "Sitzung konnte nicht widerrufen werden",
+					);
 					return;
 				}
-				toast.success("Session revoked!");
+				toast.success("Sitzung wurde widerrufen");
 				await fetchSessions();
 			} catch {
-				toast.error("Something went wrong");
+				toast.error("Etwas ist schiefgelaufen");
 			}
 		},
 		[fetchSessions],
@@ -114,21 +117,25 @@ export function SessionsFrame({
 			if (includeCurrentDevice) {
 				const { error } = await authClient.revokeSessions();
 				if (error) {
-					toast.error(error.message || "Failed to revoke sessions");
+					toast.error(
+						error.message || "Sitzungen konnten nicht widerrufen werden",
+					);
 				} else {
-					toast.success("All sessions revoked. Signing out...");
+					toast.success("Alle Sitzungen wurden widerrufen. Abmeldung läuft...");
 				}
 			} else {
 				const { error } = await authClient.revokeOtherSessions();
 				if (error) {
-					toast.error(error.message || "Failed to revoke sessions");
+					toast.error(
+						error.message || "Sitzungen konnten nicht widerrufen werden",
+					);
 				} else {
-					toast.success("All other sessions revoked successfully");
+					toast.success("Alle anderen Sitzungen wurden erfolgreich widerrufen");
 					await fetchSessions();
 				}
 			}
 		} catch {
-			toast.error("Failed to revoke sessions");
+			toast.error("Sitzungen konnten nicht widerrufen werden");
 		} finally {
 			if (!includeCurrentDevice) setIsRevokingAll(false);
 			setIncludeCurrentDevice(false);
@@ -142,19 +149,55 @@ export function SessionsFrame({
 
 	if (isPending) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Active Sessions</CardTitle>
-					<CardDescription>
-						Manage your active sessions across different devices.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<div className="flex items-center justify-center py-12">
-						<Loader2 className="size-6 animate-spin text-muted-foreground" />
-					</div>
-				</CardContent>
-			</Card>
+			<>
+				<Card>
+					<CardHeader>
+						<CardTitle>Passwort</CardTitle>
+						<CardDescription>
+							Ändere dein Passwort, um dein Konto sicher zu halten.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="flex items-center justify-between">
+							<div>
+								<p className="mb-1 font-medium text-muted-foreground text-sm">
+									Aktuelles Passwort
+								</p>
+								<p className="text-base">••••••••</p>
+							</div>
+							<ChangePasswordDialog />
+						</div>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Aktive Sitzungen</CardTitle>
+						<CardDescription>
+							Verwalte deine aktiven Sitzungen auf verschiedenen Geräten.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="space-y-2">
+							{[1, 2].map((i) => (
+								<div
+									key={i}
+									className="flex items-center justify-between rounded-lg border p-4"
+								>
+									<div className="flex flex-1 items-center gap-4">
+										<Skeleton className="size-12 rounded-lg" />
+										<div className="min-w-0 flex-1 space-y-2">
+											<Skeleton className="h-5 w-40" />
+											<Skeleton className="h-4 w-48" />
+										</div>
+									</div>
+									<Skeleton className="h-9 w-16 rounded-md" />
+								</div>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+			</>
 		);
 	}
 
@@ -162,16 +205,16 @@ export function SessionsFrame({
 		<>
 			<Card>
 				<CardHeader>
-					<CardTitle>Password</CardTitle>
+					<CardTitle>Passwort</CardTitle>
 					<CardDescription>
-						Change your password to keep your account secure.
+						Ändere dein Passwort, um dein Konto sicher zu halten.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="mb-1 font-medium text-muted-foreground text-sm">
-								Current Password
+								Aktuelles Passwort
 							</p>
 							<p className="text-base">••••••••</p>
 						</div>
@@ -182,10 +225,10 @@ export function SessionsFrame({
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Active Sessions</CardTitle>
+					<CardTitle>Aktive Sitzungen</CardTitle>
 					<CardDescription>
-						Manage your active sessions across different devices. Revoke access
-						from any device.
+						Verwalte deine aktiven Sitzungen auf verschiedenen Geräten.
+						Widerrufe den Zugriff von jedem Gerät.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -225,18 +268,18 @@ export function SessionsFrame({
 												</p>
 												{isCurrent && (
 													<Badge variant="default" className="text-xs">
-														This Device
+														Dieses Gerät
 													</Badge>
 												)}
 											</div>
 											<p className="text-muted-foreground text-xs">
 												{ipDisplay} •{" "}
 												{isCurrent ? (
-													<span className="font-medium">Active now</span>
+													<span className="font-medium">Jetzt aktiv</span>
 												) : (
 													<>
-														Last active{" "}
-														{lastActiveDate.toLocaleDateString(undefined, {
+														Zuletzt aktiv{" "}
+														{lastActiveDate.toLocaleDateString("de-DE", {
 															month: "short",
 															day: "numeric",
 															year: "numeric",
@@ -251,24 +294,26 @@ export function SessionsFrame({
 										<AlertDialog>
 											<AlertDialogTrigger asChild>
 												<Button variant="ghost" size="sm">
-													Revoke
+													Widerrufen
 												</Button>
 											</AlertDialogTrigger>
 											<AlertDialogContent>
 												<AlertDialogHeader>
-													<AlertDialogTitle>Revoke Session</AlertDialogTitle>
+													<AlertDialogTitle>
+														Sitzung widerrufen
+													</AlertDialogTitle>
 													<AlertDialogDescription>
-														Are you sure you want to revoke this session? This
-														device will need to sign in again.
+														Bist du sicher, dass du diese Sitzung widerrufen
+														möchtest? Dieses Gerät muss sich erneut anmelden.
 													</AlertDialogDescription>
 												</AlertDialogHeader>
 												<AlertDialogFooter>
-													<AlertDialogCancel>Cancel</AlertDialogCancel>
+													<AlertDialogCancel>Abbrechen</AlertDialogCancel>
 													<AlertDialogAction
 														onClick={() => handleRevokeSession(sessionItem)}
 														className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 													>
-														Revoke Session
+														Sitzung widerrufen
 													</AlertDialogAction>
 												</AlertDialogFooter>
 											</AlertDialogContent>
@@ -289,15 +334,15 @@ export function SessionsFrame({
 								) : (
 									<Trash2 className="mr-2 size-4" />
 								)}
-								Revoke All Sessions
+								Alle Sitzungen widerrufen
 							</Button>
 						</AlertDialogTrigger>
 						<AlertDialogContent>
 							<AlertDialogHeader>
-								<AlertDialogTitle>Revoke All Sessions</AlertDialogTitle>
+								<AlertDialogTitle>Alle Sitzungen widerrufen</AlertDialogTitle>
 								<AlertDialogDescription>
-									Choose whether to sign out from all devices or only other
-									devices.
+									Wähle, ob du dich von allen Geräten oder nur von anderen
+									Geräten abmelden möchtest.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<div className="px-6 py-4">
@@ -314,24 +359,24 @@ export function SessionsFrame({
 											htmlFor="include-current"
 											className="cursor-pointer font-medium text-sm leading-none"
 										>
-											Include this device
+											Dieses Gerät einschließen
 										</Label>
 										<p className="text-muted-foreground text-xs">
-											If checked, you will be signed out from this device as
-											well.
+											Falls aktiviert, wirst du auch von diesem Gerät
+											abgemeldet.
 										</p>
 									</div>
 								</div>
 							</div>
 							<AlertDialogFooter>
-								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogCancel>Abbrechen</AlertDialogCancel>
 								<AlertDialogAction
 									onClick={handleRevokeAllSessions}
 									className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 								>
 									{includeCurrentDevice
-										? "Revoke All & Sign Out"
-										: "Revoke Other Sessions"}
+										? "Alle widerrufen & Abmelden"
+										: "Andere Sitzungen widerrufen"}
 								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>

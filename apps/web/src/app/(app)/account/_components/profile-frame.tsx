@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,21 +21,28 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 
 interface ProfileFrameProps {
-	initialName: string;
+	initialName?: string;
 }
 
 export function ProfileFrame({ initialName }: ProfileFrameProps) {
-	const [currentName, setCurrentName] = useState(initialName);
+	const [currentName, setCurrentName] = useState(initialName || "");
 	const [nameDialogOpen, setNameDialogOpen] = useState(false);
 	const [newName, setNewName] = useState("");
 	const [isUpdatingName, setIsUpdatingName] = useState(false);
 
+	useEffect(() => {
+		if (initialName) {
+			setCurrentName(initialName);
+		}
+	}, [initialName]);
+
 	const handleUpdateName = async () => {
 		if (!newName.trim()) {
-			toast.error("Name cannot be empty");
+			toast.error("Name darf nicht leer sein");
 			return;
 		}
 
@@ -47,35 +54,57 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 			});
 
 			if (error) {
-				toast.error(error.message || "Failed to update name");
+				toast.error(error.message || "Name konnte nicht aktualisiert werden");
 			} else {
-				toast.success("Name updated successfully");
+				toast.success("Name erfolgreich aktualisiert");
 				setCurrentName(newName.trim());
 				setNameDialogOpen(false);
 				setNewName("");
 			}
 		} catch (error) {
-			toast.error("Failed to update name");
+			toast.error("Name konnte nicht aktualisiert werden");
 			console.error(error);
 		} finally {
 			setIsUpdatingName(false);
 		}
 	};
 
+	if (!initialName) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>Profilinformationen</CardTitle>
+					<CardDescription>
+						Aktualisiere deinen Anzeigenamen, der in der Anwendung erscheint.
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="flex items-center justify-between">
+						<div className="space-y-2">
+							<Skeleton className="h-4 w-24" />
+							<Skeleton className="h-5 w-32" />
+						</div>
+						<Skeleton className="h-9 w-16 rounded-md" />
+					</div>
+				</CardContent>
+			</Card>
+		);
+	}
+
 	return (
 		<>
 			<Card>
 				<CardHeader>
-					<CardTitle>Profile Information</CardTitle>
+					<CardTitle>Profilinformationen</CardTitle>
 					<CardDescription>
-						Update your display name that appears across the application.
+						Aktualisiere deinen Anzeigenamen, der in der Anwendung erscheint.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="mb-1 font-medium text-muted-foreground text-sm">
-								Display Name
+								Anzeigename
 							</p>
 							<p className="text-base">{currentName}</p>
 						</div>
@@ -87,7 +116,7 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 								setNameDialogOpen(true);
 							}}
 						>
-							Change
+							Ändern
 						</Button>
 					</div>
 				</CardContent>
@@ -96,19 +125,19 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 			<Dialog open={nameDialogOpen} onOpenChange={setNameDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Change Display Name</DialogTitle>
+						<DialogTitle>Anzeigenamen ändern</DialogTitle>
 						<DialogDescription>
-							Update your display name that appears across the application.
+							Aktualisiere deinen Anzeigenamen, der in der Anwendung erscheint.
 						</DialogDescription>
 					</DialogHeader>
 					<div className="space-y-4 py-4">
 						<div className="space-y-2">
-							<Label htmlFor="name">Display Name</Label>
+							<Label htmlFor="name">Anzeigename</Label>
 							<Input
 								id="name"
 								value={newName}
 								onChange={(e) => setNewName(e.target.value)}
-								placeholder="Enter your name"
+								placeholder="Gib deinen Namen ein"
 								autoFocus
 							/>
 						</div>
@@ -119,7 +148,7 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 							onClick={() => setNameDialogOpen(false)}
 							disabled={isUpdatingName}
 						>
-							Cancel
+							Abbrechen
 						</Button>
 						<Button
 							onClick={handleUpdateName}
@@ -132,10 +161,10 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 							{isUpdatingName ? (
 								<>
 									<Loader2 className="mr-2 size-4 animate-spin" />
-									Saving...
+									Wird gespeichert...
 								</>
 							) : (
-								"Save Changes"
+								"Änderungen speichern"
 							)}
 						</Button>
 					</DialogFooter>
