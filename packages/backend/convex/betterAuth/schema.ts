@@ -21,6 +21,7 @@ const tables = {
 		token: v.string(),
 		ipAddress: v.optional(v.string()),
 		userAgent: v.optional(v.string()),
+		impersonatedBy: v.optional(v.string()),
 		createdAt: v.number(),
 		updatedAt: v.number(),
 	})

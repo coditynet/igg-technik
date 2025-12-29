@@ -77,7 +77,7 @@ const data = {
 	admin: [
 		{
 			name: "Benutzer",
-			url: "#",
+			url: "/dashboard/admin/users",
 			icon: User,
 		},
 	],
