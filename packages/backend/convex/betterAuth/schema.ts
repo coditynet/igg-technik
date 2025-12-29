@@ -56,6 +56,21 @@ const tables = {
 		createdAt: v.number(),
 		updatedAt: v.optional(v.number()),
 	}),
+
+	passkey: defineTable({
+		name: v.optional(v.string()),
+		publicKey: v.string(),
+		userId: v.id("user"),
+		credentialID: v.string(),
+		counter: v.number(),
+		deviceType: v.string(),
+		backedUp: v.boolean(),
+		transports: v.optional(v.string()),
+		createdAt: v.optional(v.number()),
+		aaguid: v.optional(v.string()),
+	})
+		.index("by_userId", ["userId"])
+		.index("by_credentialID", ["credentialID"]),
 };
 
 const schema = defineSchema(tables);
