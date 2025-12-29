@@ -5,7 +5,7 @@ import { ConvexQueryClient } from "@convex-dev/react-query";
 import { env } from "@igg/env/web";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConvexReactClient } from "convex/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -34,7 +34,14 @@ export default function Providers({
 			}),
 	);
 
-	convexQueryClient.connect(queryClient);
+	const isConnected = useRef(false);
+
+	useEffect(() => {
+		if (!isConnected.current) {
+			convexQueryClient.connect(queryClient);
+			isConnected.current = true;
+		}
+	}, [queryClient]);
 
 	return (
 		<ThemeProvider
