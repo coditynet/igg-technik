@@ -57,15 +57,6 @@ export function Header() {
 						</div>
 					</Link>
 				</div>
-				<div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 max-lg:bottom-1/3 max-xl:-translate-y-1/2">
-					<Link href={"/calendar" as Route}>
-						<div className="border-3 rounded-full dark:border-white border-black hover:bg-gray-300/50">
-							<p className="text-3xl my-2 mx-10 dark:text-white text-black">
-								Kalender
-							</p>
-						</div>
-					</Link>
-				</div>
 			</div>
 		</div>
 	);
