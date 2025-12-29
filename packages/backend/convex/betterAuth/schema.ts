@@ -49,6 +49,13 @@ const tables = {
 		createdAt: v.optional(v.number()),
 		updatedAt: v.optional(v.number()),
 	}).index("by_identifier", ["identifier"]),
+
+	jwks: defineTable({
+		publicKey: v.string(),
+		privateKey: v.string(),
+		createdAt: v.number(),
+		updatedAt: v.optional(v.number()),
+	}),
 };
 
 const schema = defineSchema(tables);

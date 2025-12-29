@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
 
@@ -76,9 +76,7 @@ export const create = mutation({
 	handler: async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
-			return {
-				message: "Not authenticated",
-			};
+			throw new ConvexError("Not authenticated")
 		}
 		const eventId = await ctx.db.insert("events", {
 			title: args.title,
