@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -25,7 +26,7 @@ import {
 	UserX,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -86,9 +87,6 @@ type UserData = {
 
 export default function AdminUsersPage() {
 	const router = useRouter();
-	const [users, setUsers] = useState<UserData[]>([]);
-	const [total, setTotal] = useState(0);
-	const [isLoading, setIsLoading] = useState(true);
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [pagination, setPagination] = useState({
@@ -103,7 +101,6 @@ export default function AdminUsersPage() {
 		name: "",
 		role: "user" as "user" | "admin",
 	});
-	const [isCreating, setIsCreating] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
 
@@ -127,65 +124,15 @@ export default function AdminUsersPage() {
 		}
 	}, [session, isSessionPending, router]);
 
-	const fetchUsers = useCallback(async () => {
-		if (isSessionPending || session?.user?.role !== "admin") {
-			return;
-		}
-
-		setIsLoading(true);
-		try {
-			if (searchQuery) {
-				const [nameResult, emailResult] = await Promise.all([
-					authClient.admin.listUsers({
-						query: {
-							limit: pagination.pageSize,
-							offset: pagination.pageIndex * pagination.pageSize,
-							searchValue: searchQuery,
-							searchField: "name",
-							searchOperator: "contains",
-						},
-					}),
-					authClient.admin.listUsers({
-						query: {
-							limit: pagination.pageSize,
-							offset: pagination.pageIndex * pagination.pageSize,
-							searchValue: searchQuery,
-							searchField: "email",
-							searchOperator: "contains",
-						},
-					}),
-				]);
-
-				if (nameResult.error && emailResult.error) {
-					toast.error("Fehler beim Laden der Benutzer");
-					return;
-				}
-
-				const nameUsers = nameResult.data?.users || [];
-				const emailUsers = emailResult.data?.users || [];
-
-				const allUsers = [...nameUsers];
-				const userIds = new Set(nameUsers.map((u) => u.id));
-
-				for (const user of emailUsers) {
-					if (!userIds.has(user.id)) {
-						allUsers.push(user);
-						userIds.add(user.id);
-					}
-				}
-
-				const userData = allUsers.map((u) => ({
-					id: u.id,
-					name: u.name,
-					email: u.email,
-					role: u.role || "user",
-					banned: u.banned || false,
-					createdAt: u.createdAt,
-				}));
-
-				setUsers(userData);
-				setTotal(userData.length);
-			} else {
+	const allUsersQuery = useQuery({
+		queryKey: [
+			"admin-users",
+			pagination.pageIndex,
+			pagination.pageSize,
+			searchQuery,
+		],
+		queryFn: async () => {
+			if (!searchQuery) {
 				const result = await authClient.admin.listUsers({
 					query: {
 						limit: pagination.pageSize,
@@ -194,8 +141,7 @@ export default function AdminUsersPage() {
 				});
 
 				if (result.error) {
-					toast.error("Fehler beim Laden der Benutzer");
-					return;
+					throw new Error("Fehler beim Laden der Benutzer");
 				}
 
 				const userData = (result.data?.users || []).map((u) => ({
@@ -207,146 +153,305 @@ export default function AdminUsersPage() {
 					createdAt: u.createdAt,
 				}));
 
-				setUsers(userData);
-				setTotal(result.data?.total || 0);
+				return {
+					users: userData,
+					total: result.data?.total || 0,
+				};
 			}
-		} catch (error) {
-			toast.error("Fehler beim Laden der Benutzer");
-			console.error(error);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [
-		pagination.pageIndex,
-		pagination.pageSize,
-		searchQuery,
-		session,
-		isSessionPending,
-	]);
+			return null;
+		},
+		enabled:
+			!isSessionPending && session?.user?.role === "admin" && !searchQuery,
+	});
 
-	useEffect(() => {
-		fetchUsers();
-	}, [fetchUsers]);
-
-	const handleCreateUser = async () => {
-		if (!newUser.email || !newUser.password || !newUser.name) {
-			toast.error("Bitte füllen Sie alle Felder aus");
-			return;
-		}
-
-		setIsCreating(true);
-		try {
-			const result = await authClient.admin.createUser({
-				email: newUser.email,
-				password: newUser.password,
-				name: newUser.name,
-				role: newUser.role,
+	const nameSearchQuery = useQuery({
+		queryKey: [
+			"admin-users-search-name",
+			pagination.pageIndex,
+			pagination.pageSize,
+			searchQuery,
+		],
+		queryFn: async () => {
+			const result = await authClient.admin.listUsers({
+				query: {
+					limit: pagination.pageSize,
+					offset: pagination.pageIndex * pagination.pageSize,
+					searchValue: searchQuery,
+					searchField: "name",
+					searchOperator: "contains",
+				},
 			});
 
 			if (result.error) {
-				toast.error(
-					result.error.message || "Fehler beim Erstellen des Benutzers",
-				);
-				return;
+				throw new Error("Fehler beim Laden der Benutzer");
 			}
 
+			return result.data?.users || [];
+		},
+		enabled:
+			!isSessionPending &&
+			session?.user?.role === "admin" &&
+			searchQuery.length > 0,
+	});
+
+	const emailSearchQuery = useQuery({
+		queryKey: [
+			"admin-users-search-email",
+			pagination.pageIndex,
+			pagination.pageSize,
+			searchQuery,
+		],
+		queryFn: async () => {
+			const result = await authClient.admin.listUsers({
+				query: {
+					limit: pagination.pageSize,
+					offset: pagination.pageIndex * pagination.pageSize,
+					searchValue: searchQuery,
+					searchField: "email",
+					searchOperator: "contains",
+				},
+			});
+
+			if (result.error) {
+				throw new Error("Fehler beim Laden der Benutzer");
+			}
+
+			return result.data?.users || [];
+		},
+		enabled:
+			!isSessionPending &&
+			session?.user?.role === "admin" &&
+			searchQuery.length > 0,
+	});
+
+	const searchResults = useMemo(() => {
+		if (!searchQuery) {
+			return null;
+		}
+
+		const nameUsers = nameSearchQuery.data || [];
+		const emailUsers = emailSearchQuery.data || [];
+
+		const allUsers = [...nameUsers];
+		const userIds = new Set(nameUsers.map((u) => u.id));
+
+		for (const user of emailUsers) {
+			if (!userIds.has(user.id)) {
+				allUsers.push(user);
+				userIds.add(user.id);
+			}
+		}
+
+		const userData = allUsers.map((u) => ({
+			id: u.id,
+			name: u.name,
+			email: u.email,
+			role: u.role || "user",
+			banned: u.banned || false,
+			createdAt: u.createdAt,
+		}));
+
+		return {
+			users: userData,
+			total: userData.length,
+		};
+	}, [searchQuery, nameSearchQuery.data, emailSearchQuery.data]);
+
+	const users = useMemo(() => {
+		if (searchQuery) {
+			return searchResults?.users || [];
+		}
+		return allUsersQuery.data?.users || [];
+	}, [searchQuery, searchResults, allUsersQuery.data]);
+
+	const total = useMemo(() => {
+		if (searchQuery) {
+			return searchResults?.total || 0;
+		}
+		return allUsersQuery.data?.total || 0;
+	}, [searchQuery, searchResults, allUsersQuery.data]);
+
+	const isLoading = useMemo(() => {
+		if (searchQuery) {
+			return nameSearchQuery.isLoading || emailSearchQuery.isLoading;
+		}
+		return allUsersQuery.isLoading;
+	}, [
+		searchQuery,
+		nameSearchQuery.isLoading,
+		emailSearchQuery.isLoading,
+		allUsersQuery.isLoading,
+	]);
+
+	const createUserMutation = useMutation({
+		mutationFn: async (userData: {
+			email: string;
+			password: string;
+			name: string;
+			role: "user" | "admin";
+		}) => {
+			const result = await authClient.admin.createUser(userData);
+
+			if (result.error) {
+				throw new Error(
+					result.error.message || "Fehler beim Erstellen des Benutzers",
+				);
+			}
+
+			return result.data;
+		},
+		onSuccess: () => {
 			toast.success("Benutzer erfolgreich erstellt");
 			setCreateDialogOpen(false);
 			setNewUser({ email: "", password: "", name: "", role: "user" });
-			await fetchUsers();
-		} catch (error) {
-			toast.error("Fehler beim Erstellen des Benutzers");
-			console.error(error);
-		} finally {
-			setIsCreating(false);
-		}
-	};
+			allUsersQuery.refetch();
+			if (searchQuery) {
+				nameSearchQuery.refetch();
+				emailSearchQuery.refetch();
+			}
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Erstellen des Benutzers");
+		},
+	});
 
-	const handleRoleChange = async (
-		userId: string,
-		newRole: "user" | "admin",
-	) => {
-		try {
+	const changeRoleMutation = useMutation({
+		mutationFn: async ({
+			userId,
+			role,
+		}: {
+			userId: string;
+			role: "user" | "admin";
+		}) => {
 			const result = await authClient.admin.setRole({
 				userId,
-				role: newRole,
+				role,
 			});
 
 			if (result.error) {
-				toast.error(result.error.message || "Fehler beim Ändern der Rolle");
-				return;
+				throw new Error(result.error.message || "Fehler beim Ändern der Rolle");
 			}
 
+			return result.data;
+		},
+		onSuccess: () => {
 			toast.success("Rolle erfolgreich geändert");
-			await fetchUsers();
-		} catch (error) {
-			toast.error("Fehler beim Ändern der Rolle");
-			console.error(error);
-		}
-	};
+			allUsersQuery.refetch();
+			if (searchQuery) {
+				nameSearchQuery.refetch();
+				emailSearchQuery.refetch();
+			}
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Ändern der Rolle");
+		},
+	});
 
-	const handleBanUser = async (userId: string) => {
-		try {
+	const banUserMutation = useMutation({
+		mutationFn: async (userId: string) => {
 			const result = await authClient.admin.banUser({
 				userId,
 				banReason: "Von Administrator gesperrt",
 			});
 
 			if (result.error) {
-				toast.error(
+				throw new Error(
 					result.error.message || "Fehler beim Sperren des Benutzers",
 				);
-				return;
 			}
 
+			return result.data;
+		},
+		onSuccess: () => {
 			toast.success("Benutzer erfolgreich gesperrt");
-			await fetchUsers();
-		} catch (error) {
-			toast.error("Fehler beim Sperren des Benutzers");
-			console.error(error);
-		}
-	};
+			allUsersQuery.refetch();
+			if (searchQuery) {
+				nameSearchQuery.refetch();
+				emailSearchQuery.refetch();
+			}
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Sperren des Benutzers");
+		},
+	});
 
-	const handleUnbanUser = async (userId: string) => {
-		try {
+	const unbanUserMutation = useMutation({
+		mutationFn: async (userId: string) => {
 			const result = await authClient.admin.unbanUser({
 				userId,
 			});
 
 			if (result.error) {
-				toast.error(
+				throw new Error(
 					result.error.message || "Fehler beim Entsperren des Benutzers",
 				);
-				return;
 			}
 
+			return result.data;
+		},
+		onSuccess: () => {
 			toast.success("Benutzer erfolgreich entsperrt");
-			await fetchUsers();
-		} catch (error) {
-			toast.error("Fehler beim Entsperren des Benutzers");
-			console.error(error);
-		}
-	};
+			allUsersQuery.refetch();
+			if (searchQuery) {
+				nameSearchQuery.refetch();
+				emailSearchQuery.refetch();
+			}
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Entsperren des Benutzers");
+		},
+	});
 
-	const handleDeleteUser = async (userId: string) => {
-		try {
+	const deleteUserMutation = useMutation({
+		mutationFn: async (userId: string) => {
 			const result = await authClient.admin.removeUser({
 				userId,
 			});
 
 			if (result.error) {
-				toast.error(
+				throw new Error(
 					result.error.message || "Fehler beim Löschen des Benutzers",
 				);
-				return;
 			}
 
+			return result.data;
+		},
+		onSuccess: () => {
 			toast.success("Benutzer erfolgreich gelöscht");
-			await fetchUsers();
-		} catch (error) {
-			toast.error("Fehler beim Löschen des Benutzers");
-			console.error(error);
+			allUsersQuery.refetch();
+			if (searchQuery) {
+				nameSearchQuery.refetch();
+				emailSearchQuery.refetch();
+			}
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Löschen des Benutzers");
+		},
+	});
+
+	const handleCreateUser = () => {
+		if (!newUser.email || !newUser.password || !newUser.name) {
+			toast.error("Bitte füllen Sie alle Felder aus");
+			return;
 		}
+
+		createUserMutation.mutate(newUser);
+	};
+
+	const handleRoleChange = (userId: string, newRole: "user" | "admin") => {
+		changeRoleMutation.mutate({ userId, role: newRole });
+	};
+
+	const handleBanUser = (userId: string) => {
+		banUserMutation.mutate(userId);
+	};
+
+	const handleUnbanUser = (userId: string) => {
+		unbanUserMutation.mutate(userId);
+	};
+
+	const handleDeleteUser = (userId: string) => {
+		deleteUserMutation.mutate(userId);
 	};
 
 	const columns: ColumnDef<UserData>[] = [
@@ -593,8 +698,13 @@ export default function AdminUsersPage() {
 							>
 								Abbrechen
 							</Button>
-							<Button onClick={handleCreateUser} disabled={isCreating}>
-								{isCreating && <Loader2 className="mr-2 size-4 animate-spin" />}
+							<Button
+								onClick={handleCreateUser}
+								disabled={createUserMutation.isPending}
+							>
+								{createUserMutation.isPending && (
+									<Loader2 className="mr-2 size-4 animate-spin" />
+								)}
 								Erstellen
 							</Button>
 						</DialogFooter>
