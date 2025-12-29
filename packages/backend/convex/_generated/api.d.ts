@@ -85,6 +85,7 @@ export declare const components: {
                 data: {
                   createdAt: number;
                   expiresAt: number;
+                  impersonatedBy?: string;
                   ipAddress?: string;
                   token: string;
                   updatedAt: number;
@@ -201,6 +202,7 @@ export declare const components: {
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";
@@ -428,6 +430,7 @@ export declare const components: {
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";
@@ -742,6 +745,7 @@ export declare const components: {
                 update: {
                   createdAt?: number;
                   expiresAt?: number;
+                  impersonatedBy?: string;
                   ipAddress?: string;
                   token?: string;
                   updatedAt?: number;
@@ -756,6 +760,7 @@ export declare const components: {
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";
@@ -1029,6 +1034,7 @@ export declare const components: {
                 update: {
                   createdAt?: number;
                   expiresAt?: number;
+                  impersonatedBy?: string;
                   ipAddress?: string;
                   token?: string;
                   updatedAt?: number;
@@ -1043,6 +1049,7 @@ export declare const components: {
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";

@@ -48,6 +48,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                 data: {
                   createdAt: number;
                   expiresAt: number;
+                  impersonatedBy?: string;
                   ipAddress?: string;
                   token: string;
                   updatedAt: number;
@@ -165,6 +166,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";
@@ -393,6 +395,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";
@@ -710,6 +713,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                 update: {
                   createdAt?: number;
                   expiresAt?: number;
+                  impersonatedBy?: string;
                   ipAddress?: string;
                   token?: string;
                   updatedAt?: number;
@@ -724,6 +728,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";
@@ -998,6 +1003,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                 update: {
                   createdAt?: number;
                   expiresAt?: number;
+                  impersonatedBy?: string;
                   ipAddress?: string;
                   token?: string;
                   updatedAt?: number;
@@ -1012,6 +1018,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "token"
                     | "ipAddress"
                     | "userAgent"
+                    | "impersonatedBy"
                     | "createdAt"
                     | "updatedAt"
                     | "_id";
