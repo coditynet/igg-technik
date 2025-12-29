@@ -2,6 +2,7 @@
 
 import type { User } from "better-auth";
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
+import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -66,9 +67,11 @@ export function NavUser({ user }: { user?: User }) {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<BadgeCheck />
-								Account
+							<DropdownMenuItem asChild>
+								<a href="/account">
+									<BadgeCheck />
+									Account
+								</a>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
