@@ -3,6 +3,8 @@ import { convex } from "@convex-dev/better-auth/plugins";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { v } from "convex/values";
+import { passkey } from "@better-auth/passkey"
+
 
 import type { DataModel } from "./_generated/dataModel";
 import authSchema from "./betterAuth/schema";
@@ -38,6 +40,7 @@ export function createAuthOptions(ctx: GenericCtx<DataModel>) {
 				jwksRotateOnTokenGenerationError: true,
 			}),
 			admin(),
+			passkey()
 		],
 	} satisfies BetterAuthOptions;
 }
