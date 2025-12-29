@@ -1,6 +1,7 @@
 "use client";
 
 // Component exports
+export { AddToCalendar } from "./add-to-calendar";
 export { AgendaView } from "./agenda-view";
 export { CalendarDndProvider, useCalendarDnd } from "./calendar-dnd-context";
 // Constants and utility exports

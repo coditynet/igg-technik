@@ -6,6 +6,7 @@ import { de } from "date-fns/locale";
 import { useEffect, useMemo, useState } from "react";
 
 import type { CalendarEvent } from "@/components/event-calendar";
+import { AddToCalendar } from "@/components/event-calendar/add-to-calendar";
 import { useCalendarContext } from "@/components/event-calendar/calendar-context";
 import {
 	DefaultEndHour,
@@ -444,6 +445,39 @@ export function EventDialog({
 						</Button>
 					)}
 					<div className="flex flex-1 justify-end gap-2">
+						{readOnly && event && (
+							<AddToCalendar
+								event={{
+									title,
+									description,
+									location,
+									start: (() => {
+										const date = new Date(startDate);
+										if (!allDay) {
+											const [hours = 0, minutes = 0] = startTime
+												.split(":")
+												.map(Number);
+											date.setHours(hours, minutes, 0, 0);
+										} else {
+											date.setHours(0, 0, 0, 0);
+										}
+										return date;
+									})(),
+									end: (() => {
+										const date = new Date(endDate);
+										if (!allDay) {
+											const [hours = 0, minutes = 0] = endTime
+												.split(":")
+												.map(Number);
+											date.setHours(hours, minutes, 0, 0);
+										} else {
+											date.setHours(23, 59, 59, 999);
+										}
+										return date;
+									})(),
+								}}
+							/>
+						)}
 						<Button variant="outline" onClick={onClose}>
 							{readOnly ? "Schließen" : "Abbrechen"}
 						</Button>

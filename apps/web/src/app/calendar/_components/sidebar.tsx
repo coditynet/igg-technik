@@ -29,15 +29,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		<Sidebar
 			variant="inset"
 			{...props}
-			className="dark scheme-only-dark max-lg:p-3 lg:pe-1"
+			className="scheme-only-dark max-lg:p-3 lg:pe-1"
 		>
 			<SidebarHeader>
 				<div className="flex items-center justify-between gap-2">
-					<Link className="inline-flex" href="/">
+					<Link className="inline-flex items-center gap-2" href="/">
 						<span className="font-semibold text-xl">IGG Technik</span>
 					</Link>
 					<SidebarTrigger className="text-muted-foreground/80 hover:bg-transparent! hover:text-foreground/80" />
 				</div>
+				<Link
+					href="/"
+					className="mt-2 text-sm text-muted-foreground hover:text-foreground flex items-center gap-2"
+				>
+					<span>← Zurück</span>
+				</Link>
 			</SidebarHeader>
 			<SidebarContent className="mt-3 gap-0 border-t pt-3">
 				<SidebarGroup className="px-1">
