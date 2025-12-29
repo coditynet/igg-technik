@@ -1,0 +1,178 @@
+"use client";
+
+import { format } from "date-fns";
+import { CalendarPlus, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+type CalendarEvent = {
+	title: string;
+	description?: string;
+	location?: string;
+	start: Date;
+	end: Date;
+};
+
+type AddToCalendarProps = {
+	event: CalendarEvent;
+};
+
+function toGoogleDate(d: Date) {
+	return format(d, "yyyyMMdd'T'HHmmss'Z'");
+}
+
+function buildGoogleUrl(event: CalendarEvent) {
+	const base = "https://calendar.google.com/calendar/render";
+	const params = new URLSearchParams({
+		action: "TEMPLATE",
+		text: event.title,
+		details: event.description ?? "",
+		location: event.location ?? "",
+		dates: `${toGoogleDate(event.start)}/${toGoogleDate(event.end)}`,
+	});
+	return `${base}?${params.toString()}`;
+}
+
+function buildICS(event: CalendarEvent) {
+	const dtStart = format(event.start, "yyyyMMdd'T'HHmmss'Z'");
+	const dtEnd = format(event.end, "yyyyMMdd'T'HHmmss'Z'");
+	const dtStamp = format(new Date(), "yyyyMMdd'T'HHmmss'Z'");
+	const uid = `${dtStamp}-${Math.random().toString(36).slice(2)}@yourapp`;
+
+	return [
+		"BEGIN:VCALENDAR",
+		"VERSION:2.0",
+		"PRODID:-//yourapp//EN",
+		"CALSCALE:GREGORIAN",
+		"METHOD:PUBLISH",
+		"BEGIN:VEVENT",
+		`UID:${uid}`,
+		`DTSTAMP:${dtStamp}`,
+		`DTSTART:${dtStart}`,
+		`DTEND:${dtEnd}`,
+		`SUMMARY:${event.title}`,
+		event.description ? `DESCRIPTION:${event.description}` : "",
+		event.location ? `LOCATION:${event.location}` : "",
+		"END:VEVENT",
+		"END:VCALENDAR",
+	]
+		.filter(Boolean)
+		.join("\r\n");
+}
+
+function downloadICS(filename: string, ics: string) {
+	const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = filename;
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+	URL.revokeObjectURL(url);
+}
+
+export function AddToCalendar({ event }: AddToCalendarProps) {
+	const handleGoogle = () => {
+		const url = buildGoogleUrl(event);
+		window.open(url, "_blank", "noopener,noreferrer");
+	};
+
+	const handleApple = () => {
+		const ics = buildICS(event);
+		const safeTitle = event.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+		downloadICS(`${safeTitle || "event"}.ics`, ics);
+	};
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="outline">
+					<CalendarPlus className="h-4 w-4" />
+					Zu Kalender hinzufügen
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				<DropdownMenuItem onClick={handleGoogle}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						className="h-4 w-4"
+						viewBox="0 0 48 48"
+						aria-hidden="true"
+					>
+						<title>Google Calendar</title>
+						<rect width="22" height="22" x="13" y="13" fill="#fff" />
+						<polygon
+							fill="#1e88e5"
+							points="25.68,20.92 26.688,22.36 28.272,21.208 28.272,29.56 30,29.56 30,18.616 28.56,18.616"
+						/>
+						<path
+							fill="#1e88e5"
+							d="M22.943,23.745c0.625-0.574,1.013-1.37,1.013-2.249c0-1.747-1.533-3.168-3.417-3.168 c-1.602,0-2.972,1.009-3.33,2.453l1.657,0.421c0.165-0.664,0.868-1.146,1.673-1.146c0.942,0,1.709,0.646,1.709,1.44 c0,0.794-0.767,1.44-1.709,1.44h-0.997v1.728h0.997c1.081,0,1.993,0.751,1.993,1.64c0,0.904-0.866,1.64-1.931,1.64 c-0.962,0-1.784-0.61-1.914-1.418L17,26.802c0.262,1.636,1.81,2.87,3.6,2.87c2.007,0,3.64-1.511,3.64-3.368 C24.24,25.281,23.736,24.363,22.943,23.745z"
+						/>
+						<polygon
+							fill="#fbc02d"
+							points="34,42 14,42 13,38 14,34 34,34 35,38"
+						/>
+						<polygon
+							fill="#4caf50"
+							points="38,35 42,34 42,14 38,13 34,14 34,34"
+						/>
+						<path
+							fill="#1e88e5"
+							d="M34,14l1-4l-1-4H9C7.343,6,6,7.343,6,9v25l4,1l4-1V14H34z"
+						/>
+						<polygon fill="#e53935" points="34,34 34,42 42,34" />
+						<path fill="#1565c0" d="M39,6h-5v8h8V9C42,7.343,40.657,6,39,6z" />
+						<path fill="#1565c0" d="M9,42h5v-8H6v5C6,40.657,7.343,42,9,42z" />
+					</svg>
+					Google Calendar
+				</DropdownMenuItem>
+				<DropdownMenuItem onClick={handleApple}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						className="h-4 w-4"
+						viewBox="0 0 48 48"
+						aria-hidden="true"
+					>
+						<title>Apple Calendar</title>
+						<path
+							fill="#eceff1"
+							d="M15.556,43h16.889C38.274,43,43,38.274,43,32.444V15.556C43,9.726,38.274,5,32.444,5H15.556 C9.726,5,5,9.726,5,15.556v16.889C5,38.274,9.726,43,15.556,43z"
+						/>
+						<path
+							fill="#ff3d00"
+							d="M20.868,13.77L21.437,10h1.199l-1.067,6h-1.215l-0.7-3.536L18.96,16h-1.22l-1.071-6h1.207 l0.565,3.766L19.145,10h1.018L20.868,13.77z"
+						/>
+						<path
+							fill="#ff3d00"
+							d="M26.39,13.404h-1.887v1.591h2.234V16h-3.446v-6h3.437v1.009h-2.225v1.418h1.887V13.404z"
+						/>
+						<path
+							fill="#ff3d00"
+							d="M27.433,16v-6h1.587c0.7,0,1.259,0.223,1.675,0.667c0.416,0.445,0.628,1.055,0.636,1.83v0.973 c0,0.788-0.208,1.407-0.625,1.857C30.291,15.775,29.717,16,28.986,16H27.433z M28.645,11.009v3.985h0.363 c0.404,0,0.688-0.106,0.853-0.319c0.165-0.213,0.252-0.58,0.26-1.102V12.53c0-0.56-0.079-0.951-0.235-1.173 c-0.157-0.221-0.423-0.337-0.8-0.348H28.645z"
+						/>
+						<path
+							fill="#424242"
+							d="M23.211,36.004h-9.884V33.7l4.539-5.771c0.576-0.799,1-1.5,1.273-2.103 c0.273-0.603,0.409-1.181,0.409-1.734c0-0.745-0.128-1.329-0.386-1.751c-0.257-0.422-0.628-0.633-1.112-0.633 c-0.53,0-0.95,0.246-1.261,0.737c-0.311,0.492-0.467,1.183-0.467,2.074H13.05c0-1.029,0.213-1.97,0.639-2.823 c0.426-0.853,1.025-1.515,1.797-1.987C16.258,19.236,17.132,19,18.107,19c1.498,0,2.659,0.413,3.485,1.239 c0.826,0.826,1.239,1.999,1.239,3.52c0,0.944-0.229,1.903-0.685,2.874c-0.457,0.972-1.285,2.168-2.483,3.588l-2.154,3.076h5.702 V36.004z"
+						/>
+						<path
+							fill="#424242"
+							d="M34.662,23.689c0,0.814-0.173,1.536-0.519,2.166c-0.346,0.63-0.822,1.133-1.428,1.509 c0.691,0.392,1.237,0.931,1.636,1.619c0.399,0.687,0.599,1.496,0.599,2.425c0,1.49-0.43,2.667-1.29,3.531 c-0.86,0.864-2.032,1.296-3.514,1.296s-2.661-0.432-3.537-1.296c-0.875-0.864-1.313-2.041-1.313-3.531 c0-0.929,0.199-1.739,0.599-2.43c0.399-0.691,0.949-1.229,1.648-1.613c-0.615-0.376-1.094-0.879-1.44-1.509 c-0.346-0.63-0.519-1.351-0.519-2.166c0-1.467,0.411-2.615,1.233-3.445C27.638,19.415,28.741,19,30.123,19 c1.398,0,2.504,0.419,3.318,1.256C34.255,21.093,34.662,22.237,34.662,23.689z M30.146,33.527c0.491,0,0.87-0.21,1.135-0.628 c0.265-0.418,0.397-1,0.397-1.745s-0.138-1.328-0.415-1.751s-0.657-0.634-1.14-0.634c-0.484,0-0.866,0.211-1.146,0.634 s-0.421,1.006-0.421,1.751s0.14,1.327,0.421,1.745C29.257,33.318,29.647,33.527,30.146,33.527z M31.413,23.861 c0-0.653-0.106-1.175-0.317-1.566c-0.211-0.392-0.535-0.588-0.973-0.588c-0.415,0-0.73,0.19-0.944,0.57 c-0.215,0.38-0.323,0.908-0.323,1.584c0,0.661,0.108,1.192,0.323,1.596c0.215,0.403,0.537,0.605,0.967,0.605 c0.43,0,0.749-0.202,0.956-0.605C31.309,25.054,31.413,24.522,31.413,23.861z"
+						/>
+					</svg>
+					Apple Calendar
+				</DropdownMenuItem>
+				<DropdownMenuItem onClick={handleApple}>
+					<Download className="h-4 w-4" />
+					ICS-Datei (.ics)
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
