@@ -4,7 +4,7 @@ import { Fingerprint, Loader2 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -16,6 +16,13 @@ import { authClient } from "@/lib/auth-client";
 export default function LoginPage() {
 	const router = useRouter();
 	const [isSigningInWithPasskey, setIsSigningInWithPasskey] = useState(false);
+	const { data: session, isPending } = authClient.useSession();
+
+	useEffect(() => {
+		if (!isPending && session) {
+			router.push("/dashboard" as Route);
+		}
+	}, [session, isPending, router]);
 
 	const form = useForm({
 		defaultValues: {
@@ -31,13 +38,13 @@ export default function LoginPage() {
 				{
 					onSuccess: () => {
 						router.push("/dashboard" as Route);
-						toast.success("Sign in successful");
+						toast.success("Erfolgreich angemeldet");
 					},
 					onError: (error) => {
 						toast.error(
 							error.error?.message ||
 								error.error?.statusText ||
-								"Sign in failed",
+								"Anmeldung fehlgeschlagen",
 						);
 					},
 				},
@@ -45,8 +52,10 @@ export default function LoginPage() {
 		},
 		validators: {
 			onSubmit: z.object({
-				email: z.string().email("Invalid email address"),
-				password: z.string().min(8, "Password must be at least 8 characters"),
+				email: z.string().email("Ungültige E-Mail-Adresse"),
+				password: z
+					.string()
+					.min(8, "Passwort muss mindestens 8 Zeichen lang sein"),
 			}),
 		},
 	});
@@ -67,6 +76,17 @@ export default function LoginPage() {
 			setIsSigningInWithPasskey(false);
 		}
 	};
+
+	if (isPending) {
+		return (
+			<section className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-transparent">
+				<div className="flex flex-col items-center gap-2">
+					<Loader2 className="size-8 animate-spin text-muted-foreground" />
+					<p className="text-muted-foreground text-sm">Lädt...</p>
+				</div>
+			</section>
+		);
+	}
 
 	return (
 		<section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
@@ -99,7 +119,7 @@ export default function LoginPage() {
 								{(field) => (
 									<>
 										<Label htmlFor={field.name} className="block text-sm">
-											Email
+											E-Mail
 										</Label>
 										<Input
 											id={field.name}
@@ -123,14 +143,14 @@ export default function LoginPage() {
 						<div className="space-y-0.5">
 							<div className="flex items-center justify-between">
 								<Label htmlFor="pwd" className="text-sm">
-									Password
+									Passwort
 								</Label>
 								<Button variant="link" size="sm">
 									<Link
 										href="#"
 										className="link intent-info variant-ghost text-sm"
 									>
-										Forgot your Password ?
+										Passwort vergessen?
 									</Link>
 								</Button>
 							</div>
@@ -165,7 +185,7 @@ export default function LoginPage() {
 									className="w-full"
 									disabled={!state.canSubmit || state.isSubmitting}
 								>
-									{state.isSubmitting ? "Submitting..." : "Sign In"}
+									{state.isSubmitting ? "Wird angemeldet..." : "Anmelden"}
 								</Button>
 							)}
 						</form.Subscribe>
@@ -205,7 +225,7 @@ export default function LoginPage() {
 
 				<div className="p-3">
 					<p className="text-center text-accent-foreground text-sm">
-						Du hast noch keine Account?
+						Du hast noch keinen Account?
 					</p>
 				</div>
 			</form>
