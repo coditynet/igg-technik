@@ -9,9 +9,12 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as events from "../events.js";
+import type * as groups from "../groups.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
 import type * as privateData from "../privateData.js";
+import type * as seed from "../seed.js";
 
 import type {
   ApiFromModules,
@@ -21,9 +24,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  events: typeof events;
+  groups: typeof groups;
   healthCheck: typeof healthCheck;
   http: typeof http;
   privateData: typeof privateData;
+  seed: typeof seed;
 }>;
 
 /**
