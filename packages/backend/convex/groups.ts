@@ -58,6 +58,15 @@ export const update = mutation({
 export const remove = mutation({
 	args: { id: v.id("groups") },
 	handler: async (ctx, args) => {
+		const eventsInGroup = await ctx.db
+			.query("events")
+			.withIndex("by_group", (q) => q.eq("groupId", args.id))
+			.collect();
+
+		for (const event of eventsInGroup) {
+			await ctx.db.delete(event._id);
+		}
+
 		await ctx.db.delete(args.id);
 	},
 });

@@ -1,14 +1,13 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { authComponent } from "./auth";
 
-// Get all events and groups
 export const list = query({
 	args: {},
 	handler: async (ctx) => {
 		const events = await ctx.db.query("events").collect();
 		const groups = await ctx.db.query("groups").collect();
 
-		// Convert timestamps back to ISO strings for frontend
 		return {
 			events: events.map((event) => ({
 				...event,
@@ -20,10 +19,15 @@ export const list = query({
 	},
 });
 
-// Get events by group
 export const listByGroup = query({
 	args: { groupId: v.id("groups") },
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return {
+				message: "Not authenticated",
+			};
+		}
 		const events = await ctx.db
 			.query("events")
 			.withIndex("by_group", (q) => q.eq("groupId", args.groupId))
@@ -37,10 +41,16 @@ export const listByGroup = query({
 	},
 });
 
-// Get a single event by ID
 export const get = query({
 	args: { id: v.id("events") },
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return {
+				message: "Not authenticated",
+			};
+		}
+
 		const event = await ctx.db.get(args.id);
 		if (!event) return null;
 
@@ -52,7 +62,6 @@ export const get = query({
 	},
 });
 
-// Create a new event
 export const create = mutation({
 	args: {
 		title: v.string(),
@@ -65,6 +74,12 @@ export const create = mutation({
 		location: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return {
+				message: "Not authenticated",
+			};
+		}
 		const eventId = await ctx.db.insert("events", {
 			title: args.title,
 			description: args.description,
@@ -79,7 +94,6 @@ export const create = mutation({
 	},
 });
 
-// Update an event
 export const update = mutation({
 	args: {
 		id: v.id("events"),
@@ -93,6 +107,12 @@ export const update = mutation({
 		location: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return {
+				message: "Not authenticated",
+			};
+		}
 		const { id, start, end, ...otherUpdates } = args;
 
 		const updates: Record<string, any> = { ...otherUpdates };
@@ -108,10 +128,15 @@ export const update = mutation({
 	},
 });
 
-// Delete an event
 export const remove = mutation({
 	args: { id: v.id("events") },
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return {
+				message: "Not authenticated",
+			};
+		}
 		await ctx.db.delete(args.id);
 	},
 });
