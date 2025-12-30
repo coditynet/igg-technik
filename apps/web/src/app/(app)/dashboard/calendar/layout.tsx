@@ -4,7 +4,7 @@ import { api } from "@igg/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
 import type { CalendarGroup } from "@/components/event-calendar";
 import { CalendarProvider } from "@/components/event-calendar/calendar-context";
-import { CalendarSidebar } from "./_components/calendar-sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CalendarLayout({
 	children,
@@ -15,16 +15,22 @@ export default function CalendarLayout({
 
 	if (data === undefined) {
 		return (
-			<div className="flex h-full items-center justify-center">
-				<div className="text-muted-foreground">Loading calendar...</div>
+			<div className="space-y-6">
+				<div className="space-y-2">
+					<Skeleton className="h-9 w-48" />
+					<Skeleton className="h-5 w-96" />
+				</div>
+				<Skeleton className="h-[600px] w-full" />
 			</div>
 		);
 	}
 
 	if (!data.groups) {
 		return (
-			<div className="flex h-full items-center justify-center">
-				<div className="text-muted-foreground">No calendar groups found.</div>
+			<div className="flex h-[600px] items-center justify-center rounded-lg border border-dashed">
+				<div className="text-center text-muted-foreground">
+					No calendar groups found.
+				</div>
 			</div>
 		);
 	}
@@ -36,12 +42,5 @@ export default function CalendarLayout({
 		isActive: true,
 	}));
 
-	return (
-		<CalendarProvider groups={groups}>
-			<div className="flex h-full w-full gap-4">
-				<CalendarSidebar />
-				<div className="flex-1 overflow-hidden">{children}</div>
-			</div>
-		</CalendarProvider>
-	);
+	return <CalendarProvider groups={groups}>{children}</CalendarProvider>;
 }
