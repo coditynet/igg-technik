@@ -131,7 +131,7 @@ export function AddToCalendar({ event }: AddToCalendarProps) {
 						<path fill="#1565c0" d="M39,6h-5v8h8V9C42,7.343,40.657,6,39,6z" />
 						<path fill="#1565c0" d="M9,42h5v-8H6v5C6,40.657,7.343,42,9,42z" />
 					</svg>
-					Google Calendar
+					Google Kalender
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={handleApple}>
 					<svg
@@ -140,7 +140,7 @@ export function AddToCalendar({ event }: AddToCalendarProps) {
 						viewBox="0 0 48 48"
 						aria-hidden="true"
 					>
-						<title>Apple Calendar</title>
+						<title>Apple Kalender</title>
 						<path
 							fill="#eceff1"
 							d="M15.556,43h16.889C38.274,43,43,38.274,43,32.444V15.556C43,9.726,38.274,5,32.444,5H15.556 C9.726,5,5,9.726,5,15.556v16.889C5,38.274,9.726,43,15.556,43z"
@@ -167,10 +167,6 @@ export function AddToCalendar({ event }: AddToCalendarProps) {
 						/>
 					</svg>
 					Apple Calendar
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={handleApple}>
-					<Download className="h-4 w-4" />
-					ICS-Datei (.ics)
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
