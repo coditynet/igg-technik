@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/sidebar";
 import { UserIcon } from "@/components/ui/icons/user";
 import { LogoutIcon } from "@/components/ui/icons/logout";
+import { authClient } from "@/lib/auth-client";
+import {useRouter} from "next/navigation";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -32,6 +34,8 @@ export function NavUser({ user }: { user?: User }) {
 	const { isMobile } = useSidebar();
 	const userIconRef = useRef<IconHandle>(null);
 	const logoutIconRef = useRef<IconHandle>(null);
+
+	const router = useRouter()
 
 	if (!user) {
 		return null;
@@ -92,6 +96,12 @@ export function NavUser({ user }: { user?: User }) {
 						<DropdownMenuItem
 							onMouseEnter={() => logoutIconRef.current?.startAnimation()}
 							onMouseLeave={() => logoutIconRef.current?.stopAnimation()}
+							onClick={async () => {
+								const { error } = await authClient.signOut();
+								if (!error) {
+									router.push("/sign-in");
+								}
+							}}
 						>
 							<LogoutIcon ref={logoutIconRef} />
 							Log out
