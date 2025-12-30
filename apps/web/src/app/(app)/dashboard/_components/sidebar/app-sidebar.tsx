@@ -2,6 +2,7 @@
 
 import { Calendar, Settings2, SquareTerminal, User } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import type * as React from "react";
 
 import {
@@ -98,13 +99,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
-							<Link href="/">
-								<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-									<span className="font-bold text-lg">IT</span>
-								</div>
-								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-semibold">IGG Technik</span>
-								</div>
+							<Link href="/" className="flex items-center gap-2">
+								<Image
+									src="/logo.png"
+									alt="IGG Technik"
+									width={120}
+									height={32}
+									className="object-contain"
+								/>
 							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
