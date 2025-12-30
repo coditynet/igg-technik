@@ -2,6 +2,7 @@ import { httpRouter } from "convex/server";
 import { internal } from "./_generated/api";
 import { httpAction } from "./_generated/server";
 import { authComponent, createAuth } from "./auth";
+import { resend } from "./mail";
 
 const http = httpRouter();
 
@@ -14,7 +15,7 @@ http.route({
 		const body = await req.json();
 
 		if (body.type === "email.received") {
-			await ctx.runAction(internal.email.index.processInboundEmail, {
+			await ctx.runAction(internal.mail.index.processInboundEmail, {
 				emailId: body.data.email_id,
 				from: body.data.from,
 				to: body.data.to,
@@ -26,6 +27,8 @@ http.route({
 				status: 200,
 				headers: { "Content-Type": "application/json" },
 			});
+		} else {
+			resend.handleResendEventWebhook(ctx, req);
 		}
 
 		return new Response(JSON.stringify({ success: true, ignored: true }), {
