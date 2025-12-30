@@ -23,14 +23,22 @@ import { AtSignIcon } from "@/components/ui/icons/at-sign";
 import { SettingsIcon } from "@/components/ui/icons/settings";
 import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
 import { UsersIcon } from "@/components/ui/icons/users";
+import { DashboardIcon } from "@/components/ui/icons/dashboard";
+import { MailIcon } from "@/components/ui/icons/mail";
+import { SlidersHorizontalIcon } from "@/components/ui/sliders-horizontal";
+import { CalendarIcon } from "@/components/ui/icons/calendar";
 
 const data = {
 	navMain: [
 		{
+			title: "Overview",
+			url: "/dashboard",
+			icon: DashboardIcon,
+		},
+		{
 			title: "Events",
 			url: "#",
 			icon: PartyPopperIcon,
-			isActive: true,
 			items: [
 				{
 					title: "History",
@@ -47,39 +55,27 @@ const data = {
 			],
 		},
 		{
-			title: "Email",
+			title: "Emails",
 			url: "/dashboard/email",
-			icon: AtSignIcon,
+			icon: MailIcon,
 		},
 		{
 			title: "Kalender",
 			url: "/dashboard/calendar",
-			icon: CalendarDaysIcon,
+			icon: CalendarIcon,
 		},
 		{
 			title: "Settings",
 			url: "#",
-			icon: SettingsIcon,
+			icon: SlidersHorizontalIcon,
 			items: [
 				{
-					title: "Account",
-					url: "/account",
-				},
-				{
-					title: "General",
+					title: "Allgemein",
 					url: "#",
 				},
 				{
-					title: "Team",
-					url: "#",
-				},
-				{
-					title: "Billing",
-					url: "#",
-				},
-				{
-					title: "Limits",
-					url: "#",
+					title: "Gruppen",
+					url: "/dashboard/settings/gruppen",
 				},
 			],
 		},

@@ -1,119 +1,121 @@
-'use client';
+"use client";
 
-import type { Variants } from 'motion/react';
-import type { HTMLAttributes } from 'react';
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
-import { motion, useAnimation } from 'motion/react';
-
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
+import type { HTMLMotionProps, Variants } from "motion/react";
+import { motion, useAnimation, useReducedMotion } from "motion/react";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 
 export interface UserIconHandle {
-  startAnimation: () => void;
-  stopAnimation: () => void;
+ startAnimation: () => void;
+ stopAnimation: () => void;
 }
 
-interface UserIconProps extends HTMLAttributes<HTMLDivElement> {
-  size?: number;
+interface UserIconProps extends HTMLMotionProps<"div"> {
+ size?: number;
+ duration?: number;
+ isAnimated?: boolean;
 }
-
-const PATH_VARIANT: Variants = {
-  normal: { pathLength: 1, opacity: 1, pathOffset: 0 },
-  animate: {
-    pathLength: [0, 1],
-    opacity: [0, 1],
-    pathOffset: [1, 0],
-  },
-};
-
-const CIRCLE_VARIANT: Variants = {
-  normal: {
-    pathLength: 1,
-    pathOffset: 0,
-    scale: 1,
-  },
-  animate: {
-    pathLength: [0, 1],
-    pathOffset: [1, 0],
-    scale: [0.5, 1],
-  },
-};
 
 const UserIcon = forwardRef<UserIconHandle, UserIconProps>(
-  ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
-    const controls = useAnimation();
-    const isControlledRef = useRef(false);
+ (
+  {
+   onMouseEnter,
+   onMouseLeave,
+   className,
+   size = 24,
+   duration = 1,
+   isAnimated = true,
+   ...props
+  },
+  ref,
+ ) => {
+  const controls = useAnimation();
+  const reduced = useReducedMotion();
+  const isControlled = useRef(false);
 
-    useImperativeHandle(ref, () => {
-      isControlledRef.current = true;
+  useImperativeHandle(ref, () => {
+   isControlled.current = true;
+   return {
+    startAnimation: () => controls.start("animate"),
+    stopAnimation: () => controls.start("normal"),
+   };
+  });
 
-      return {
-        startAnimation: () => controls.start('animate'),
-        stopAnimation: () => controls.start('normal'),
-      };
-    });
+  const handleEnter = useCallback(
+   (e?: React.MouseEvent<HTMLDivElement>) => {
+    if (!isAnimated || reduced) return;
+    if (!isControlled.current) controls.start("animate");
+    else onMouseEnter?.(e as any);
+   },
+   [controls, reduced, isAnimated, onMouseEnter],
+  );
 
-    const handleMouseEnter = useCallback(
-      (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!isControlledRef.current) {
-          controls.start('animate');
-        } else {
-          onMouseEnter?.(e);
-        }
-      },
-      [controls, onMouseEnter]
-    );
+  const handleLeave = useCallback(
+   (e?: React.MouseEvent<HTMLDivElement>) => {
+    if (!isControlled.current) controls.start("normal");
+    else onMouseLeave?.(e as any);
+   },
+   [controls, onMouseLeave],
+  );
 
-    const handleMouseLeave = useCallback(
-      (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!isControlledRef.current) {
-          controls.start('normal');
-        } else {
-          onMouseLeave?.(e);
-        }
-      },
-      [controls, onMouseLeave]
-    );
-    return (
-      <div
-        className={cn(className)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        {...props}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={size}
-          height={size}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <motion.circle
-            cx="12"
-            cy="8"
-            r="5"
-            animate={controls}
-            variants={CIRCLE_VARIANT}
-          />
+  const bodyVariants: Variants = {
+   normal: { strokeDashoffset: 0, opacity: 1 },
+   animate: {
+    strokeDashoffset: [40, 0],
+    opacity: [0.3, 1],
+    transition: { duration: 0.6 * duration, ease: "easeInOut" },
+   },
+  };
 
-          <motion.path
-            d="M20 21a8 8 0 0 0-16 0"
-            variants={PATH_VARIANT}
-            transition={{
-              delay: 0.2,
-              duration: 0.4,
-            }}
-            animate={controls}
-          />
-        </svg>
-      </div>
-    );
-  }
+  const headVariants: Variants = {
+   normal: { scale: 1, opacity: 1 },
+   animate: {
+    scale: [0.6, 1.2, 1],
+    opacity: [0, 1],
+    transition: { duration: 0.5 * duration, ease: "easeOut", delay: 0.2 },
+   },
+  };
+
+  return (
+   <motion.div
+    className={cn("inline-flex items-center justify-center", className)}
+    onMouseEnter={handleEnter}
+    onMouseLeave={handleLeave}
+    {...props}
+   >
+    <motion.svg
+     xmlns="http://www.w3.org/2000/svg"
+     width={size}
+     height={size}
+     viewBox="0 0 24 24"
+     fill="none"
+     stroke="currentColor"
+     strokeWidth="2"
+     strokeLinecap="round"
+     strokeLinejoin="round"
+     className="lucide lucide-user-icon lucide-user"
+    >
+     <motion.path
+      d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+      strokeDasharray="40"
+      strokeDashoffset="0"
+      variants={bodyVariants}
+      initial="normal"
+      animate={controls}
+     />
+     <motion.circle
+      cx="12"
+      cy="7"
+      r="4"
+      variants={headVariants}
+      initial="normal"
+      animate={controls}
+     />
+    </motion.svg>
+   </motion.div>
+  );
+ },
 );
 
-UserIcon.displayName = 'UserIcon';
-
+UserIcon.displayName = "UserIcon";
 export { UserIcon };

@@ -5,25 +5,25 @@ import type { HTMLMotionProps, Variants } from "motion/react";
 import { motion, useAnimation, useReducedMotion } from "motion/react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 
-export interface UsersHandle {
+export interface DashboardIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface UsersProps extends HTMLMotionProps<"div"> {
+interface DashboardIconProps extends HTMLMotionProps<"div"> {
  size?: number;
  duration?: number;
  isAnimated?: boolean;
 }
 
-const UsersIcon = forwardRef<UsersHandle, UsersProps>(
+const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
  (
   {
    onMouseEnter,
    onMouseLeave,
    className,
    size = 24,
-   duration = 1,
+   duration = 0.6,
    isAnimated = true,
    ...props
   },
@@ -59,41 +59,29 @@ const UsersIcon = forwardRef<UsersHandle, UsersProps>(
    [controls, onMouseLeave],
   );
 
-  const arcVariants: Variants = {
-   normal: { strokeDashoffset: 0, opacity: 1 },
+  const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+  const iconVariants: Variants = {
+   normal: { scale: 1, rotate: 0 },
    animate: {
-    strokeDashoffset: [50, 0],
-    opacity: [0.3, 1],
-    transition: {
-     duration: 0.7 * duration,
-     ease: "easeInOut" as const,
-    },
+    scale: [1, 1.06, 0.98, 1],
+    rotate: [0, -1.5, 1.5, 0],
+    transition: { duration: 1.1 * duration, ease: "easeInOut" },
    },
   };
 
-  const headVariants: Variants = {
-   normal: { scale: 1, opacity: 1 },
-   animate: {
-    scale: [0.6, 1.2, 1],
-    opacity: [0, 1],
+  const tileVariants: Variants = {
+   normal: { opacity: 1, scale: 1, y: 0 },
+   animate: (i: number) => ({
+    opacity: [0.6, 1],
+    scale: [0.95, 1.04, 1],
+    y: [3, -2, 0],
     transition: {
-     duration: 0.6 * duration,
-     ease: "easeOut" as const,
+     duration: 0.9 * duration,
+     ease: "easeInOut",
+     delay: i * 0.08,
     },
-   },
-  };
-
-  const sideArcVariants: Variants = {
-   normal: { strokeDashoffset: 0, opacity: 0.8 },
-   animate: {
-    strokeDashoffset: [40, 0],
-    opacity: [0.2, 1],
-    transition: {
-     duration: 0.7 * duration,
-     ease: "easeInOut" as const,
-     delay: 0.3,
-    },
-   },
+   }),
   };
 
   return (
@@ -113,37 +101,51 @@ const UsersIcon = forwardRef<UsersHandle, UsersProps>(
      strokeWidth="2"
      strokeLinecap="round"
      strokeLinejoin="round"
-     className="lucide lucide-users-icon lucide-users"
+     animate={controls}
+     initial="normal"
+     variants={iconVariants}
     >
-     <motion.path
-      d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-      strokeDasharray="50"
-      strokeDashoffset="50"
-      variants={arcVariants}
+     <motion.rect
+      width="7"
+      height="9"
+      x="3"
+      y="3"
+      rx="1"
+      variants={tileVariants}
+      custom={0}
       initial="normal"
       animate={controls}
      />
-     <motion.path
-      d="M16 3.128a4 4 0 0 1 0 7.744"
-      strokeDasharray="40"
-      strokeDashoffset="40"
-      variants={sideArcVariants}
+     <motion.rect
+      width="7"
+      height="5"
+      x="14"
+      y="3"
+      rx="1"
+      variants={tileVariants}
+      custom={1}
       initial="normal"
       animate={controls}
      />
-     <motion.path
-      d="M22 21v-2a4 4 0 0 0-3-3.87"
-      strokeDasharray="40"
-      strokeDashoffset="40"
-      variants={sideArcVariants}
+     <motion.rect
+      width="7"
+      height="9"
+      x="14"
+      y="12"
+      rx="1"
+      variants={tileVariants}
+      custom={2}
       initial="normal"
       animate={controls}
      />
-     <motion.circle
-      cx="9"
-      cy="7"
-      r="4"
-      variants={headVariants}
+     <motion.rect
+      width="7"
+      height="5"
+      x="3"
+      y="16"
+      rx="1"
+      variants={tileVariants}
+      custom={3}
       initial="normal"
       animate={controls}
      />
@@ -153,5 +155,5 @@ const UsersIcon = forwardRef<UsersHandle, UsersProps>(
  },
 );
 
-UsersIcon.displayName = "UsersIcon";
-export { UsersIcon };
+DashboardIcon.displayName = "DashboardIcon";
+export { DashboardIcon };
