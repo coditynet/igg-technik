@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "better-auth";
-import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -19,6 +19,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { UserIcon } from "@/components/ui/icons/user";
+import { LogoutIcon } from "@/components/ui/icons/logout";
 
 export function NavUser({ user }: { user?: User }) {
 	const { isMobile } = useSidebar();
@@ -69,14 +71,14 @@ export function NavUser({ user }: { user?: User }) {
 						<DropdownMenuGroup>
 							<DropdownMenuItem asChild>
 								<a href="/account">
-									<BadgeCheck />
+									<UserIcon />
 									Account
 								</a>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem>
-							<LogOut />
+							<LogoutIcon />
 							Log out
 						</DropdownMenuItem>
 					</DropdownMenuContent>

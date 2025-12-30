@@ -18,13 +18,18 @@ import { authClient } from "@/lib/auth-client";
 import { NavAdmin } from "./nav-admin";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
+import { CalendarDaysIcon } from "@/components/ui/icons/calendar-days";
+import { AtSignIcon } from "@/components/ui/icons/at-sign";
+import { SettingsIcon } from "@/components/ui/icons/settings";
+import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
+import { UsersIcon } from "@/components/ui/icons/users";
 
 const data = {
 	navMain: [
 		{
 			title: "Events",
 			url: "#",
-			icon: SquareTerminal,
+			icon: PartyPopperIcon,
 			isActive: true,
 			items: [
 				{
@@ -42,14 +47,19 @@ const data = {
 			],
 		},
 		{
+			title: "Email",
+			url: "/dashboard/email",
+			icon: AtSignIcon,
+		},
+		{
 			title: "Kalender",
 			url: "/dashboard/calendar",
-			icon: Calendar,
+			icon: CalendarDaysIcon,
 		},
 		{
 			title: "Settings",
 			url: "#",
-			icon: Settings2,
+			icon: SettingsIcon,
 			items: [
 				{
 					title: "Account",
@@ -78,7 +88,7 @@ const data = {
 		{
 			name: "Benutzer",
 			url: "/dashboard/admin/users",
-			icon: User,
+			icon: UsersIcon,
 		},
 	],
 };
