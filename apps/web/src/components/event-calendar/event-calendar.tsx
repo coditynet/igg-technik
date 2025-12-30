@@ -26,6 +26,7 @@ import {
 	CalendarDndProvider,
 	type CalendarEvent,
 	type CalendarView,
+	CalendarSubscribeButton,
 	DayView,
 	EventDialog,
 	EventGap,
@@ -391,6 +392,7 @@ export function EventCalendar({
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
+							<CalendarSubscribeButton />
 							<ThemeToggle />
 						</div>
 					</div>

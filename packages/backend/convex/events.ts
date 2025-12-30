@@ -76,7 +76,7 @@ export const create = mutation({
 	handler: async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
-			throw new ConvexError("Not authenticated")
+			throw new ConvexError("Not authenticated");
 		}
 		const eventId = await ctx.db.insert("events", {
 			title: args.title,
@@ -136,5 +136,44 @@ export const remove = mutation({
 			};
 		}
 		await ctx.db.delete(args.id);
+	},
+});
+
+export const listForCalendarFeed = query({
+	args: {},
+	handler: async (ctx) => {
+		const events = await ctx.db.query("events").collect();
+
+		return events.map((event) => ({
+			id: event._id,
+			title: event.title,
+			description: event.description,
+			location: event.location,
+			start: event.start,
+			end: event.end,
+			allDay: event.allDay,
+			label: event.label,
+		}));
+	},
+});
+
+export const listForCalendarFeedByGroup = query({
+	args: { groupId: v.id("groups") },
+	handler: async (ctx, args) => {
+		const events = await ctx.db
+			.query("events")
+			.withIndex("by_group", (q) => q.eq("groupId", args.groupId))
+			.collect();
+
+		return events.map((event) => ({
+			id: event._id,
+			title: event.title,
+			description: event.description,
+			location: event.location,
+			start: event.start,
+			end: event.end,
+			allDay: event.allDay,
+			label: event.label,
+		}));
 	},
 });
