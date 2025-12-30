@@ -1,6 +1,6 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
 
@@ -35,14 +35,15 @@ function AdminNavItem({
 		<SidebarMenuItem>
 			<SidebarMenuButton
 				asChild
+				tooltip={item.name}
 				isActive={isActive}
 				onMouseEnter={() => iconRef.current?.startAnimation()}
 				onMouseLeave={() => iconRef.current?.stopAnimation()}
 			>
-				<a href={item.url}>
+				<Link href={item.url}>
 					<item.icon ref={iconRef} />
 					<span>{item.name}</span>
-				</a>
+				</Link>
 			</SidebarMenuButton>
 		</SidebarMenuItem>
 	);

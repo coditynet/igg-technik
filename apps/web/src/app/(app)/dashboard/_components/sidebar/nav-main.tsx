@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
 
@@ -45,7 +46,7 @@ function NavItemWithIcon({ item }: NavItemProps) {
 
 	if (!item.items || item.items.length === 0) {
 		const isActive = pathname === item.url;
-		
+
 		return (
 			<SidebarMenuItem key={item.title}>
 				<SidebarMenuButton
@@ -55,16 +56,18 @@ function NavItemWithIcon({ item }: NavItemProps) {
 					onMouseEnter={() => iconRef.current?.startAnimation()}
 					onMouseLeave={() => iconRef.current?.stopAnimation()}
 				>
-					<a href={item.url}>
+					<Link href={item.url}>
 						{item.icon && <item.icon ref={iconRef} />}
 						<span>{item.title}</span>
-					</a>
+					</Link>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
 		);
 	}
 
-	const hasActiveSubItem = item.items?.some((subItem) => pathname === subItem.url);
+	const hasActiveSubItem = item.items?.some(
+		(subItem) => pathname === subItem.url,
+	);
 
 	return (
 		<Collapsible
@@ -92,9 +95,9 @@ function NavItemWithIcon({ item }: NavItemProps) {
 							return (
 								<SidebarMenuSubItem key={subItem.title}>
 									<SidebarMenuSubButton asChild isActive={isSubItemActive}>
-										<a href={subItem.url}>
+										<Link href={subItem.url}>
 											<span>{subItem.title}</span>
-										</a>
+										</Link>
 									</SidebarMenuSubButton>
 								</SidebarMenuSubItem>
 							);
