@@ -57,6 +57,14 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Empty,
+	EmptyContent,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -66,6 +74,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -606,8 +615,72 @@ export default function AdminUsersPage() {
 
 	if (isSessionPending || !session || session.user.role !== "admin") {
 		return (
-			<div className="flex min-h-screen items-center justify-center">
-				<Loader2 className="size-8 animate-spin" />
+			<div className="container mx-auto py-10">
+				<div className="mb-8 flex items-center justify-between">
+					<div className="space-y-2">
+						<Skeleton className="h-9 w-64" />
+						<Skeleton className="h-5 w-96" />
+					</div>
+					<Skeleton className="h-10 w-40" />
+				</div>
+
+				<div className="mb-4">
+					<Skeleton className="h-10 w-full" />
+				</div>
+
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>
+									<Skeleton className="h-8 w-20" />
+								</TableHead>
+								<TableHead>
+									<Skeleton className="h-8 w-20" />
+								</TableHead>
+								<TableHead>
+									<Skeleton className="h-8 w-16" />
+								</TableHead>
+								<TableHead>
+									<Skeleton className="h-8 w-24" />
+								</TableHead>
+								<TableHead />
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{[...Array(5)].map((_, i) => (
+								<TableRow key={`auth-check-${Date.now()}-${i}`}>
+									<TableCell>
+										<div className="flex items-center gap-2">
+											<Skeleton className="h-4 w-32" />
+										</div>
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-48" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-20" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="ml-auto h-8 w-8" />
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</div>
+
+				<div className="flex items-center justify-between space-x-2 py-4">
+					<Skeleton className="h-5 w-32" />
+					<div className="flex items-center space-x-2">
+						<Skeleton className="h-9 w-20" />
+						<Skeleton className="h-5 w-24" />
+						<Skeleton className="h-9 w-20" />
+					</div>
+				</div>
 			</div>
 		);
 	}
@@ -746,14 +819,27 @@ export default function AdminUsersPage() {
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
-							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center"
-								>
-									<Loader2 className="mx-auto size-6 animate-spin" />
-								</TableCell>
-							</TableRow>
+							[...Array(5)].map((_, i) => (
+								<TableRow key={`loading-${pagination.pageIndex}-${i}`}>
+									<TableCell>
+										<div className="flex items-center gap-2">
+											<Skeleton className="h-4 w-32" />
+										</div>
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-48" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-20" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="ml-auto h-8 w-8" />
+									</TableCell>
+								</TableRow>
+							))
 						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
@@ -772,14 +858,28 @@ export default function AdminUsersPage() {
 							))
 						) : (
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center"
-								>
-									<div className="flex flex-col items-center gap-2 text-muted-foreground">
-										<UserX className="size-8" />
-										<p>Keine Benutzer gefunden</p>
-									</div>
+								<TableCell colSpan={columns.length} className="h-[400px] p-0">
+									<Empty>
+										<EmptyHeader>
+											<EmptyMedia variant="icon">
+												<UserX />
+											</EmptyMedia>
+											<EmptyTitle>Keine Benutzer gefunden</EmptyTitle>
+											<EmptyDescription>
+												{searchQuery
+													? "Es wurden keine Benutzer gefunden, die Ihren Suchkriterien entsprechen."
+													: "Es sind noch keine Benutzer vorhanden. Erstellen Sie den ersten Benutzer."}
+											</EmptyDescription>
+										</EmptyHeader>
+										{!searchQuery && (
+											<EmptyContent>
+												<Button onClick={() => setCreateDialogOpen(true)}>
+													<Plus className="mr-2 size-4" />
+													Neuer Benutzer
+												</Button>
+											</EmptyContent>
+										)}
+									</Empty>
 								</TableCell>
 							</TableRow>
 						)}

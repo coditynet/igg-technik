@@ -11,8 +11,8 @@ const tables = {
 		updatedAt: v.number(),
 		role: v.optional(v.string()),
 		banned: v.optional(v.boolean()),
-		banReason: v.optional(v.string()),
-		banExpires: v.optional(v.number()),
+		banReason: v.optional(v.union(v.string(), v.null())),
+		banExpires: v.optional(v.union(v.number(), v.null())),
 	}).index("by_email", ["email"]),
 
 	session: defineTable({

@@ -6,13 +6,20 @@ import { useMemo } from "react";
 import type { CalendarEvent } from "@/components/event-calendar";
 import { EventCalendar } from "@/components/event-calendar";
 import { useCalendarContext } from "@/components/event-calendar/calendar-context";
+import SidebarCalendar from "@/components/sidebar-calendar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardCalendarPage() {
 	const data = useQuery(api.events.list);
-	const { isGroupVisible } = useCalendarContext();
+	const { isGroupVisible, toggleGroupVisibility, getAllGroups } =
+		useCalendarContext();
 	const createEvent = useMutation(api.events.create);
 	const updateEvent = useMutation(api.events.update);
 	const deleteEvent = useMutation(api.events.remove);
+
+	const groups = getAllGroups();
 
 	const events: CalendarEvent[] = useMemo(() => {
 		if (!data?.events) return [];
@@ -65,30 +72,112 @@ export default function DashboardCalendarPage() {
 
 	if (data === undefined) {
 		return (
-			<div className="flex h-full items-center justify-center">
-				<div className="text-muted-foreground">Loading calendar...</div>
+			<div className="space-y-6">
+				<div className="space-y-2">
+					<Skeleton className="h-9 w-48" />
+					<Skeleton className="h-5 w-96" />
+				</div>
+				<div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+					<div className="space-y-4">
+						<Skeleton className="h-[300px] w-full" />
+						<Skeleton className="h-[200px] w-full" />
+					</div>
+					<Skeleton className="h-[600px] w-full" />
+				</div>
 			</div>
 		);
 	}
 
 	if (!data.events) {
 		return (
-			<div className="flex h-full items-center justify-center">
-				<div className="text-muted-foreground">No events found.</div>
+			<div className="space-y-6">
+				<div>
+					<h1 className="font-bold text-3xl tracking-tight">Kalender</h1>
+					<p className="text-muted-foreground">
+						Verwalten Sie Ihre Termine und Veranstaltungen
+					</p>
+				</div>
+				<div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed">
+					<div className="text-center text-muted-foreground">
+						No events found.
+					</div>
+				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="h-full w-full overflow-auto">
-			<EventCalendar
-				events={visibleEvents}
-				onEventAdd={handleEventAdd}
-				onEventUpdate={handleEventUpdate}
-				onEventDelete={handleEventDelete}
-				initialView="week"
-				readOnly={false}
-			/>
+		<div className="space-y-6">
+			<div>
+				<h1 className="font-bold text-3xl tracking-tight">Kalender</h1>
+				<p className="text-muted-foreground">
+					Verwalten Sie Ihre Termine und Veranstaltungen
+				</p>
+			</div>
+
+			<div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+				{/* Sidebar */}
+				<div className="space-y-4">
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-base">Kalender</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<SidebarCalendar />
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-base">Gruppen</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-2">
+								{groups.map((group) => (
+									<button
+										key={group.id}
+										type="button"
+										className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md p-2 transition-colors hover:bg-accent"
+										onClick={() => toggleGroupVisibility(group.id)}
+									>
+										<div className="flex flex-1 items-center gap-3">
+											<Checkbox
+												id={group.id}
+												checked={isGroupVisible(group.id)}
+												onCheckedChange={() => toggleGroupVisibility(group.id)}
+											/>
+											<label
+												htmlFor={group.id}
+												className={`cursor-pointer text-sm ${!isGroupVisible(group.id) ? "text-muted-foreground line-through" : ""}`}
+											>
+												{group.name}
+											</label>
+										</div>
+										<span
+											className="size-3 flex-shrink-0 rounded-full"
+											style={{
+												backgroundColor: `var(--color-${group.color}-400)`,
+											}}
+										/>
+									</button>
+								))}
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+
+				{/* Main Calendar - No Card wrapper */}
+				<div className="h-[800px]">
+					<EventCalendar
+						events={visibleEvents}
+						onEventAdd={handleEventAdd}
+						onEventUpdate={handleEventUpdate}
+						onEventDelete={handleEventDelete}
+						initialView="week"
+						readOnly={false}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 }

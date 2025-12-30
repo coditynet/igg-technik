@@ -31,8 +31,8 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           input:
             | {
                 data: {
-                  banExpires?: number;
-                  banReason?: string;
+                  banExpires?: number | null;
+                  banReason?: string | null;
                   banned?: boolean;
                   createdAt: number;
                   email: string;
@@ -662,8 +662,8 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
             | {
                 model: "user";
                 update: {
-                  banExpires?: number;
-                  banReason?: string;
+                  banExpires?: number | null;
+                  banReason?: string | null;
                   banned?: boolean;
                   createdAt?: number;
                   email?: string;
@@ -952,8 +952,8 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
             | {
                 model: "user";
                 update: {
-                  banExpires?: number;
-                  banReason?: string;
+                  banExpires?: number | null;
+                  banReason?: string | null;
                   banned?: boolean;
                   createdAt?: number;
                   email?: string;

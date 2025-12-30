@@ -72,8 +72,8 @@ export declare const components: {
           input:
             | {
                 data: {
-                  banExpires?: number;
-                  banReason?: string;
+                  banExpires?: number | null;
+                  banReason?: string | null;
                   banned?: boolean;
                   createdAt: number;
                   email: string;
@@ -698,8 +698,8 @@ export declare const components: {
             | {
                 model: "user";
                 update: {
-                  banExpires?: number;
-                  banReason?: string;
+                  banExpires?: number | null;
+                  banReason?: string | null;
                   banned?: boolean;
                   createdAt?: number;
                   email?: string;
@@ -987,8 +987,8 @@ export declare const components: {
             | {
                 model: "user";
                 update: {
-                  banExpires?: number;
-                  banReason?: string;
+                  banExpires?: number | null;
+                  banReason?: string | null;
                   banned?: boolean;
                   createdAt?: number;
                   email?: string;
