@@ -4,6 +4,7 @@
 export { AddToCalendar } from "./add-to-calendar";
 export { AgendaView } from "./agenda-view";
 export { CalendarDndProvider, useCalendarDnd } from "./calendar-dnd-context";
+export { CalendarSubscribeButton } from "./calendar-subscribe-button";
 // Constants and utility exports
 export * from "./constants";
 export { DayView } from "./day-view";
