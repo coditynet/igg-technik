@@ -23,4 +23,35 @@ export default defineSchema({
 		label: v.optional(v.string()),
 		location: v.optional(v.string()),
 	}).index("by_group", ["groupId"]),
+
+	emails: defineTable({
+		emailId: v.string(),
+		from: v.string(),
+		to: v.array(v.string()),
+		subject: v.string(),
+		text: v.optional(v.string()),
+		html: v.optional(v.string()),
+		messageId: v.optional(v.string()),
+		receivedAt: v.number(),
+		processed: v.boolean(),
+		emailRegistrationId: v.optional(v.id("emailRegistrations")),
+	})
+		.index("by_emailId", ["emailId"])
+		.index("by_processed", ["processed"]),
+
+	emailRegistrations: defineTable({
+		accessId: v.string(),
+		emailId: v.id("emails"),
+		title: v.optional(v.string()),
+		description: v.optional(v.string()),
+		start: v.optional(v.number()),
+		end: v.optional(v.number()),
+		allDay: v.optional(v.boolean()),
+		label: v.optional(v.string()),
+		location: v.optional(v.string()),
+		eventId: v.optional(v.id("events")),
+		responseSent: v.boolean(),
+	})
+		.index("by_accessId", ["accessId"])
+		.index("by_emailId", ["emailId"]),
 });
