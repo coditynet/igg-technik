@@ -56,7 +56,7 @@ const data = {
 		},
 		{
 			title: "Emails",
-			url: "/dashboard/email",
+			url: "/dashboard/emails",
 			icon: MailIcon,
 		},
 		{
