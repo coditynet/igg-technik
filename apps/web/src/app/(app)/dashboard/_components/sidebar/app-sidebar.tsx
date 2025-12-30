@@ -26,7 +26,7 @@ import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
 import { UsersIcon } from "@/components/ui/icons/users";
 import { DashboardIcon } from "@/components/ui/icons/dashboard";
 import { MailIcon } from "@/components/ui/icons/mail";
-import { SlidersHorizontalIcon } from "@/components/ui/sliders-horizontal";
+import { SlidersHorizontalIcon } from "@/components/ui/icons/sliders-horizontal";
 import { CalendarIcon } from "@/components/ui/icons/calendar";
 
 const data = {
