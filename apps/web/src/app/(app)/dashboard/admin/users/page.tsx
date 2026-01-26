@@ -16,7 +16,10 @@ import {
 	ArrowUpDown,
 	Ban,
 	CheckCircle,
+	Edit,
+	KeyRound,
 	Loader2,
+	LogOut,
 	MoreHorizontal,
 	Plus,
 	Search,
@@ -24,6 +27,7 @@ import {
 	ShieldX,
 	Trash2,
 	UserX,
+	VenetianMask,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -112,6 +116,17 @@ export default function AdminUsersPage() {
 	});
 	const [searchQuery, setSearchQuery] = useState("");
 	const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+	const [resetPasswordUserId, setResetPasswordUserId] = useState<string | null>(
+		null,
+	);
+	const [editUserId, setEditUserId] = useState<string | null>(null);
+	const [editUserData, setEditUserData] = useState<{
+		name: string;
+		email: string;
+		role: "user" | "admin";
+	}>({ name: "", email: "", role: "user" });
+
+	const [newPassword, setNewPassword] = useState("");
 
 	const { data: session, isPending: isSessionPending } =
 		authClient.useSession();
@@ -438,6 +453,126 @@ export default function AdminUsersPage() {
 		},
 	});
 
+	const resetPasswordMutation = useMutation({
+		mutationFn: async ({
+			userId,
+			newPassword,
+		}: {
+			userId: string;
+			newPassword: string;
+		}) => {
+			const result = await authClient.admin.setUserPassword({
+				userId,
+				newPassword,
+			});
+
+			if (result.error) {
+				throw new Error(
+					result.error.message || "Fehler beim Zurücksetzen des Passworts",
+				);
+			}
+
+			return result.data;
+		},
+		onSuccess: () => {
+			toast.success("Passwort erfolgreich zurückgesetzt");
+			setResetPasswordUserId(null);
+			setNewPassword("");
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Zurücksetzen des Passworts");
+		},
+	});
+
+	const impersonateUserMutation = useMutation({
+		mutationFn: async (userId: string) => {
+			const result = await authClient.admin.impersonateUser({
+				userId,
+			});
+
+			if (result.error) {
+				throw new Error(
+					result.error.message || "Fehler beim Impersonieren des Benutzers",
+				);
+			}
+
+			return result.data;
+		},
+		onSuccess: () => {
+			toast.success("Benutzer wird impersoniert...");
+			window.location.href = "/dashboard";
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Impersonieren des Benutzers");
+		},
+	});
+
+	const updateUserMutation = useMutation({
+		mutationFn: async ({
+			userId,
+			data,
+		}: {
+			userId: string;
+			data: { name?: string; role?: string };
+		}) => {
+			const { role, ...updateData } = data;
+
+			if (Object.keys(updateData).length > 0) {
+				const result = await authClient.admin.updateUser({
+					userId,
+					data: updateData,
+				});
+
+				if (result.error) {
+					throw new Error(
+						result.error.message || "Fehler beim Aktualisieren des Benutzers",
+					);
+				}
+			}
+
+			// If role changed, also update role
+			if (role) {
+				await authClient.admin.setRole({
+					userId,
+					role: role,
+				});
+			}
+
+			return true;
+		},
+		onSuccess: () => {
+			toast.success("Benutzer erfolgreich aktualisiert");
+			setEditUserId(null);
+			allUsersQuery.refetch();
+			if (searchQuery) {
+				nameSearchQuery.refetch();
+				emailSearchQuery.refetch();
+			}
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Aktualisieren des Benutzers");
+		},
+	});
+
+	const stopImpersonatingMutation = useMutation({
+		mutationFn: async () => {
+			const result = await authClient.admin.stopImpersonating({});
+			if (result.error) {
+				throw new Error(
+					result.error.message || "Fehler beim Beenden der Impersonierung",
+				);
+			}
+			return result.data;
+		},
+		onSuccess: () => {
+			toast.success("Impersonierung beendet");
+			window.location.href = "/dashboard/admin/users";
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Fehler beim Beenden der Impersonierung");
+		},
+	});
+
 	const handleCreateUser = () => {
 		if (!newUser.email || !newUser.password || !newUser.name) {
 			toast.error("Bitte füllen Sie alle Felder aus");
@@ -461,6 +596,34 @@ export default function AdminUsersPage() {
 
 	const handleDeleteUser = (userId: string) => {
 		deleteUserMutation.mutate(userId);
+	};
+
+	const handleResetPassword = () => {
+		if (!resetPasswordUserId || !newPassword) {
+			toast.error("Bitte geben Sie ein neues Passwort ein");
+			return;
+		}
+
+		resetPasswordMutation.mutate({
+			userId: resetPasswordUserId,
+			newPassword,
+		});
+	};
+
+	const handleImpersonateUser = (userId: string) => {
+		impersonateUserMutation.mutate(userId);
+	};
+
+	const handleUpdateUser = () => {
+		if (!editUserId) return;
+
+		updateUserMutation.mutate({
+			userId: editUserId,
+			data: {
+				name: editUserData.name,
+				role: editUserData.role,
+			},
+		});
 	};
 
 	const columns: ColumnDef<UserData>[] = [
@@ -546,6 +709,19 @@ export default function AdminUsersPage() {
 						<DropdownMenuContent align="end" className="w-48">
 							<DropdownMenuLabel>Aktionen</DropdownMenuLabel>
 							<DropdownMenuItem
+								onClick={() => {
+									setEditUserId(user.id);
+									setEditUserData({
+										name: user.name,
+										email: user.email,
+										role: (user.role as "user" | "admin") || "user",
+									});
+								}}
+							>
+								<Edit className="mr-2 size-4" />
+								<span>Bearbeiten</span>
+							</DropdownMenuItem>
+							<DropdownMenuItem
 								onClick={() =>
 									handleRoleChange(
 										user.id,
@@ -579,6 +755,15 @@ export default function AdminUsersPage() {
 									<span>Sperren</span>
 								</DropdownMenuItem>
 							)}
+							<DropdownMenuSeparator />
+							<DropdownMenuItem onClick={() => handleImpersonateUser(user.id)}>
+								<VenetianMask className="mr-2 size-4" />
+								<span>Impersonieren</span>
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => setResetPasswordUserId(user.id)}>
+								<KeyRound className="mr-2 size-4" />
+								<span>Passwort zurücksetzen</span>
+							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
 								onClick={() => setDeleteUserId(user.id)}
@@ -698,10 +883,26 @@ export default function AdminUsersPage() {
 				</div>
 				<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
 					<DialogTrigger asChild>
-						<Button>
-							<Plus className="mr-2 size-4" />
-							Neuer Benutzer
-						</Button>
+						<div className="flex gap-2">
+							{session?.session.impersonatedBy && (
+								<Button
+									variant="destructive"
+									onClick={() => stopImpersonatingMutation.mutate()}
+									disabled={stopImpersonatingMutation.isPending}
+								>
+									{stopImpersonatingMutation.isPending ? (
+										<Loader2 className="mr-2 size-4 animate-spin" />
+									) : (
+										<LogOut className="mr-2 size-4" />
+									)}
+									Impersonierung beenden
+								</Button>
+							)}
+							<Button>
+								<Plus className="mr-2 size-4" />
+								Neuer Benutzer
+							</Button>
+						</div>
 					</DialogTrigger>
 					<DialogContent>
 						<DialogHeader>
@@ -945,6 +1146,129 @@ export default function AdminUsersPage() {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
+
+			<Dialog
+				open={resetPasswordUserId !== null}
+				onOpenChange={(open) => {
+					if (!open) {
+						setResetPasswordUserId(null);
+						setNewPassword("");
+					}
+				}}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Passwort zurücksetzen</DialogTitle>
+						<DialogDescription>
+							Setzen Sie ein neues Passwort für den Benutzer.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="grid gap-4 py-4">
+						<div className="grid gap-2">
+							<Label htmlFor="new-password">Neues Passwort</Label>
+							<Input
+								id="new-password"
+								type="password"
+								value={newPassword}
+								onChange={(e) => setNewPassword(e.target.value)}
+								placeholder="••••••••"
+							/>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setResetPasswordUserId(null);
+								setNewPassword("");
+							}}
+						>
+							Abbrechen
+						</Button>
+						<Button
+							onClick={handleResetPassword}
+							disabled={resetPasswordMutation.isPending}
+						>
+							{resetPasswordMutation.isPending && (
+								<Loader2 className="mr-2 size-4 animate-spin" />
+							)}
+							Passwort ändern
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog
+				open={editUserId !== null}
+				onOpenChange={(open) => {
+					if (!open) {
+						setEditUserId(null);
+					}
+				}}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Benutzer bearbeiten</DialogTitle>
+						<DialogDescription>
+							Bearbeiten Sie die Details des Benutzers.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="grid gap-4 py-4">
+						<div className="grid gap-2">
+							<Label htmlFor="edit-name">Name</Label>
+							<Input
+								id="edit-name"
+								value={editUserData.name}
+								onChange={(e) =>
+									setEditUserData({ ...editUserData, name: e.target.value })
+								}
+								placeholder="Max Mustermann"
+							/>
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="edit-email">E-Mail</Label>
+							<Input
+								id="edit-email"
+								type="email"
+								value={editUserData.email}
+								disabled
+								className="bg-muted"
+							/>
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="edit-role">Rolle</Label>
+							<Select
+								value={editUserData.role}
+								onValueChange={(value: "user" | "admin") =>
+									setEditUserData({ ...editUserData, role: value })
+								}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="user">Benutzer</SelectItem>
+									<SelectItem value="admin">Admin</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setEditUserId(null)}>
+							Abbrechen
+						</Button>
+						<Button
+							onClick={handleUpdateUser}
+							disabled={updateUserMutation.isPending}
+						>
+							{updateUserMutation.isPending && (
+								<Loader2 className="mr-2 size-4 animate-spin" />
+							)}
+							Speichern
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
