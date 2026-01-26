@@ -8,12 +8,17 @@ export default function DashboardLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<SidebarProvider>
-			<AppSidebar />
-			<SidebarInset>
-				<DashboardHeader />
-				<div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
-			</SidebarInset>
-		</SidebarProvider>
+		<>
+			<style>
+				{`body, html { overscroll-behavior: none !important; }`}
+			</style>
+			<SidebarProvider>
+				<AppSidebar />
+				<SidebarInset>
+					<DashboardHeader />
+					<div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+				</SidebarInset>
+			</SidebarProvider>
+		</>
 	);
 }
