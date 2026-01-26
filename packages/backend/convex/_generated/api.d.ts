@@ -18,6 +18,8 @@ import type * as mail_emailTemplates from "../mail/emailTemplates.js";
 import type * as mail_incomingEmailWorkflow from "../mail/incomingEmailWorkflow.js";
 import type * as mail_index from "../mail/index.js";
 import type * as mail_processEmail from "../mail/processEmail.js";
+import type * as mail_publicAccess from "../mail/publicAccess.js";
+import type * as mail_queries from "../mail/queries.js";
 import type * as privateData from "../privateData.js";
 import type * as seed from "../seed.js";
 import type * as workflow from "../workflow.js";
@@ -39,6 +41,8 @@ declare const fullApi: ApiFromModules<{
   "mail/incomingEmailWorkflow": typeof mail_incomingEmailWorkflow;
   "mail/index": typeof mail_index;
   "mail/processEmail": typeof mail_processEmail;
+  "mail/publicAccess": typeof mail_publicAccess;
+  "mail/queries": typeof mail_queries;
   privateData: typeof privateData;
   seed: typeof seed;
   workflow: typeof workflow;

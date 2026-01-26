@@ -1,6 +1,7 @@
 "use client";
 import { useForm } from "@tanstack/react-form";
-import { Fingerprint, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { FingerprintIcon } from "@/components/ui/icons/fingerprint";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -215,7 +216,7 @@ export default function LoginPage() {
 								</>
 							) : (
 								<>
-									<Fingerprint className="mr-2 size-4" />
+									<FingerprintIcon size={16} className="mr-2" />
 									Mit Passkey anmelden
 								</>
 							)}

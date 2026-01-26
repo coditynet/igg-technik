@@ -3,6 +3,7 @@
 import type { User } from "better-auth";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,10 +13,17 @@ import {
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogoutIcon } from "@/components/ui/icons/logout";
+import { MoonIcon } from "@/components/ui/icons/moon";
+import { SunIcon } from "@/components/ui/icons/sun";
+import { SunMoonIcon } from "@/components/ui/icons/sun-moon";
 import { UserIcon } from "@/components/ui/icons/user";
 import {
 	SidebarMenu,
@@ -34,6 +42,11 @@ export function NavUser({ user }: { user?: User }) {
 	const { isMobile } = useSidebar();
 	const userIconRef = useRef<IconHandle>(null);
 	const logoutIconRef = useRef<IconHandle>(null);
+	const sunIconRef = useRef<IconHandle>(null);
+	const moonIconRef = useRef<IconHandle>(null);
+	const sunMoonIconRef = useRef<IconHandle>(null);
+	const themeIconRef = useRef<IconHandle>(null);
+	const { theme, setTheme } = useTheme();
 	const { data: session } = authClient.useSession();
 
 	const router = useRouter();
@@ -73,7 +86,7 @@ export function NavUser({ user }: { user?: User }) {
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
-						className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+						className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
 						side={isMobile ? "bottom" : "right"}
 						align="end"
 						sideOffset={4}
@@ -115,6 +128,46 @@ export function NavUser({ user }: { user?: User }) {
 								</DropdownMenuItem>
 							</>
 						)}
+						<DropdownMenuSeparator />
+						<DropdownMenuSub>
+							<DropdownMenuSubTrigger
+								onMouseEnter={() => themeIconRef.current?.startAnimation()}
+								onMouseLeave={() => themeIconRef.current?.stopAnimation()}
+							>
+								<SunMoonIcon ref={themeIconRef} />
+								Theme
+							</DropdownMenuSubTrigger>
+							<DropdownMenuPortal>
+								<DropdownMenuSubContent>
+									<DropdownMenuItem
+										onClick={() => setTheme("light")}
+										onMouseEnter={() => sunIconRef.current?.startAnimation()}
+										onMouseLeave={() => sunIconRef.current?.stopAnimation()}
+									>
+										<SunIcon ref={sunIconRef} />
+										Light
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => setTheme("dark")}
+										onMouseEnter={() => moonIconRef.current?.startAnimation()}
+										onMouseLeave={() => moonIconRef.current?.stopAnimation()}
+									>
+										<MoonIcon ref={moonIconRef} />
+										Dark
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => setTheme("system")}
+										onMouseEnter={() =>
+											sunMoonIconRef.current?.startAnimation()
+										}
+										onMouseLeave={() => sunMoonIconRef.current?.stopAnimation()}
+									>
+										<SunMoonIcon ref={sunMoonIconRef} />
+										System
+									</DropdownMenuItem>
+								</DropdownMenuSubContent>
+							</DropdownMenuPortal>
+						</DropdownMenuSub>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onMouseEnter={() => logoutIconRef.current?.startAnimation()}
