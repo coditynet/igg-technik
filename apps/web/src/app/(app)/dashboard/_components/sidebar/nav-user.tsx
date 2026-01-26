@@ -2,8 +2,8 @@
 
 import type { User } from "better-auth";
 import { ChevronsUpDown } from "lucide-react";
-import Link from "next/link";
 import { useRef } from "react";
+import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -11,7 +11,11 @@ import {
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -22,8 +26,11 @@ import {
 } from "@/components/ui/sidebar";
 import { UserIcon } from "@/components/ui/icons/user";
 import { LogoutIcon } from "@/components/ui/icons/logout";
+import { SunIcon } from "@/components/ui/icons/sun";
+import { MoonIcon } from "@/components/ui/icons/moon";
+import { SunMoonIcon } from "@/components/ui/icons/sun-moon";
 import { authClient } from "@/lib/auth-client";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -34,8 +41,13 @@ export function NavUser({ user }: { user?: User }) {
 	const { isMobile } = useSidebar();
 	const userIconRef = useRef<IconHandle>(null);
 	const logoutIconRef = useRef<IconHandle>(null);
+	const sunIconRef = useRef<IconHandle>(null);
+	const moonIconRef = useRef<IconHandle>(null);
+	const sunMoonIconRef = useRef<IconHandle>(null);
+	const themeIconRef = useRef<IconHandle>(null);
+	const { theme, setTheme } = useTheme();
 
-	const router = useRouter()
+	const router = useRouter();
 
 	if (!user) {
 		return null;
@@ -62,7 +74,7 @@ export function NavUser({ user }: { user?: User }) {
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
-						className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+						className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
 						side={isMobile ? "bottom" : "right"}
 						align="end"
 						sideOffset={4}
@@ -81,7 +93,7 @@ export function NavUser({ user }: { user?: User }) {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem 
+							<DropdownMenuItem
 								asChild
 								onMouseEnter={() => userIconRef.current?.startAnimation()}
 								onMouseLeave={() => userIconRef.current?.stopAnimation()}
@@ -92,6 +104,46 @@ export function NavUser({ user }: { user?: User }) {
 								</a>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
+						<DropdownMenuSeparator />
+						<DropdownMenuSub>
+							<DropdownMenuSubTrigger
+								onMouseEnter={() => themeIconRef.current?.startAnimation()}
+								onMouseLeave={() => themeIconRef.current?.stopAnimation()}
+							>
+								<SunMoonIcon ref={themeIconRef} />
+								Theme
+							</DropdownMenuSubTrigger>
+							<DropdownMenuPortal>
+								<DropdownMenuSubContent>
+									<DropdownMenuItem
+										onClick={() => setTheme("light")}
+										onMouseEnter={() => sunIconRef.current?.startAnimation()}
+										onMouseLeave={() => sunIconRef.current?.stopAnimation()}
+									>
+										<SunIcon ref={sunIconRef} />
+										Light
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => setTheme("dark")}
+										onMouseEnter={() => moonIconRef.current?.startAnimation()}
+										onMouseLeave={() => moonIconRef.current?.stopAnimation()}
+									>
+										<MoonIcon ref={moonIconRef} />
+										Dark
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => setTheme("system")}
+										onMouseEnter={() =>
+											sunMoonIconRef.current?.startAnimation()
+										}
+										onMouseLeave={() => sunMoonIconRef.current?.stopAnimation()}
+									>
+										<SunMoonIcon ref={sunMoonIconRef} />
+										System
+									</DropdownMenuItem>
+								</DropdownMenuSubContent>
+							</DropdownMenuPortal>
+						</DropdownMenuSub>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onMouseEnter={() => logoutIconRef.current?.startAnimation()}
