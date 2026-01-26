@@ -1,9 +1,10 @@
 "use client";
 
 import type { User } from "better-auth";
-import { ChevronsUpDown } from "lucide-react";
-import Link from "next/link";
+import { ChevronsUpDown, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -14,16 +15,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LogoutIcon } from "@/components/ui/icons/logout";
+import { UserIcon } from "@/components/ui/icons/user";
 import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { UserIcon } from "@/components/ui/icons/user";
-import { LogoutIcon } from "@/components/ui/icons/logout";
 import { authClient } from "@/lib/auth-client";
-import {useRouter} from "next/navigation";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -34,12 +34,23 @@ export function NavUser({ user }: { user?: User }) {
 	const { isMobile } = useSidebar();
 	const userIconRef = useRef<IconHandle>(null);
 	const logoutIconRef = useRef<IconHandle>(null);
+	const { data: session } = authClient.useSession();
 
-	const router = useRouter()
+	const router = useRouter();
 
 	if (!user) {
 		return null;
 	}
+
+	const handleStopImpersonating = async () => {
+		const { error } = await authClient.admin.stopImpersonating();
+		if (error) {
+			toast.error("Fehler beim Beenden der Impersonierung");
+			return;
+		}
+		toast.success("Impersonierung beendet");
+		router.push("/dashboard/admin/users");
+	};
 
 	return (
 		<SidebarMenu>
@@ -81,7 +92,7 @@ export function NavUser({ user }: { user?: User }) {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem 
+							<DropdownMenuItem
 								asChild
 								onMouseEnter={() => userIconRef.current?.startAnimation()}
 								onMouseLeave={() => userIconRef.current?.stopAnimation()}
@@ -92,6 +103,18 @@ export function NavUser({ user }: { user?: User }) {
 								</a>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
+						{session?.session.impersonatedBy && (
+							<>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onClick={handleStopImpersonating}
+									className="text-destructive"
+								>
+									<LogOut className="mr-2 size-4" />
+									Impersonierung beenden
+								</DropdownMenuItem>
+							</>
+						)}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onMouseEnter={() => logoutIconRef.current?.startAnimation()}
