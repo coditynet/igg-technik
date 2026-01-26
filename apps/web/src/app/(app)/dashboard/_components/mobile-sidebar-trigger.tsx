@@ -14,7 +14,7 @@ export function MobileSidebarTrigger() {
         <div className="fixed right-6 bottom-6 z-[100] md:hidden">
             <AnimateIcon 
                 animate={openMobile}
-                animateOnHover={!openMobile}
+                // animateOnHover={!openMobile}
             >
                 <Button 
                     data-sidebar="trigger"
