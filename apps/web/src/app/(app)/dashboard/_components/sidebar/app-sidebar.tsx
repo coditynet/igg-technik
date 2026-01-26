@@ -26,6 +26,7 @@ import { authClient } from "@/lib/auth-client";
 import { NavAdmin } from "./nav-admin";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
+import { useAuth } from "@/hooks/use-auth";
 
 const data = {
 	navMain: [
@@ -89,7 +90,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const { data: session } = authClient.useSession();
+	const { session } = useAuth()
 
 	return (
 		<Sidebar collapsible="icon" {...props}>

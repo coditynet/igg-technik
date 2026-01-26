@@ -32,6 +32,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/hooks/use-auth";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -47,7 +48,7 @@ export function NavUser({ user }: { user?: User }) {
 	const sunMoonIconRef = useRef<IconHandle>(null);
 	const themeIconRef = useRef<IconHandle>(null);
 	const { theme, setTheme } = useTheme();
-	const { data: session } = authClient.useSession();
+	const {refetchSession, session } = useAuth()
 
 	const router = useRouter();
 
@@ -62,7 +63,8 @@ export function NavUser({ user }: { user?: User }) {
 			return;
 		}
 		toast.success("Impersonierung beendet");
-		router.push("/dashboard/admin/users");
+		refetchSession()
+		router.refresh();
 	};
 
 	return (

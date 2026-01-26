@@ -11,6 +11,7 @@ import { authClient } from "@/lib/auth-client";
 
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "./ui/sonner";
+import { AuthProvider } from "./auth/provider";
 
 const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL);
 const convexQueryClient = new ConvexQueryClient(convex);
@@ -56,7 +57,9 @@ export default function Providers({
 				initialToken={initialToken}
 			>
 				<QueryClientProvider client={queryClient}>
-					{children}
+					<AuthProvider>
+						{children}
+					</AuthProvider>
 				</QueryClientProvider>
 			</ConvexBetterAuthProvider>
 			<Toaster richColors />
