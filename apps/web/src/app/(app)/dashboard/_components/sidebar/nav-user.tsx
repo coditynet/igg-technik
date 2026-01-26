@@ -1,10 +1,9 @@
 "use client";
 
 import type { User } from "better-auth";
-import { useRef } from "react";
-import { useTheme } from "next-themes";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +21,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogoutIcon } from "@/components/ui/icons/logout";
+import { MoonIcon } from "@/components/ui/icons/moon";
+import { SunIcon } from "@/components/ui/icons/sun";
+import { SunMoonIcon } from "@/components/ui/icons/sun-moon";
 import { UserIcon } from "@/components/ui/icons/user";
 import {
 	SidebarMenu,
@@ -29,11 +31,6 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { UserIcon } from "@/components/ui/icons/user";
-import { LogoutIcon } from "@/components/ui/icons/logout";
-import { SunIcon } from "@/components/ui/icons/sun";
-import { MoonIcon } from "@/components/ui/icons/moon";
-import { SunMoonIcon } from "@/components/ui/icons/sun-moon";
 import { authClient } from "@/lib/auth-client";
 
 interface IconHandle {
