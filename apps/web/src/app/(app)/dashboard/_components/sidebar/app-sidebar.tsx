@@ -1,10 +1,17 @@
 "use client";
 
-import { Calendar, Settings2, SquareTerminal, User } from "lucide-react";
-import Link from "next/link";
+import { Calendar, Settings, Settings2, SquareTerminal, User } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import type * as React from "react";
-
+import { AtSignIcon } from "@/components/ui/icons/at-sign";
+import { CalendarIcon } from "@/components/ui/icons/calendar";
+import { CalendarDaysIcon } from "@/components/ui/icons/calendar-days";
+import { DashboardIcon } from "@/components/ui/icons/dashboard";
+import { MailIcon } from "@/components/ui/icons/mail";
+import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
+import { SettingsIcon } from "@/components/ui/icons/settings";
+import { UsersIcon } from "@/components/ui/icons/users";
 import {
 	Sidebar,
 	SidebarContent,
@@ -19,15 +26,6 @@ import { authClient } from "@/lib/auth-client";
 import { NavAdmin } from "./nav-admin";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
-import { CalendarDaysIcon } from "@/components/ui/icons/calendar-days";
-import { AtSignIcon } from "@/components/ui/icons/at-sign";
-import { SettingsIcon } from "@/components/ui/icons/settings";
-import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
-import { UsersIcon } from "@/components/ui/icons/users";
-import { DashboardIcon } from "@/components/ui/icons/dashboard";
-import { MailIcon } from "@/components/ui/icons/mail";
-import { SlidersHorizontalIcon } from "@/components/ui/icons/sliders-horizontal";
-import { CalendarIcon } from "@/components/ui/icons/calendar";
 
 const data = {
 	navMain: [
@@ -68,7 +66,7 @@ const data = {
 		{
 			title: "Settings",
 			url: "#",
-			icon: SlidersHorizontalIcon,
+			icon: SettingsIcon,
 			items: [
 				{
 					title: "Allgemein",

@@ -1,9 +1,12 @@
 "use client";
 
 import type { User } from "better-auth";
-import { ChevronsUpDown } from "lucide-react";
 import { useRef } from "react";
 import { useTheme } from "next-themes";
+import { ChevronsUpDown, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -18,6 +21,8 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LogoutIcon } from "@/components/ui/icons/logout";
+import { UserIcon } from "@/components/ui/icons/user";
 import {
 	SidebarMenu,
 	SidebarMenuButton,
@@ -30,7 +35,6 @@ import { SunIcon } from "@/components/ui/icons/sun";
 import { MoonIcon } from "@/components/ui/icons/moon";
 import { SunMoonIcon } from "@/components/ui/icons/sun-moon";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -46,12 +50,23 @@ export function NavUser({ user }: { user?: User }) {
 	const sunMoonIconRef = useRef<IconHandle>(null);
 	const themeIconRef = useRef<IconHandle>(null);
 	const { theme, setTheme } = useTheme();
+	const { data: session } = authClient.useSession();
 
 	const router = useRouter();
 
 	if (!user) {
 		return null;
 	}
+
+	const handleStopImpersonating = async () => {
+		const { error } = await authClient.admin.stopImpersonating();
+		if (error) {
+			toast.error("Fehler beim Beenden der Impersonierung");
+			return;
+		}
+		toast.success("Impersonierung beendet");
+		router.push("/dashboard/admin/users");
+	};
 
 	return (
 		<SidebarMenu>
@@ -104,6 +119,18 @@ export function NavUser({ user }: { user?: User }) {
 								</a>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
+						{session?.session.impersonatedBy && (
+							<>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onClick={handleStopImpersonating}
+									className="text-destructive"
+								>
+									<LogOut className="mr-2 size-4" />
+									Impersonierung beenden
+								</DropdownMenuItem>
+							</>
+						)}
 						<DropdownMenuSeparator />
 						<DropdownMenuSub>
 							<DropdownMenuSubTrigger
