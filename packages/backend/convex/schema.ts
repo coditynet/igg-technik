@@ -22,6 +22,10 @@ export default defineSchema({
 		groupId: v.id("groups"),
 		label: v.optional(v.string()),
 		location: v.optional(v.string()),
+
+		assignees: v.optional(v.array(v.id("user"))),
+		notes: v.optional(v.string()),
+		teacher: v.optional(v.string()),
 	}).index("by_group", ["groupId"]),
 
 	emails: defineTable({
