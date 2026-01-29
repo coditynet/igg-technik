@@ -105,7 +105,7 @@ export function ProfileFrame({ user }: ProfileFrameProps) {
 				</CardHeader>
 				<CardContent className="space-y-6">
 					<div className="flex flex-col sm:flex-row sm:items-center gap-6">
-						<UserAvatar user={user} className="h-20 w-20 rounded-full" />
+						<UserAvatar user={user} className="h-16 w-16 rounded-full" />
 						<div className="space-y-1">
 							<div className="flex items-center gap-3">
 								<h3 className="text-xl font-semibold">{currentName}</h3>
