@@ -12,7 +12,7 @@ interface UserAvatarProps {
 
 export function UserAvatar({ user, className }: UserAvatarProps) {
   return (
-    <Avatar className={cn("h-8 w-8 rounded-lg", className)}>
+    <Avatar className={cn("h-6 w-6 rounded-lg", className)}>
       <AvatarImage
         src={
           user.image ||
