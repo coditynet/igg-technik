@@ -4,9 +4,10 @@ import type { User } from "better-auth";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/auth/user-avatar";
+import { AccountDialog } from "@/components/auth/account-dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -51,6 +52,7 @@ export function NavUser({ user }: { user?: User }) {
 	const {refetchSession, session } = useAuth()
 
 	const router = useRouter();
+	const [openAccountDialog, setOpenAccountDialog] = useState(false);
 
 	if (!user) {
 		return null;
@@ -101,14 +103,12 @@ export function NavUser({ user }: { user?: User }) {
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
 							<DropdownMenuItem
-								asChild
+								onClick={() => setOpenAccountDialog(true)}
 								onMouseEnter={() => userIconRef.current?.startAnimation()}
 								onMouseLeave={() => userIconRef.current?.stopAnimation()}
 							>
-								<a href="/account">
-									<UserIcon ref={userIconRef} />
-									Account
-								</a>
+								<UserIcon ref={userIconRef} />
+								Account
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						{session?.session.impersonatedBy && (
@@ -180,6 +180,10 @@ export function NavUser({ user }: { user?: User }) {
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</SidebarMenuItem>
+			<AccountDialog
+				open={openAccountDialog}
+				onOpenChange={setOpenAccountDialog}
+			/>
 		</SidebarMenu>
 	);
 }
