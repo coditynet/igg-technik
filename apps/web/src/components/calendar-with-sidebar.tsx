@@ -2,7 +2,10 @@
 
 import { api } from "@igg/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
-import type { CalendarEvent, CalendarGroup } from "@/components/event-calendar";
+import type {
+	CalendarEvent,
+	CalendarGroup,
+} from "@/components/event-calendar";
 import { CalendarProvider } from "@/components/event-calendar/calendar-context";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Calendar from "@/app/calendar/_components/calendar";
@@ -44,6 +47,7 @@ export function CalendarWithSidebar() {
 		groupId: event.groupId as string,
 		location: event.location,
 		allDay: event.allDay,
+		teacher: event.teacher,
 	}));
 
 	return (

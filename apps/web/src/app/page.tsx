@@ -2,6 +2,7 @@
 
 import { CalendarView } from "@/components/calendar-view";
 import { Header } from "@/components/header";
+import { Infos } from "@/components/infos";
 import { Button } from "@/components/ui/button";
 import { Maximize2 } from "lucide-react";
 import Link from "next/link";
@@ -22,11 +23,14 @@ export default function Home() {
 								</Link>
 							</Button>
 						</div>
-						<div className="h-[600px]">
+						<div className="h-150">
 							<CalendarView />
 						</div>
 					</div>
 				</ViewTransition>
+			</div>
+			<div>
+				<Infos />
 			</div>
 		</div>
 	);

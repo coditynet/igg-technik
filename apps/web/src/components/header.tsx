@@ -9,25 +9,18 @@ import { Popover, PopoverTrigger, PopoverContent } from "./ui/popoverTouch";
 
 export function Header() {
 	return (
-		<div className="relative">
-			<div className="h-250 sticky top-0 bg-white z-50 dark:bg-black">
-				<h1 className="absolute text-7xl font-bold left-1/2 -translate-x-1/2 top-15 text-black dark:text-white">
+		<div>
+			<div className="">
+				<h1 className="text-7xl font-bold text-black dark:text-white flex justify-center mt-8">
 					IGG TECHNIK
 				</h1>
-				<h2 className="absolute text-xl font-sans left-1/2 -translate-x-1/2 lg:top-47 top-50 text-black dark:text-white sm:top-53 max-sm:top-54">
-					Das ist die neue IGG Technik Website. Sie können sich über den{" "}
-					<Link href={"sign-in" as Route} className="underline">
-						Anmelden
-					</Link>{" "}
-					Knopf anmelden um Events anzumelden
-					<Tooltip>
-						{" "}
+				<h2 className="text-xl font-sans text-black dark:text-white mt-5 flex justify-center">
+					Das ist die neue IGG Technik Website. Wenn sie ein Event eintragen wollen, melden Sie sich direkt bei uns in der Technik oder schreiben sie uns an technik@igg.de(ÄNDERN!!!)
+            {/* <Tooltip>
 						<TooltipTrigger>
 							{" "}
 							<TooltipContent className="text-md">
-								Falls Sie irgendwelche Fragen haben oder einen Login wollen
-								sprechen sie uns bei der Technik gerne direkt an oder schreiben
-								sie an <strong>bittenichtvergessen@iggtechnik.de</strong>
+								Hilfe
 							</TooltipContent>{" "}
 							<Popover>
 								{" "}
@@ -38,24 +31,21 @@ export function Header() {
 										<CircleQuestionMark size={20} />{" "}
 									</PopoverTrigger>{" "}
 									<PopoverContent className="text-md">
-										Falls Sie irgendwelche Fragen haben oder einen Login wollen
-										sprechen sie uns bei der Technik gerne direkt an oder
-										schreiben sie an{" "}
-										<strong>bittenichtvergessen@iggtechnik.de</strong>
+										Mobile Hilfe
 									</PopoverContent>{" "}
 								</div>{" "}
 							</Popover>
 						</TooltipTrigger>
-					</Tooltip>
+					</Tooltip> */}
 				</h2>
-				<div className="absolute bottom-1/2 left-1/2 -translate-x-1/2">
+				<div className="">
+						<div className="flex mt-10 justify-center">
 					<Link href={"/sign-in" as Route}>
-						<div className="border-3 rounded-full dark:border-white border-black hover:bg-gray-300/50">
-							<Button className="rounded-full text-6xl hover:cursor-pointer dark:text-white text-black bg-transparent mx-10 my-5">
+							<Button className="mb-2 cursor-pointer" size={"lg"}>
 								Anmelden
 							</Button>
-						</div>
 					</Link>
+						</div>
 				</div>
 			</div>
 		</div>
