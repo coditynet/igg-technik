@@ -66,12 +66,15 @@ export const create = mutation({
 	args: {
 		title: v.string(),
 		description: v.optional(v.string()),
-		start: v.string(), // ISO string from frontend
-		end: v.string(), // ISO string from frontend
+		start: v.string(),
+		end: v.string(),
 		allDay: v.optional(v.boolean()),
 		groupId: v.id("groups"),
 		label: v.optional(v.string()),
 		location: v.optional(v.string()),
+		assignees: v.optional(v.array(v.id("user"))),
+		notes: v.optional(v.string()),
+		teacher: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
@@ -81,12 +84,15 @@ export const create = mutation({
 		const eventId = await ctx.db.insert("events", {
 			title: args.title,
 			description: args.description,
-			start: new Date(args.start).getTime(), // Store as timestamp
-			end: new Date(args.end).getTime(), // Store as timestamp
+			start: new Date(args.start).getTime(),
+			end: new Date(args.end).getTime(),
 			allDay: args.allDay,
 			groupId: args.groupId,
 			label: args.label,
 			location: args.location,
+			assignees: args.assignees,
+			notes: args.notes,
+			teacher: args.teacher,
 		});
 		return eventId;
 	},
@@ -103,6 +109,9 @@ export const update = mutation({
 		groupId: v.optional(v.id("groups")),
 		label: v.optional(v.string()),
 		location: v.optional(v.string()),
+		assignees: v.optional(v.array(v.id("user"))),
+		notes: v.optional(v.string()),
+		teacher: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
@@ -142,19 +151,20 @@ export const remove = mutation({
 export const listForCalendarFeed = query({
 	args: {},
 	handler: async (ctx) => {
-		const events = await ctx.db.query("events").collect();
-
-		return events.map((event) => ({
-			id: event._id,
-			title: event.title,
-			description: event.description,
-			location: event.location,
-			start: event.start,
-			end: event.end,
-			allDay: event.allDay,
-			label: event.label,
-		}));
-	},
+		        const events = await ctx.db.query("events").collect();
+		
+		        return events.map((event) => ({
+		            id: event._id,
+		            title: event.title,
+		            description: event.description,
+		            location: event.location,
+		            start: event.start,
+		            end: event.end,
+		            allDay: event.allDay,
+		            label: event.label,
+		            			assignees: event.assignees,
+		            			teacher: event.teacher,
+		            		}));	},
 });
 
 export const listForCalendarFeedByGroup = query({
@@ -174,6 +184,8 @@ export const listForCalendarFeedByGroup = query({
 			end: event.end,
 			allDay: event.allDay,
 			label: event.label,
+			assignees: event.assignees,
+			teacher: event.teacher,
 		}));
 	},
 });
