@@ -23,22 +23,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
+import { UserAvatar } from "@/components/auth/user-avatar";
+import type { User } from "better-auth";
+import { Separator } from "@/components/ui/separator";
 
 interface ProfileFrameProps {
-	initialName?: string;
+	user?: User;
 }
 
-export function ProfileFrame({ initialName }: ProfileFrameProps) {
-	const [currentName, setCurrentName] = useState(initialName || "");
+export function ProfileFrame({ user }: ProfileFrameProps) {
+	const [currentName, setCurrentName] = useState(user?.name || "");
 	const [nameDialogOpen, setNameDialogOpen] = useState(false);
 	const [newName, setNewName] = useState("");
 	const [isUpdatingName, setIsUpdatingName] = useState(false);
 
 	useEffect(() => {
-		if (initialName) {
-			setCurrentName(initialName);
+		if (user?.name) {
+			setCurrentName(user.name);
 		}
-	}, [initialName]);
+	}, [user?.name]);
 
 	const handleUpdateName = async () => {
 		if (!newName.trim()) {
@@ -69,22 +72,22 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 		}
 	};
 
-	if (!initialName) {
+	if (!user) {
 		return (
 			<Card>
 				<CardHeader>
-					<CardTitle>Profilinformationen</CardTitle>
+					<CardTitle>Profil</CardTitle>
 					<CardDescription>
-						Aktualisiere deinen Anzeigenamen, der in der Anwendung erscheint.
+						Persönliche Informationen und Einstellungen.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<div className="flex items-center justify-between">
+					<div className="flex items-center gap-4">
+						<Skeleton className="h-16 w-16 rounded-full" />
 						<div className="space-y-2">
-							<Skeleton className="h-4 w-24" />
 							<Skeleton className="h-5 w-32" />
+							<Skeleton className="h-4 w-48" />
 						</div>
-						<Skeleton className="h-9 w-16 rounded-md" />
 					</div>
 				</CardContent>
 			</Card>
@@ -95,29 +98,47 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 		<>
 			<Card>
 				<CardHeader>
-					<CardTitle>Profilinformationen</CardTitle>
+					<CardTitle>Profil</CardTitle>
 					<CardDescription>
-						Aktualisiere deinen Anzeigenamen, der in der Anwendung erscheint.
+						Verwalte deine persönlichen Informationen.
 					</CardDescription>
 				</CardHeader>
-				<CardContent>
-					<div className="flex items-center justify-between">
-						<div>
-							<p className="mb-1 font-medium text-muted-foreground text-sm">
-								Anzeigename
-							</p>
-							<p className="text-base">{currentName}</p>
+				<CardContent className="space-y-6">
+					<div className="flex flex-col sm:flex-row sm:items-center gap-6">
+						<UserAvatar user={user} className="h-16 w-16 rounded-full" />
+						<div className="space-y-1">
+							<div className="flex items-center gap-3">
+								<h3 className="text-xl font-semibold">{currentName}</h3>
+								<span className="inline-flex items-center rounded-md bg-muted px-2 py-1 font-medium text-xs ring-1 ring-inset ring-gray-500/10">
+									{user.role || "User"}
+								</span>
+							</div>
+							<p className="text-muted-foreground text-sm">{user.email}</p>
 						</div>
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => {
-								setNewName(currentName);
-								setNameDialogOpen(true);
-							}}
-						>
-							Ändern
-						</Button>
+					</div>
+					
+					<Separator />
+
+					<div className="grid gap-4 sm:grid-cols-2">
+						<div className="space-y-1">
+							<Label className="text-base">Anzeigename</Label>
+							<p className="text-muted-foreground text-sm">
+								Dieser Name wird anderen Benutzern angezeigt.
+							</p>
+						</div>
+						<div className="flex items-center justify-between sm:justify-end gap-4 rounded-lg border p-3 sm:border-0 sm:p-0">
+							<span className="font-medium">{currentName}</span>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									setNewName(currentName);
+									setNameDialogOpen(true);
+								}}
+							>
+								Bearbeiten
+							</Button>
+						</div>
 					</div>
 				</CardContent>
 			</Card>
@@ -144,7 +165,7 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 					</div>
 					<DialogFooter>
 						<Button
-							variant="ghost"
+							variant="outline"
 							onClick={() => setNameDialogOpen(false)}
 							disabled={isUpdatingName}
 						>
@@ -164,7 +185,7 @@ export function ProfileFrame({ initialName }: ProfileFrameProps) {
 									Wird gespeichert...
 								</>
 							) : (
-								"Änderungen speichern"
+								"Speichern"
 							)}
 						</Button>
 					</DialogFooter>

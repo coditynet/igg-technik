@@ -88,11 +88,13 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
+import { UserAvatar } from "@/components/auth/user-avatar";
 
 type UserData = {
 	id: string;
 	name: string;
 	email: string;
+	image?: string | null;
 	role?: string;
 	banned?: boolean;
 	createdAt: Date;
@@ -172,6 +174,7 @@ export default function AdminUsersPage() {
 					id: u.id,
 					name: u.name,
 					email: u.email,
+					image: u.image,
 					role: u.role || "user",
 					banned: u.banned || false,
 					createdAt: u.createdAt,
@@ -270,6 +273,7 @@ export default function AdminUsersPage() {
 			id: u.id,
 			name: u.name,
 			email: u.email,
+			image: u.image,
 			role: u.role || "user",
 			banned: u.banned || false,
 			createdAt: u.createdAt,
@@ -642,14 +646,18 @@ export default function AdminUsersPage() {
 			},
 			cell: ({ row }) => {
 				const banned = row.original.banned;
+				const user = row.original;
 				return (
-					<div className="flex items-center gap-2">
-						<span className="font-medium">{row.getValue("name")}</span>
-						{banned && (
-							<Badge variant="destructive" className="text-xs">
-								Gesperrt
-							</Badge>
-						)}
+					<div className="flex items-center gap-3">
+						<UserAvatar user={user as any} className="h-7 w-7 rounded-full" />
+						<div className="flex items-center gap-2">
+							<span className="font-medium">{row.getValue("name")}</span>
+							{banned && (
+								<Badge variant="destructive" className="text-xs">
+									Gesperrt
+								</Badge>
+							)}
+						</div>
 					</div>
 				);
 			},
