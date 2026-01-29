@@ -19,4 +19,6 @@ export interface CalendarEvent {
 	groupId: string;
 	label?: string;
 	location?: string;
+	notes?: string;
+	teacher?: string;
 }

@@ -31,6 +31,8 @@ export default function Calendar({ events, readOnly = false }: CalendarProps) {
 			groupId: event.groupId as any,
 			location: event.location,
 			allDay: event.allDay ?? false,
+			teacher: event.teacher,
+			notes: event.notes,
 		});
 	};
 
@@ -44,6 +46,8 @@ export default function Calendar({ events, readOnly = false }: CalendarProps) {
 			groupId: updatedEvent.groupId as any,
 			location: updatedEvent.location,
 			allDay: updatedEvent.allDay ?? false,
+			teacher: updatedEvent.teacher,
+			notes: updatedEvent.notes,
 		});
 	};
 

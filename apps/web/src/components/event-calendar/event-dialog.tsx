@@ -71,6 +71,8 @@ export function EventDialog({
 	const [allDay, setAllDay] = useState(false);
 	const [location, setLocation] = useState("");
 	const [groupId, setGroupId] = useState<string>(allGroups[0]?.id || "");
+	const [teacher, setTeacher] = useState("");
+	const [notes, setNotes] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [startDateOpen, setStartDateOpen] = useState(false);
 	const [endDateOpen, setEndDateOpen] = useState(false);
@@ -79,10 +81,8 @@ export function EventDialog({
 		if (event) {
 			setTitle(event.title || "");
 			setDescription(event.description || "");
-
 			const start = new Date(event.start);
 			const end = new Date(event.end);
-
 			setStartDate(start);
 			setEndDate(end);
 			setStartTime(formatTimeForInput(start));
@@ -90,6 +90,8 @@ export function EventDialog({
 			setAllDay(event.allDay || false);
 			setLocation(event.location || "");
 			setGroupId(event.groupId || allGroups[0]?.id || "");
+			setTeacher(event.teacher || "");
+			setNotes(event.notes || "");
 			setError(null);
 		} else {
 			resetForm();
@@ -106,6 +108,8 @@ export function EventDialog({
 		setAllDay(false);
 		setLocation("");
 		setGroupId(allGroups[0]?.id || "");
+		setTeacher("");
+		setNotes("");
 		setError(null);
 	};
 
@@ -184,6 +188,8 @@ export function EventDialog({
 			allDay,
 			location,
 			groupId,
+			teacher,
+			notes,
 		});
 	};
 
@@ -234,6 +240,25 @@ export function EventDialog({
 							id="description"
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
+							rows={3}
+							disabled={readOnly}
+						/>
+					</div>
+					<div className="*:not-first:mt-1.5">
+						<Label htmlFor="teacher">Lehrer</Label>
+						<Input
+							id="teacher"
+							value={teacher}
+							onChange={(e) => setTeacher(e.target.value)}
+							disabled={readOnly}
+						/>
+					</div>
+					<div className="*:not-first:mt-1.5">
+						<Label htmlFor="notes">Notizen</Label>
+						<Textarea
+							id="notes"
+							value={notes}
+							onChange={(e) => setNotes(e.target.value)}
 							rows={3}
 							disabled={readOnly}
 						/>
