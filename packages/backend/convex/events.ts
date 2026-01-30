@@ -62,6 +62,28 @@ export const get = query({
 	},
 });
 
+export const getWithGroup = query({
+	args: { id: v.id("events") },
+	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return null;
+		}
+
+		const event = await ctx.db.get(args.id);
+		if (!event) return null;
+
+		const group = event.groupId ? await ctx.db.get(event.groupId) : undefined;
+
+		return {
+			...event,
+			start: new Date(event.start).toISOString(),
+			end: new Date(event.end).toISOString(),
+			group,
+		};
+	},
+});
+
 export const create = mutation({
 	args: {
 		title: v.string(),
@@ -187,5 +209,81 @@ export const listForCalendarFeedByGroup = query({
 			assignees: event.assignees,
 			teacher: event.teacher,
 		}));
+	},
+});
+
+export const search = query({
+	args: {
+		query: v.optional(v.string()),
+		groupId: v.optional(v.id("groups")),
+		start: v.optional(v.number()),
+		end: v.optional(v.number()),
+		page: v.optional(v.number()),
+		pageSize: v.optional(v.number()),
+	},
+	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return {
+				events: [],
+				totalCount: 0,
+				hasMore: false,
+			};
+		}
+
+		const groupId = args.groupId;
+		const allEvents = groupId
+			? await ctx.db
+					.query("events")
+					.withIndex("by_group", (q) => q.eq("groupId", groupId))
+					.collect()
+			: await ctx.db.query("events").collect();
+
+		let events = allEvents;
+
+		if (args.query) {
+			const q = args.query.toLowerCase();
+			events = events.filter(
+				(e) =>
+					e.title.toLowerCase().includes(q) ||
+					(e.description && e.description.toLowerCase().includes(q)) ||
+					(e.location && e.location.toLowerCase().includes(q)),
+			);
+		}
+
+		if (args.start) {
+			events = events.filter((e) => e.start >= args.start!);
+		}
+
+		if (args.end) {
+			events = events.filter((e) => e.end <= args.end!);
+		}
+
+		events.sort((a, b) => a.start - b.start);
+
+		const page = args.page ?? 0;
+		const pageSize = args.pageSize ?? 50;
+		const totalCount = events.length;
+		const startIndex = page * pageSize;
+		const endIndex = startIndex + pageSize;
+		const paginatedEvents = events.slice(startIndex, endIndex);
+		const hasMore = endIndex < totalCount;
+
+		const groups = await ctx.db.query("groups").collect();
+		const groupsMap = new Map(groups.map((g) => [g._id, g]));
+
+		return {
+			events: paginatedEvents.map((event) => {
+				const group = event.groupId ? groupsMap.get(event.groupId) : undefined;
+				return {
+					...event,
+					start: new Date(event.start).toISOString(),
+					end: new Date(event.end).toISOString(),
+					group,
+				};
+			}),
+			totalCount,
+			hasMore,
+		};
 	},
 });
