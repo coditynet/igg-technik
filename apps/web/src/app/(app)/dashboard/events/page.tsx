@@ -2,7 +2,7 @@
 
 import { api } from "@igg/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -41,7 +41,7 @@ export default function EventsPage() {
 
 	const eventsResult = useQuery(api.events.search, queryArgs);
 
-	useMemo(() => {
+	useEffect(() => {
 		setPage(0);
 	}, [search, selectedGroup, timeFilter]);
 

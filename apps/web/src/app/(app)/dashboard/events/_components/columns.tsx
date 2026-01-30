@@ -19,11 +19,11 @@ export type Event = {
 };
 
 const colorMap: Record<string, string> = {
-	blue: "bg-blue-500",
-	orange: "bg-orange-500",
-	violet: "bg-violet-500",
-	rose: "bg-rose-500",
-	emerald: "bg-emerald-500",
+	blue: "bg-blue-500 hover:bg-blue-500",
+	orange: "bg-orange-500 hover:bg-orange-500",
+	violet: "bg-violet-500 hover:bg-violet-500",
+	rose: "bg-rose-500 hover:bg-rose-500",
+	emerald: "bg-emerald-500 hover:bg-emerald-500",
 };
 
 export const columns: ColumnDef<Event>[] = [
@@ -66,11 +66,11 @@ export const columns: ColumnDef<Event>[] = [
 				return <span className="text-muted-foreground">-</span>;
 			}
 
-			const colorClass = colorMap[group.color] || "bg-gray-500";
+			const colorClass = colorMap[group.color] || "bg-gray-500 hover:bg-gray-500";
 
 			return (
 				<Badge
-					className={`${colorClass} hover:${colorClass} border-none text-white`}
+					className={`${colorClass} border-none text-white`}
 				>
 					{group.name}
 				</Badge>

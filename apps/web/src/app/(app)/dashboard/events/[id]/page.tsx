@@ -56,11 +56,11 @@ export default function EventDetailPage() {
 	}
 
 	const colorMap: Record<string, string> = {
-		blue: "bg-blue-500",
-		orange: "bg-orange-500",
-		violet: "bg-violet-500",
-		rose: "bg-rose-500",
-		emerald: "bg-emerald-500",
+		blue: "bg-blue-500 hover:bg-blue-500",
+		orange: "bg-orange-500 hover:bg-orange-500",
+		violet: "bg-violet-500 hover:bg-violet-500",
+		rose: "bg-rose-500 hover:bg-rose-500",
+		emerald: "bg-emerald-500 hover:bg-emerald-500",
 	};
 
 	const handleEditNotes = () => {
@@ -117,7 +117,7 @@ export default function EventDetailPage() {
 					</h1>
 					{event.group && (
 						<Badge
-							className={`${colorMap[event.group.color] || "bg-gray-500"} hover:${colorMap[event.group.color] || "bg-gray-500"} border-none text-white`}
+							className={`${colorMap[event.group.color] || "bg-gray-500 hover:bg-gray-500"} border-none text-white`}
 						>
 							{event.group.name}
 						</Badge>
