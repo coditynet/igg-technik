@@ -37,22 +37,8 @@ const data = {
 		},
 		{
 			title: "Events",
-			url: "#",
+			url: "/dashboard/events",
 			icon: PartyPopperIcon,
-			items: [
-				{
-					title: "History",
-					url: "#",
-				},
-				{
-					title: "Starred",
-					url: "#",
-				},
-				{
-					title: "Settings",
-					url: "#",
-				},
-			],
 		},
 		{
 			title: "Emails",
