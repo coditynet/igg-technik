@@ -1,7 +1,12 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
+import { components } from "./_generated/api";
+import { PostHog } from "@samhoque/convex-posthog";
 
+const posthog = new PostHog(components.posthog, {
+  });
+  
 export const list = query({
 	args: {},
 	handler: async (ctx) => {
@@ -116,6 +121,16 @@ export const create = mutation({
 			notes: args.notes,
 			teacher: args.teacher,
 		});
+		await posthog.trackUserEvent(ctx, {
+			userId: authUser._id,
+			event: "event_created",
+			properties: {
+				eventId: eventId,
+				title: args.title,
+				convexCloudUrl: process.env.CONVEX_CLOUD_URL
+			},
+		  });
+	  
 		return eventId;
 	},
 });

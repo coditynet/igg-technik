@@ -1,5 +1,7 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { authComponent } from "./auth";
 
 export const list = query({
 	args: {},
@@ -27,9 +29,22 @@ export const create = mutation({
 		),
 	},
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			throw new ConvexError("Not authenticated");
+		}
 		const groupId = await ctx.db.insert("groups", {
 			name: args.name,
 			color: args.color,
+		});
+		await ctx.scheduler.runAfter(0, internal.posthog.track, {
+			event: "group_created",
+			distinctId: authUser._id,
+			properties: {
+				groupId,
+				name: args.name,
+				color: args.color,
+			},
 		});
 		return groupId;
 	},
@@ -50,14 +65,31 @@ export const update = mutation({
 		),
 	},
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			throw new ConvexError("Not authenticated");
+		}
 		const { id, ...updates } = args;
 		await ctx.db.patch(id, updates);
+		await ctx.scheduler.runAfter(0, internal.posthog.track, {
+			event: "group_updated",
+			distinctId: authUser._id,
+			properties: {
+				groupId: args.id,
+				name: args.name,
+				color: args.color
+			},
+		});
 	},
 });
 
 export const remove = mutation({
 	args: { id: v.id("groups") },
 	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			throw new ConvexError("Not authenticated");
+		}
 		const eventsInGroup = await ctx.db
 			.query("events")
 			.withIndex("by_group", (q) => q.eq("groupId", args.id))
@@ -68,5 +100,12 @@ export const remove = mutation({
 		}
 
 		await ctx.db.delete(args.id);
+		await ctx.scheduler.runAfter(0, internal.posthog.track, {
+			event: "group_deleted",
+			distinctId: authUser._id,
+			properties: {
+				groupId: args.id,
+			},
+		});
 	},
 });

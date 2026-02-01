@@ -13,16 +13,19 @@
 		"@convex-dev/better-auth": "catalog:",
 		"@convex-dev/resend": "^0.2.3",
 		"@convex-dev/workflow": "^0.3.3",
+		"@igg/email": "workspace:*",
+		"@posthog/ai": "^7.8.2",
 		"@react-email/components": "1.0.1",
 		"@react-email/render": "^1.0.1",
+		"@samhoque/convex-posthog": "^0.1.1",
 		"ai": "^6.0.3",
 		"better-auth": "catalog:",
 		"convex": "catalog:",
 		"dotenv": "catalog:",
+		"posthog-node": "^5.24.7",
 		"react": "^19.2.1",
 		"react-dom": "^19.2.1",
-		"zod": "catalog:",
-		"@igg/email": "workspace:*"
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@igg/config": "workspace:*",

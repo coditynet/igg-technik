@@ -1,10 +1,23 @@
+"use node"
 import { createGateway, generateText, Output } from "ai";
 import { internalAction } from "../_generated/server";
 import { v } from "convex/values";
 import { z } from "zod";
+import { PostHog } from "posthog-node";
 
+import { components } from "../_generated/api";
+import { withTracing } from "@posthog/ai"
 const gateway = createGateway({
 	apiKey: process.env.AI_GATEWAY_API_KEY ?? "",
+});
+
+const phClient = new PostHog(
+	process.env.POSTHOG_API_KEY!,
+	{ host: process.env.POSTHOG_HOST }
+  );
+
+const model = withTracing(gateway("openai/gpt-5-nano"), phClient, {
+	posthogPrivacyMode: false, 
 });
 
 /**
@@ -28,7 +41,7 @@ export const extractEventData = internalAction({
 		}).format(now);
 
 		const result = await generateText({
-			model: gateway("openai/gpt-5-nano"),
+			model,
 			system: `You are an AI assistant that extracts event information from email text. Extract the event title, description, start time, end time, location, and any other relevant details. If you cannot find a specific piece of information, leave it as null.
 
 IMPORTANT CONTEXT:
@@ -86,7 +99,7 @@ IMPORTANT CONTEXT:
 			}
 			endTime = endDate.getTime();
 		}
-
+		await phClient.shutdown()
 		return {
 			title: eventData.title || undefined,
 			description: eventData.description || undefined,
