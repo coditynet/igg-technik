@@ -1,12 +1,11 @@
+import { PostHog } from "@samhoque/convex-posthog";
 import { ConvexError, v } from "convex/values";
+import { components } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
-import { components } from "./_generated/api";
-import { PostHog } from "@samhoque/convex-posthog";
 
-const posthog = new PostHog(components.posthog, {
-  });
-  
+const posthog = new PostHog(components.posthog, {});
+
 export const list = query({
 	args: {},
 	handler: async (ctx) => {
@@ -127,10 +126,10 @@ export const create = mutation({
 			properties: {
 				eventId: eventId,
 				title: args.title,
-				convexCloudUrl: process.env.CONVEX_CLOUD_URL
+				convexCloudUrl: process.env.CONVEX_CLOUD_URL,
 			},
-		  });
-	  
+		});
+
 		return eventId;
 	},
 });
@@ -159,7 +158,7 @@ export const update = mutation({
 		}
 		const { id, start, end, ...otherUpdates } = args;
 
-		const updates: Record<string, any> = { ...otherUpdates };
+		const updates: Record<string, unknown> = { ...otherUpdates };
 
 		if (start) {
 			updates.start = new Date(start).getTime();
@@ -188,20 +187,21 @@ export const remove = mutation({
 export const listForCalendarFeed = query({
 	args: {},
 	handler: async (ctx) => {
-		        const events = await ctx.db.query("events").collect();
-		
-		        return events.map((event) => ({
-		            id: event._id,
-		            title: event.title,
-		            description: event.description,
-		            location: event.location,
-		            start: event.start,
-		            end: event.end,
-		            allDay: event.allDay,
-		            label: event.label,
-		            			assignees: event.assignees,
-		            			teacher: event.teacher,
-		            		}));	},
+		const events = await ctx.db.query("events").collect();
+
+		return events.map((event) => ({
+			id: event._id,
+			title: event.title,
+			description: event.description,
+			location: event.location,
+			start: event.start,
+			end: event.end,
+			allDay: event.allDay,
+			label: event.label,
+			assignees: event.assignees,
+			teacher: event.teacher,
+		}));
+	},
 });
 
 export const listForCalendarFeedByGroup = query({
@@ -261,17 +261,19 @@ export const search = query({
 			events = events.filter(
 				(e) =>
 					e.title.toLowerCase().includes(q) ||
-					(e.description && e.description.toLowerCase().includes(q)) ||
-					(e.location && e.location.toLowerCase().includes(q)),
+					e.description?.toLowerCase().includes(q) ||
+					e.location?.toLowerCase().includes(q),
 			);
 		}
 
-		if (args.start) {
-			events = events.filter((e) => e.start >= args.start!);
+		if (args.start !== undefined) {
+			const start = args.start;
+			events = events.filter((e) => e.start >= start);
 		}
 
-		if (args.end) {
-			events = events.filter((e) => e.end <= args.end!);
+		if (args.end !== undefined) {
+			const end = args.end;
+			events = events.filter((e) => e.end <= end);
 		}
 
 		events.sort((a, b) => a.start - b.start);
@@ -300,5 +302,132 @@ export const search = query({
 			totalCount,
 			hasMore,
 		};
+	},
+});
+
+const eventRegistrationStatus = v.union(
+	v.literal("pending"),
+	v.literal("approved"),
+	v.literal("rejected"),
+);
+
+export const submitRegistration = mutation({
+	args: {
+		requesterName: v.string(),
+		requesterEmail: v.string(),
+		title: v.string(),
+		description: v.optional(v.string()),
+		start: v.string(),
+		end: v.string(),
+		allDay: v.optional(v.boolean()),
+		groupId: v.id("groups"),
+		label: v.optional(v.string()),
+		location: v.optional(v.string()),
+		teacher: v.optional(v.string()),
+		notes: v.optional(v.string()),
+	},
+	handler: async (ctx, args) => {
+		const start = new Date(args.start).getTime();
+		const end = new Date(args.end).getTime();
+		if (Number.isNaN(start) || Number.isNaN(end)) {
+			throw new ConvexError("Invalid event date");
+		}
+		if (end < start) {
+			throw new ConvexError("Event end must be after start");
+		}
+
+		const now = Date.now();
+		return await ctx.db.insert("eventRegistrations", {
+			requesterName: args.requesterName,
+			requesterEmail: args.requesterEmail,
+			title: args.title,
+			description: args.description,
+			start,
+			end,
+			allDay: args.allDay,
+			groupId: args.groupId,
+			label: args.label,
+			location: args.location,
+			teacher: args.teacher,
+			notes: args.notes,
+			status: "pending",
+			createdAt: now,
+			updatedAt: now,
+		});
+	},
+});
+
+export const listRegistrations = query({
+	args: {
+		status: v.optional(eventRegistrationStatus),
+	},
+	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			return [];
+		}
+
+		const status = args.status;
+		const registrations =
+			status === undefined
+				? await ctx.db.query("eventRegistrations").collect()
+				: await ctx.db
+						.query("eventRegistrations")
+						.withIndex("by_status", (q) => q.eq("status", status))
+						.collect();
+
+		const groups = await ctx.db.query("groups").collect();
+		const groupsById = new Map(groups.map((group) => [group._id, group]));
+
+		return registrations
+			.sort((a, b) => b.createdAt - a.createdAt)
+			.map((registration) => ({
+				...registration,
+				start: new Date(registration.start).toISOString(),
+				end: new Date(registration.end).toISOString(),
+				group: groupsById.get(registration.groupId),
+			}));
+	},
+});
+
+export const createEventFromRegistration = mutation({
+	args: {
+		registrationId: v.id("eventRegistrations"),
+	},
+	handler: async (ctx, args) => {
+		const authUser = await authComponent.safeGetAuthUser(ctx);
+		if (!authUser) {
+			throw new ConvexError("Not authenticated");
+		}
+
+		const registration = await ctx.db.get(args.registrationId);
+		if (!registration) {
+			throw new ConvexError("Registration not found");
+		}
+
+		if (registration.eventId) {
+			return registration.eventId;
+		}
+
+		const eventId = await ctx.db.insert("events", {
+			title: registration.title,
+			description: registration.description,
+			start: registration.start,
+			end: registration.end,
+			allDay: registration.allDay,
+			groupId: registration.groupId,
+			label: registration.label,
+			location: registration.location,
+			notes: registration.notes,
+			teacher: registration.teacher,
+		});
+
+		await ctx.db.patch(registration._id, {
+			status: "approved",
+			eventId,
+			updatedAt: Date.now(),
+		});
+
+		return eventId;
 	},
 });
