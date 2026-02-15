@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { goeyToast } from "goey-toast";
 
 export default function EmailEventPage() {
 	const params = useParams();
@@ -68,10 +69,10 @@ export default function EmailEventPage() {
 					allDay: value.allDay || undefined,
 				});
 
-				toast.success("Event-Informationen erfolgreich gespeichert");
+				goeyToast.success("Event-Informationen erfolgreich gespeichert");
 			} catch (error) {
 				console.error("Failed to update registration:", error);
-				toast.error("Fehler beim Speichern der Informationen");
+				goeyToast.error("Fehler beim Speichern der Informationen");
 			}
 		},
 	});
