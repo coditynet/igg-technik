@@ -12,6 +12,7 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
+import { goeyToast as toast } from "goey-toast";
 import {
 	ArrowUpDown,
 	Ban,
@@ -31,7 +32,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { UserAvatar } from "@/components/auth/user-avatar";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -88,7 +89,6 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
-import { UserAvatar } from "@/components/auth/user-avatar";
 
 type UserData = {
 	id: string;

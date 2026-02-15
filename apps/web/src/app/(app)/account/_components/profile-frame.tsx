@@ -1,8 +1,10 @@
 "use client";
 
+import type { User } from "better-auth";
+import { goeyToast as toast } from "goey-toast";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { UserAvatar } from "@/components/auth/user-avatar";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -21,11 +23,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
-import { UserAvatar } from "@/components/auth/user-avatar";
-import type { User } from "better-auth";
-import { Separator } from "@/components/ui/separator";
 
 interface ProfileFrameProps {
 	user?: User;
@@ -104,19 +104,19 @@ export function ProfileFrame({ user }: ProfileFrameProps) {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
-					<div className="flex flex-col sm:flex-row sm:items-center gap-6">
+					<div className="flex flex-col gap-6 sm:flex-row sm:items-center">
 						<UserAvatar user={user} className="h-16 w-16 rounded-full" />
 						<div className="space-y-1">
 							<div className="flex items-center gap-3">
-								<h3 className="text-xl font-semibold">{currentName}</h3>
-								<span className="inline-flex items-center rounded-md bg-muted px-2 py-1 font-medium text-xs ring-1 ring-inset ring-gray-500/10">
+								<h3 className="font-semibold text-xl">{currentName}</h3>
+								<span className="inline-flex items-center rounded-md bg-muted px-2 py-1 font-medium text-xs ring-1 ring-gray-500/10 ring-inset">
 									{user.role || "User"}
 								</span>
 							</div>
 							<p className="text-muted-foreground text-sm">{user.email}</p>
 						</div>
 					</div>
-					
+
 					<Separator />
 
 					<div className="grid gap-4 sm:grid-cols-2">
@@ -126,7 +126,7 @@ export function ProfileFrame({ user }: ProfileFrameProps) {
 								Dieser Name wird anderen Benutzern angezeigt.
 							</p>
 						</div>
-						<div className="flex items-center justify-between sm:justify-end gap-4 rounded-lg border p-3 sm:border-0 sm:p-0">
+						<div className="flex items-center justify-between gap-4 rounded-lg border p-3 sm:justify-end sm:border-0 sm:p-0">
 							<span className="font-medium">{currentName}</span>
 							<Button
 								variant="outline"

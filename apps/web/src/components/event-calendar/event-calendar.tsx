@@ -12,21 +12,21 @@ import {
 	subWeeks,
 } from "date-fns";
 import { de } from "date-fns/locale";
+import { goeyToast as toast } from "goey-toast";
 import {
 	ChevronDownIcon,
 	ChevronLeftIcon,
 	ChevronRightIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import {
 	AgendaDaysToShow,
 	AgendaView,
 	addHoursToDate,
 	CalendarDndProvider,
 	type CalendarEvent,
-	type CalendarView,
 	CalendarSubscribeButton,
+	type CalendarView,
 	DayView,
 	EventDialog,
 	EventGap,
@@ -186,7 +186,6 @@ export function EventCalendar({
 				description: format(new Date(event.start), "d. MMM yyyy", {
 					locale: de,
 				}),
-				position: "bottom-left",
 			});
 		} else {
 			onEventAdd?.({
@@ -198,7 +197,6 @@ export function EventCalendar({
 				description: format(new Date(event.start), "d. MMM yyyy", {
 					locale: de,
 				}),
-				position: "bottom-left",
 			});
 		}
 		setIsEventDialogOpen(false);
@@ -217,7 +215,6 @@ export function EventCalendar({
 				description: format(new Date(deletedEvent.start), "d. MMM yyyy", {
 					locale: de,
 				}),
-				position: "bottom-left",
 			});
 		}
 	};
@@ -232,7 +229,6 @@ export function EventCalendar({
 			description: format(new Date(updatedEvent.start), "d. MMM yyyy", {
 				locale: de,
 			}),
-			position: "bottom-left",
 		});
 	};
 

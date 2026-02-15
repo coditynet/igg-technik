@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type * as React from "react";
+import { AtSignIcon } from "@/components/ui/icons/at-sign";
 import { CalendarIcon } from "@/components/ui/icons/calendar";
 import { DashboardIcon } from "@/components/ui/icons/dashboard";
 import { MailIcon } from "@/components/ui/icons/mail";
@@ -18,10 +19,10 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/use-auth";
 import { NavAdmin } from "./nav-admin";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
-import { useAuth } from "@/hooks/use-auth";
 
 const data = {
 	navMain: [
@@ -32,22 +33,13 @@ const data = {
 		},
 		{
 			title: "Events",
-			url: "#",
+			url: "/dashboard/events",
 			icon: PartyPopperIcon,
-			items: [
-				{
-					title: "History",
-					url: "#",
-				},
-				{
-					title: "Starred",
-					url: "#",
-				},
-				{
-					title: "Settings",
-					url: "#",
-				},
-			],
+		},
+		{
+			title: "Incoming Requests",
+			url: "/dashboard/incoming-requests",
+			icon: AtSignIcon,
 		},
 		{
 			title: "Emails",

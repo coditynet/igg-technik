@@ -20,6 +20,7 @@ import type * as mail_index from "../mail/index.js";
 import type * as mail_processEmail from "../mail/processEmail.js";
 import type * as mail_publicAccess from "../mail/publicAccess.js";
 import type * as mail_queries from "../mail/queries.js";
+import type * as posthog from "../posthog.js";
 import type * as privateData from "../privateData.js";
 import type * as seed from "../seed.js";
 import type * as workflow from "../workflow.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   "mail/processEmail": typeof mail_processEmail;
   "mail/publicAccess": typeof mail_publicAccess;
   "mail/queries": typeof mail_queries;
+  posthog: typeof posthog;
   privateData: typeof privateData;
   seed: typeof seed;
   workflow: typeof workflow;
@@ -1811,6 +1813,22 @@ export declare const components: {
           pageStatus?: "SplitRecommended" | "SplitRequired" | null;
           splitCursor?: string | null;
         }
+      >;
+    };
+  };
+  posthog: {
+    lib: {
+      trackEvent: FunctionReference<
+        "action",
+        "internal",
+        {
+          apiKey: string;
+          event: string;
+          host?: string;
+          properties?: any;
+          userId: string;
+        },
+        null
       >;
     };
   };

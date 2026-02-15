@@ -1,11 +1,11 @@
 "use client";
 
 import type { User } from "better-auth";
+import { goeyToast as toast } from "goey-toast";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useRef } from "react";
-import { toast } from "sonner";
 import { UserAvatar } from "@/components/auth/user-avatar";
 import {
 	DropdownMenu,
@@ -31,8 +31,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/hooks/use-auth";
+import { authClient } from "@/lib/auth-client";
 
 interface IconHandle {
 	startAnimation: () => void;

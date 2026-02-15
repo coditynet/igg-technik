@@ -1,10 +1,10 @@
 "use client";
 
+import { goeyToast as toast } from "goey-toast";
 import { Edit, Fingerprint, Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
 import {
 	AlertDialog,
 	AlertDialogAction,

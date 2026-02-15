@@ -5,10 +5,10 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { goeyToast } from "goey-toast";
 import { AlertCircle, Mail } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,10 +68,10 @@ export default function EmailEventPage() {
 					allDay: value.allDay || undefined,
 				});
 
-				toast.success("Event-Informationen erfolgreich gespeichert");
+				goeyToast.success("Event-Informationen erfolgreich gespeichert");
 			} catch (error) {
 				console.error("Failed to update registration:", error);
-				toast.error("Fehler beim Speichern der Informationen");
+				goeyToast.error("Fehler beim Speichern der Informationen");
 			}
 		},
 	});
@@ -170,10 +170,9 @@ export default function EmailEventPage() {
 						<AlertCircle />
 						<AlertTitle>Event bereits erstellt</AlertTitle>
 						<AlertDescription>
-							Dieses Event wurde bereits vom IGG Technik
-							Teams akzeptiert und kann nicht mehr bearbeitet werden. Falls Sie
-							Änderungen vornehmen möchten, wenden Sie sich bitte direkt an das
-							IGG Technik Team.
+							Dieses Event wurde bereits vom IGG Technik Teams akzeptiert und
+							kann nicht mehr bearbeitet werden. Falls Sie Änderungen vornehmen
+							möchten, wenden Sie sich bitte direkt an das IGG Technik Team.
 						</AlertDescription>
 					</Alert>
 				) : (
