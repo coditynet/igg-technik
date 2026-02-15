@@ -4,10 +4,9 @@ import type { User } from "better-auth";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/auth/user-avatar";
-import { AccountDialog } from "@/components/auth/account-dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -49,10 +48,9 @@ export function NavUser({ user }: { user?: User }) {
 	const sunMoonIconRef = useRef<IconHandle>(null);
 	const themeIconRef = useRef<IconHandle>(null);
 	const { theme, setTheme } = useTheme();
-	const {refetchSession, session } = useAuth()
+	const { refetchSession, session } = useAuth();
 
 	const router = useRouter();
-	const [openAccountDialog, setOpenAccountDialog] = useState(false);
 
 	if (!user) {
 		return null;
@@ -65,7 +63,7 @@ export function NavUser({ user }: { user?: User }) {
 			return;
 		}
 		toast.success("Impersonierung beendet");
-		refetchSession()
+		refetchSession();
 		router.refresh();
 	};
 
@@ -76,36 +74,43 @@ export function NavUser({ user }: { user?: User }) {
 					<DropdownMenuTrigger asChild>
 						<SidebarMenuButton
 							size="default"
-							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+							className="font-mono uppercase tracking-[0.1em] data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
-							<UserAvatar user={user}  />
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">{user.name}</span>
+							<UserAvatar user={user} />
+							<div className="grid flex-1 text-left leading-tight">
+								<span className="truncate font-mono text-xs font-semibold uppercase tracking-[0.1em]">
+									{user.name}
+								</span>
 							</div>
-							<ChevronsUpDown className="ml-auto size-4" />
+							<ChevronsUpDown className="ml-auto size-3 text-[#555]" />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
-						className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
+						className="w-(--radix-dropdown-menu-trigger-width) min-w-56 bg-[#111] ring-[#333]"
 						side={isMobile ? "bottom" : "right"}
 						align="end"
 						sideOffset={4}
 					>
 						<DropdownMenuLabel className="p-0 font-normal">
-							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-								<UserAvatar user={user} className="h-8 w-8 rounded-lg" />
-								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-medium">{user.name}</span>
-									<span className="truncate text-xs">{user.email}</span>
+							<div className="flex items-center gap-2 px-1 py-1.5 text-left">
+								<UserAvatar user={user} className="h-8 w-8" />
+								<div className="grid flex-1 text-left leading-tight">
+									<span className="truncate font-mono text-xs font-medium text-[#e8e4de]">
+										{user.name}
+									</span>
+									<span className="truncate font-mono text-[10px] text-[#666]">
+										{user.email}
+									</span>
 								</div>
 							</div>
 						</DropdownMenuLabel>
-						<DropdownMenuSeparator />
+						<DropdownMenuSeparator className="bg-[#333]" />
 						<DropdownMenuGroup>
 							<DropdownMenuItem
-								onClick={() => setOpenAccountDialog(true)}
+								onClick={() => router.push("/account")}
 								onMouseEnter={() => userIconRef.current?.startAnimation()}
 								onMouseLeave={() => userIconRef.current?.stopAnimation()}
+								className="font-mono uppercase tracking-[0.1em] text-[#888] focus:bg-[#1a1a1a] focus:text-[#e8e4de]"
 							>
 								<UserIcon ref={userIconRef} />
 								Account
@@ -113,31 +118,33 @@ export function NavUser({ user }: { user?: User }) {
 						</DropdownMenuGroup>
 						{session?.session.impersonatedBy && (
 							<>
-								<DropdownMenuSeparator />
+								<DropdownMenuSeparator className="bg-[#333]" />
 								<DropdownMenuItem
 									onClick={handleStopImpersonating}
-									className="text-destructive"
+									className="font-mono uppercase tracking-[0.1em] text-[#ff3d00] focus:bg-[#ff3d00]/10 focus:text-[#ff3d00]"
 								>
 									<LogOut className="mr-2 size-4" />
 									Impersonierung beenden
 								</DropdownMenuItem>
 							</>
 						)}
-						<DropdownMenuSeparator />
+						<DropdownMenuSeparator className="bg-[#333]" />
 						<DropdownMenuSub>
 							<DropdownMenuSubTrigger
 								onMouseEnter={() => themeIconRef.current?.startAnimation()}
 								onMouseLeave={() => themeIconRef.current?.stopAnimation()}
+								className="font-mono uppercase tracking-[0.1em] text-[#888] focus:bg-[#1a1a1a] focus:text-[#e8e4de]"
 							>
 								<SunMoonIcon ref={themeIconRef} />
 								Theme
 							</DropdownMenuSubTrigger>
 							<DropdownMenuPortal>
-								<DropdownMenuSubContent>
+								<DropdownMenuSubContent className="bg-[#111] ring-[#333]">
 									<DropdownMenuItem
 										onClick={() => setTheme("light")}
 										onMouseEnter={() => sunIconRef.current?.startAnimation()}
 										onMouseLeave={() => sunIconRef.current?.stopAnimation()}
+										className="font-mono uppercase tracking-[0.1em] text-[#888] focus:bg-[#1a1a1a] focus:text-[#e8e4de]"
 									>
 										<SunIcon ref={sunIconRef} />
 										Light
@@ -146,6 +153,7 @@ export function NavUser({ user }: { user?: User }) {
 										onClick={() => setTheme("dark")}
 										onMouseEnter={() => moonIconRef.current?.startAnimation()}
 										onMouseLeave={() => moonIconRef.current?.stopAnimation()}
+										className="font-mono uppercase tracking-[0.1em] text-[#888] focus:bg-[#1a1a1a] focus:text-[#e8e4de]"
 									>
 										<MoonIcon ref={moonIconRef} />
 										Dark
@@ -156,6 +164,7 @@ export function NavUser({ user }: { user?: User }) {
 											sunMoonIconRef.current?.startAnimation()
 										}
 										onMouseLeave={() => sunMoonIconRef.current?.stopAnimation()}
+										className="font-mono uppercase tracking-[0.1em] text-[#888] focus:bg-[#1a1a1a] focus:text-[#e8e4de]"
 									>
 										<SunMoonIcon ref={sunMoonIconRef} />
 										System
@@ -163,7 +172,7 @@ export function NavUser({ user }: { user?: User }) {
 								</DropdownMenuSubContent>
 							</DropdownMenuPortal>
 						</DropdownMenuSub>
-						<DropdownMenuSeparator />
+						<DropdownMenuSeparator className="bg-[#333]" />
 						<DropdownMenuItem
 							onMouseEnter={() => logoutIconRef.current?.startAnimation()}
 							onMouseLeave={() => logoutIconRef.current?.stopAnimation()}
@@ -173,6 +182,7 @@ export function NavUser({ user }: { user?: User }) {
 									router.push("/sign-in");
 								}
 							}}
+							className="font-mono uppercase tracking-[0.1em] text-[#888] focus:bg-[#ff3d00]/10 focus:text-[#ff3d00]"
 						>
 							<LogoutIcon ref={logoutIconRef} />
 							Log out
@@ -180,10 +190,6 @@ export function NavUser({ user }: { user?: User }) {
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</SidebarMenuItem>
-			<AccountDialog
-				open={openAccountDialog}
-				onOpenChange={setOpenAccountDialog}
-			/>
 		</SidebarMenu>
 	);
 }

@@ -8,10 +8,10 @@ import { ConvexReactClient } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
-
+import { AuthProvider } from "./auth/provider";
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "./ui/sonner";
-import { AuthProvider } from "./auth/provider";
+import { TooltipProvider } from "./ui/tooltip";
 
 const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL);
 const convexQueryClient = new ConvexQueryClient(convex);
@@ -58,7 +58,7 @@ export default function Providers({
 			>
 				<QueryClientProvider client={queryClient}>
 					<AuthProvider>
-						{children}
+						<TooltipProvider delayDuration={0}>{children}</TooltipProvider>
 					</AuthProvider>
 				</QueryClientProvider>
 			</ConvexBetterAuthProvider>

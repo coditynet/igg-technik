@@ -1,12 +1,8 @@
 "use client";
 
-import { Calendar, Settings, Settings2, SquareTerminal, User } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import type * as React from "react";
-import { AtSignIcon } from "@/components/ui/icons/at-sign";
 import { CalendarIcon } from "@/components/ui/icons/calendar";
-import { CalendarDaysIcon } from "@/components/ui/icons/calendar-days";
 import { DashboardIcon } from "@/components/ui/icons/dashboard";
 import { MailIcon } from "@/components/ui/icons/mail";
 import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
@@ -22,7 +18,6 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 import { NavAdmin } from "./nav-admin";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
@@ -90,22 +85,21 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const { session } = useAuth()
+	const { session } = useAuth();
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
-			<SidebarHeader>
+			<SidebarHeader className="border-b border-[#222]">
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
 							<Link href="/" className="flex items-center gap-2">
-								<Image
-									src="/logo.png"
-									alt="IGG Technik"
-									width={120}
-									height={32}
-									className="object-contain"
-								/>
+								<div className="flex aspect-square size-8 items-center justify-center bg-[#ff3d00] font-mono text-xs font-black text-black">
+									T
+								</div>
+								<span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#e8e4de]">
+									IGG Technik
+								</span>
 							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>

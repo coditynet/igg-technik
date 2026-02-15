@@ -39,9 +39,14 @@ function AdminNavItem({
 				isActive={isActive}
 				onMouseEnter={() => iconRef.current?.startAnimation()}
 				onMouseLeave={() => iconRef.current?.stopAnimation()}
+				className={`font-mono uppercase tracking-[0.15em] transition-all ${
+					isActive
+						? "text-[#ff3d00] border-l-2 border-[#ff3d00]"
+						: ""
+				}`}
 			>
 				<Link href={item.url}>
-					<item.icon ref={iconRef} />
+					<item.icon ref={iconRef} className={isActive ? "text-[#ff3d00]" : ""} />
 					<span>{item.name}</span>
 				</Link>
 			</SidebarMenuButton>
@@ -61,8 +66,10 @@ export function NavAdmin({
 }) {
 	return (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-			<SidebarGroupLabel>Admin</SidebarGroupLabel>
-			<SidebarMenu>
+			<SidebarGroupLabel className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#555]">
+				Admin
+			</SidebarGroupLabel>
+			<SidebarMenu className="gap-1">
 				{admin.map((item) => (
 					<AdminNavItem key={item.name} item={item} />
 				))}
