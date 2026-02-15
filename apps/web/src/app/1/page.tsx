@@ -1,0 +1,585 @@
+"use client";
+
+import type { Route } from "next";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+const WEEKDAYS = ["MO", "DI", "MI", "DO", "FR", "SA", "SO"];
+
+const KONAMI = [
+	"ArrowUp",
+	"ArrowUp",
+	"ArrowDown",
+	"ArrowDown",
+	"ArrowLeft",
+	"ArrowRight",
+	"ArrowLeft",
+	"ArrowRight",
+	"b",
+	"a",
+];
+
+const MOCK_EVENTS: Record<number, string> = {
+	3: "Theaterprobe",
+	7: "Aufbau",
+	8: "Konzert",
+	12: "Technik AG",
+	15: "Elternabend",
+	19: "Technik AG",
+	22: "Aufführung",
+	23: "Aufführung",
+	26: "Technik AG",
+	28: "Wartung",
+};
+
+const STEPS = [
+	{
+		num: "01",
+		title: "E-Mail verfassen",
+		desc: "Schreiben Sie eine Mail an event@igg.codity.app mit dem Betreff Ihres Events.",
+	},
+	{
+		num: "02",
+		title: "Details angeben",
+		desc: "Nennen Sie Datum, Uhrzeit, Ort und benötigte Technik (Mikrofone, Beamer, Licht).",
+	},
+	{
+		num: "03",
+		title: "Bestätigung erhalten",
+		desc: "Sie bekommen eine Bestätigung, in der Sie die Details noch einmal anpassen können.",
+	},
+];
+
+function useReveal() {
+	const ref = useRef<HTMLDivElement>(null);
+	const [visible, setVisible] = useState(false);
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					setVisible(true);
+					observer.disconnect();
+				}
+			},
+			{ threshold: 0.15 },
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, []);
+	return { ref, visible };
+}
+
+export default function Design1() {
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = now.getMonth();
+	const today = now.getDate();
+	const monthName = now.toLocaleDateString("de-DE", {
+		month: "long",
+		year: "numeric",
+	});
+
+	const days = useMemo(() => {
+		const firstDay = new Date(year, month, 1);
+		let startDay = firstDay.getDay() - 1;
+		if (startDay < 0) startDay = 6;
+		const daysInMonth = new Date(year, month + 1, 0).getDate();
+		const daysInPrevMonth = new Date(year, month, 0).getDate();
+		const cells: { day: number; current: boolean; today: boolean }[] = [];
+		for (let i = startDay - 1; i >= 0; i--)
+			cells.push({ day: daysInPrevMonth - i, current: false, today: false });
+		for (let i = 1; i <= daysInMonth; i++)
+			cells.push({ day: i, current: true, today: i === today });
+		const remaining = 42 - cells.length;
+		for (let i = 1; i <= remaining; i++)
+			cells.push({ day: i, current: false, today: false });
+		return cells;
+	}, [year, month, today]);
+
+	// Konami code easter egg
+	const [glitch, setGlitch] = useState(false);
+	const [konamiIndex, setKonamiIndex] = useState(0);
+
+	const triggerGlitch = useCallback(() => {
+		setGlitch(true);
+		setTimeout(() => setGlitch(false), 2000);
+	}, []);
+
+	useEffect(() => {
+		const handler = (e: KeyboardEvent) => {
+			if (e.key === KONAMI[konamiIndex]) {
+				const next = konamiIndex + 1;
+				if (next === KONAMI.length) {
+					setKonamiIndex(0);
+					triggerGlitch();
+				} else {
+					setKonamiIndex(next);
+				}
+			} else {
+				setKonamiIndex(e.key === KONAMI[0] ? 1 : 0);
+			}
+		};
+		window.addEventListener("keydown", handler);
+		return () => window.removeEventListener("keydown", handler);
+	}, [konamiIndex, triggerGlitch]);
+
+	// Scroll-triggered reveal animations
+	const infoReveal = useReveal();
+	const aboutReveal = useReveal();
+	const tutorialReveal = useReveal();
+	const calendarReveal = useReveal();
+
+	// Hero text stagger
+	const [heroReady, setHeroReady] = useState(false);
+	useEffect(() => {
+		const t = setTimeout(() => setHeroReady(true), 100);
+		return () => clearTimeout(t);
+	}, []);
+
+	return (
+		<div
+			className={`min-h-screen overflow-x-hidden bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black ${glitch ? "animate-[glitch_0.15s_ease_infinite]" : ""}`}
+		>
+			{/* Glitch overlay */}
+			{glitch && (
+				<div className="pointer-events-none fixed inset-0 z-[999]">
+					<div className="absolute inset-0 animate-pulse bg-[#ff3d00] opacity-20 mix-blend-multiply" />
+					<div
+						className="absolute inset-0"
+						style={{
+							background:
+								"repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,61,0,0.03) 2px, rgba(255,61,0,0.03) 4px)",
+						}}
+					/>
+				</div>
+			)}
+
+			{/* Glitch keyframes */}
+			{glitch && (
+				<style>{`
+					@keyframes glitch {
+						0% { transform: translate(0); filter: hue-rotate(0deg); }
+						20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+						40% { transform: translate(2px, -1px); filter: hue-rotate(180deg); }
+						60% { transform: translate(-1px, -2px); filter: hue-rotate(270deg); }
+						80% { transform: translate(1px, 1px); filter: hue-rotate(360deg); }
+						100% { transform: translate(0); filter: hue-rotate(0deg); }
+					}
+				`}</style>
+			)}
+
+			{/* Animation styles */}
+			<style>{`
+				@keyframes stampIn {
+					from { clip-path: inset(100% 0 0 0); transform: translateY(8px); }
+					to { clip-path: inset(0 0 0 0); transform: translateY(0); }
+				}
+				@keyframes fadeSlideUp {
+					from { opacity: 0; transform: translateY(20px); }
+					to { opacity: 1; transform: translateY(0); }
+				}
+				@keyframes scanline {
+					from { transform: translateY(-100%); }
+					to { transform: translateY(100vh); }
+				}
+				@keyframes diamondPulse {
+					0%, 100% { transform: rotate(45deg) scale(1); }
+					50% { transform: rotate(45deg) scale(0.92); }
+				}
+				.stamp-line {
+					clip-path: inset(100% 0 0 0);
+					transform: translateY(8px);
+				}
+				.stamp-line.ready {
+					animation: stampIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+				}
+				.reveal-section {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				.reveal-section.visible {
+					animation: fadeSlideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+				}
+			`}</style>
+
+			{/* Grain overlay */}
+			<div
+				className="pointer-events-none fixed inset-0 z-50 opacity-[0.03]"
+				style={{
+					backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+				}}
+			/>
+
+			{/* Navigation */}
+			<nav className="fixed top-0 right-0 left-0 z-40 border-[#222] border-b">
+				<div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4">
+					<div className="flex items-center">
+						<span className="font-mono text-sm uppercase tracking-[0.3em]">
+							IGG Technik
+						</span>
+					</div>
+					<div className="flex items-center gap-6">
+						<Link
+							href={"/1/sign-in" as Route}
+							className="font-mono text-[#666] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#ff3d00]"
+						>
+							Anmelden
+						</Link>
+						<Link
+							href={"/1/event-request" as Route}
+							className="bg-[#ff3d00] px-4 py-2 font-mono text-black text-xs uppercase tracking-[0.2em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
+						>
+							Event anfragen
+						</Link>
+					</div>
+				</div>
+			</nav>
+
+			{/* Hero */}
+			<section className="mx-auto max-w-[1400px] px-6 pt-32 pb-20">
+				<div className="grid grid-cols-12 gap-4">
+					<div className="col-span-12 lg:col-span-7">
+						<div
+							className={`stamp-line mb-6 font-mono text-[#ff3d00] text-xs uppercase tracking-[0.3em] ${heroReady ? "ready" : ""}`}
+						>
+							Schulevents und so
+						</div>
+						<h1
+							className="font-black text-[clamp(3rem,8vw,8rem)] uppercase leading-[0.85] tracking-[-0.04em]"
+							style={{
+								fontFamily: "'Arial Black', 'Helvetica Neue', sans-serif",
+							}}
+						>
+							<span
+								className={`stamp-line inline-block text-[#ff3d00] ${heroReady ? "ready" : ""}`}
+								style={{ animationDelay: "0.1s" }}
+							>
+								Technik
+							</span>
+							<br />
+							<span
+								className={`stamp-line inline-block ${heroReady ? "ready" : ""}`}
+								style={{ animationDelay: "0.2s" }}
+							>
+								für euer
+							</span>
+							<br />
+							<span
+								className={`stamp-line inline-block ${heroReady ? "ready" : ""}`}
+								style={{ animationDelay: "0.3s" }}
+							>
+								Event.
+							</span>
+						</h1>
+						<div
+							className={`stamp-line mt-10 flex items-center gap-6 ${heroReady ? "ready" : ""}`}
+							style={{ animationDelay: "0.5s" }}
+						>
+							<Link
+								href={"/1/event-request" as Route}
+								className="group inline-flex items-center gap-3 bg-[#ff3d00] px-8 py-4 font-mono text-black text-sm uppercase tracking-[0.1em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
+							>
+								Event anfragen
+								<svg
+									className="h-4 w-4 transition-transform group-hover:translate-x-1"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth={2}
+								>
+									<path d="M5 12h14M12 5l7 7-7 7" />
+								</svg>
+							</Link>
+							<a
+								href="#tutorial"
+								className="border-[#333] border-b pb-1 font-mono text-[#666] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#e8e4de]"
+							>
+								Per E-Mail anfragen
+							</a>
+						</div>
+					</div>
+					<div
+						ref={calendarReveal.ref}
+						className={`reveal-section col-span-12 mt-10 flex items-end lg:col-span-5 lg:mt-0 ${calendarReveal.visible ? "visible" : ""}`}
+						style={{ animationDelay: "0.2s" }}
+					>
+						<div className="relative w-full">
+							<div className="absolute -inset-3 -rotate-1 border border-[#ff3d00]/20" />
+							<div className="absolute -top-6 -right-3 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+								Geplante Events
+							</div>
+
+							{/* Brutalist calendar */}
+							<div className="border border-[#222] bg-[#0d0d0d]">
+								{/* Header */}
+								<div className="flex items-center justify-between border-[#222] border-b px-4 py-3">
+									<span className="font-mono text-[#e8e4de] text-sm uppercase tracking-[0.2em]">
+										{monthName}
+									</span>
+									<div className="flex gap-px">
+										<div className="bg-[#222] px-2 py-1 font-mono text-[#666] text-[10px]">
+											&larr;
+										</div>
+										<div className="bg-[#222] px-2 py-1 font-mono text-[#666] text-[10px]">
+											&rarr;
+										</div>
+									</div>
+								</div>
+
+								{/* Weekday headers */}
+								<div className="grid grid-cols-7 border-[#222] border-b">
+									{WEEKDAYS.map((d) => (
+										<div
+											key={d}
+											className="border-[#222] border-r py-2 text-center font-mono text-[#555] text-[10px] tracking-[0.15em] last:border-r-0"
+										>
+											{d}
+										</div>
+									))}
+								</div>
+
+								{/* Days grid */}
+								<div className="grid grid-cols-7">
+									{days.map((cell, i) => {
+										const event = cell.current ? MOCK_EVENTS[cell.day] : null;
+										return (
+											<div
+												key={i}
+												className={`relative flex flex-col border-[#191919] border-r border-b p-1.5 ${
+													i % 7 === 6 ? "border-r-0" : ""
+												} ${i >= 35 ? "border-b-0" : ""}`}
+												style={{ minHeight: "44px" }}
+											>
+												<span
+													className={`font-mono text-[11px] leading-none ${
+														cell.today
+															? "font-bold text-[#0a0a0a]"
+															: cell.current
+																? "text-[#888]"
+																: "text-[#333]"
+													}`}
+												>
+													{cell.today && (
+														<span className="inline-flex h-[18px] w-[18px] items-center justify-center bg-[#ff3d00]">
+															{cell.day}
+														</span>
+													)}
+													{!cell.today && cell.day}
+												</span>
+												{event && (
+													<div className="mt-1 border-[#ff3d00] border-l bg-[#ff3d00]/10 px-1 py-px">
+														<span className="block truncate font-mono text-[#ff3d00] text-[7px] uppercase leading-tight tracking-wider">
+															{event}
+														</span>
+													</div>
+												)}
+											</div>
+										);
+									})}
+								</div>
+							</div>
+
+							{/* Calendar link */}
+							<Link
+								href={"/calendar" as Route}
+								className="group relative z-10 mt-3 flex items-center gap-3 border border-[#ff3d00]/30 bg-[#ff3d00]/10 px-4 py-3 transition-all hover:bg-[#ff3d00]/20"
+							>
+								<span className="font-mono text-[#ff3d00] text-xs uppercase tracking-[0.15em]">
+									Kalender öffnen
+								</span>
+								<svg
+									className="h-4 w-4 text-[#ff3d00] transition-transform group-hover:translate-x-1"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth={2}
+								>
+									<path d="M5 12h14M12 5l7 7-7 7" />
+								</svg>
+							</Link>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Divider */}
+			<div className="mx-auto max-w-[1400px] px-6">
+				<div className="h-px bg-[#222]" />
+			</div>
+
+			{/* Info strip */}
+			<section
+				ref={infoReveal.ref}
+				className={`reveal-section mx-auto max-w-[1400px] px-6 py-16 ${infoReveal.visible ? "visible" : ""}`}
+			>
+				<div className="grid grid-cols-1 gap-px bg-[#222] md:grid-cols-3">
+					{[
+						{
+							label: "Cooler Text",
+							value: "Cooler Text 2",
+							desc: "Und noch mehr text",
+						},
+						{
+							label: "Noch coolerer text",
+							value: "Noch coolerer text 2",
+							desc: "Hier könnte auch nochmal was stehen",
+						},
+						{
+							label: "Und nochmal",
+							value: "idk",
+							desc: "idk....",
+						},
+					].map((item) => (
+						<div
+							key={item.label}
+							className="group bg-[#0a0a0a] p-8 transition-colors hover:bg-[#111]"
+						>
+							<div className="mb-3 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+								{item.label}
+							</div>
+							<div className="mb-2 font-black text-2xl uppercase tracking-tight">
+								{item.value}
+							</div>
+							<div className="text-[#666] text-sm">{item.desc}</div>
+						</div>
+					))}
+				</div>
+			</section>
+
+			{/* About / Behind the Scenes */}
+			<section
+				ref={aboutReveal.ref}
+				className={`reveal-section mx-auto max-w-[1400px] px-6 py-20 ${aboutReveal.visible ? "visible" : ""}`}
+			>
+				<div className="grid grid-cols-12 gap-8">
+					<div className="col-span-12 lg:col-span-5">
+						<div className="mb-4 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+							Behind the Scenes
+						</div>
+						<h2 className="font-black text-4xl uppercase leading-tight tracking-tight">
+							Über uns
+							<br />
+						</h2>
+					</div>
+					<div className="col-span-12 lg:col-span-7">
+						<div className="space-y-6">
+							<div className="border-[#222] border-l-2 pl-6">
+								<p className="text-[#999] text-sm leading-relaxed">
+									Wir sind das Technik-Team am IGG. Mehr Infos über uns folgen
+									bald!
+								</p>
+							</div>
+							<div className="border-[#222] border-l-2 pl-6">
+								<p className="text-[#999] text-sm leading-relaxed">
+									Im laufe des letzten Monats haben wir diese Website entwickelt
+									um es euch Lehrern noch einfacher zu machen euer Event bei uns
+									Anzumelden...
+								</p>
+							</div>
+							<div className="border border-[#ff3d00]/20 bg-[#111] p-6">
+								<p className="font-mono text-[#e8e4de] text-sm leading-relaxed">
+									Bist du an Technik interessiert? Schau doch einfach mal
+									vorbei. Wir freuen uns immer über neue Mitglieder.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Divider */}
+			<div className="mx-auto max-w-[1400px] px-6">
+				<div className="h-px bg-[#222]" />
+			</div>
+
+			{/* Tutorial */}
+			<section
+				ref={tutorialReveal.ref}
+				id="tutorial"
+				className={`reveal-section mx-auto max-w-[1400px] px-6 py-20 ${tutorialReveal.visible ? "visible" : ""}`}
+			>
+				<div className="grid grid-cols-12 gap-8">
+					<div className="col-span-12 lg:col-span-4">
+						<div className="mb-4 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+							Anleitung und so
+						</div>
+						<h2 className="font-black text-4xl uppercase leading-tight tracking-tight">
+							Event per
+							<br />
+							E-Mail anfragen
+						</h2>
+						<p className="mt-4 text-[#666] text-sm leading-relaxed">
+							Sie können auch ohne Account ein Event bei uns anfragen. Schicken
+							Sie einfach eine E-Mail mit den wichtigsten Infos.
+						</p>
+					</div>
+					<div className="col-span-12 lg:col-span-8">
+						<div className="space-y-px">
+							{STEPS.map((step) => (
+								<div
+									key={step.num}
+									className="group flex gap-6 border border-[#222] bg-[#111] p-6 transition-colors hover:border-[#ff3d00]/30"
+								>
+									<div className="font-black font-mono text-3xl text-[#222] transition-colors group-hover:text-[#ff3d00]">
+										{step.num}
+									</div>
+									<div>
+										<h3 className="mb-1 font-bold text-lg uppercase tracking-tight">
+											{step.title}
+										</h3>
+										<p className="text-[#666] text-sm">{step.desc}</p>
+									</div>
+								</div>
+							))}
+						</div>
+						<div className="mt-6 border border-[#333] border-dashed bg-[#0d0d0d] p-5">
+							<div className="mb-2 font-mono text-[#666] text-[10px] uppercase tracking-[0.3em]">
+								E-Mail Adresse
+							</div>
+							<a
+								href="mailto:event@igg.codity.app"
+								className="font-mono text-[#ff3d00] text-xl hover:underline"
+							>
+								event@igg.codity.app
+							</a>
+						</div>
+						<div className="mt-4 flex items-center gap-3 border-[#222] border-t pt-4">
+							<span className="text-[#666] text-sm">
+								Keine Lust auf E-Mails?
+							</span>
+							<Link
+								href={"/1/event-request" as Route}
+								className="group inline-flex items-center gap-2 font-mono text-[#ff3d00] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#ff5722]"
+							>
+								Formular ausfüllen
+								<svg
+									className="h-3 w-3 transition-transform group-hover:translate-x-1"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth={2}
+								>
+									<path d="M5 12h14M12 5l7 7-7 7" />
+								</svg>
+							</Link>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Footer */}
+			<footer className="border-[#222] border-t px-6 py-8">
+				<div className="mx-auto flex max-w-[1400px] items-center justify-between">
+					<div className="font-mono text-[#444] text-[10px] uppercase tracking-[0.3em]">
+						IGG Technik {new Date().getFullYear()}
+					</div>
+					<span className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em]">
+						Made by Codity
+					</span>
+				</div>
+			</footer>
+		</div>
+	);
+}
