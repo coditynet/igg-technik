@@ -58,4 +58,30 @@ export default defineSchema({
 	})
 		.index("by_accessId", ["accessId"])
 		.index("by_emailId", ["emailId"]),
+
+	eventRegistrations: defineTable({
+		requesterName: v.string(),
+		requesterEmail: v.string(),
+		title: v.string(),
+		description: v.optional(v.string()),
+		start: v.number(),
+		end: v.number(),
+		allDay: v.optional(v.boolean()),
+		groupId: v.id("groups"),
+		label: v.optional(v.string()),
+		location: v.optional(v.string()),
+		teacher: v.optional(v.string()),
+		notes: v.optional(v.string()),
+		status: v.union(
+			v.literal("pending"),
+			v.literal("approved"),
+			v.literal("rejected"),
+		),
+		eventId: v.optional(v.id("events")),
+		createdAt: v.number(),
+		updatedAt: v.number(),
+	})
+		.index("by_status", ["status"])
+		.index("by_createdAt", ["createdAt"])
+		.index("by_eventId", ["eventId"]),
 });

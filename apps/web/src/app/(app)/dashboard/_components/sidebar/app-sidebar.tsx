@@ -1,12 +1,10 @@
 "use client";
 
-import { Calendar, Settings, Settings2, SquareTerminal, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type * as React from "react";
 import { AtSignIcon } from "@/components/ui/icons/at-sign";
 import { CalendarIcon } from "@/components/ui/icons/calendar";
-import { CalendarDaysIcon } from "@/components/ui/icons/calendar-days";
 import { DashboardIcon } from "@/components/ui/icons/dashboard";
 import { MailIcon } from "@/components/ui/icons/mail";
 import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
@@ -22,11 +20,10 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/hooks/use-auth";
 import { NavAdmin } from "./nav-admin";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
-import { useAuth } from "@/hooks/use-auth";
 
 const data = {
 	navMain: [
@@ -39,6 +36,11 @@ const data = {
 			title: "Events",
 			url: "/dashboard/events",
 			icon: PartyPopperIcon,
+		},
+		{
+			title: "Incoming Requests",
+			url: "/dashboard/incoming-requests",
+			icon: AtSignIcon,
 		},
 		{
 			title: "Emails",
@@ -76,7 +78,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const { session } = useAuth()
+	const { session } = useAuth();
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
