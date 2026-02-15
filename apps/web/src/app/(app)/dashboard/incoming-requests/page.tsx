@@ -5,6 +5,7 @@ import type { Id } from "@igg/backend/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
+import { goeyToast } from "goey-toast";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { toast } from "sonner";
 
 export default function IncomingRequestsPage() {
 	const requests = useQuery(api.events.listRegistrations, {});
@@ -34,10 +34,10 @@ export default function IncomingRequestsPage() {
 			const eventId = await createEventFromRegistration({
 				registrationId,
 			});
-			toast.success("Event aus Anfrage erstellt");
+			goeyToast.success("Event erstellt");
 			window.location.href = `/dashboard/events/${eventId}`;
 		} catch (_error) {
-			toast.error("Event konnte nicht erstellt werden");
+			goeyToast.error("Event konnte nicht erstellt werden");
 		} finally {
 			setProcessingId(null);
 		}

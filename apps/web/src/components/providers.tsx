@@ -8,10 +8,8 @@ import { ConvexReactClient } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
-
-import { ThemeProvider } from "./theme-provider";
-import { Toaster } from "./ui/sonner";
 import { AuthProvider } from "./auth/provider";
+import { ThemeProvider } from "./theme-provider";
 import { GoeyToaster } from "./ui/goey-toaster";
 
 const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL);
@@ -64,7 +62,6 @@ export default function Providers({
 					</AuthProvider>
 				</QueryClientProvider>
 			</ConvexBetterAuthProvider>
-			<Toaster richColors />
 		</ThemeProvider>
 	);
 }

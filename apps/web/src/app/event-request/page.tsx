@@ -3,7 +3,7 @@
 import { api } from "@igg/backend/convex/_generated/api";
 import type { Id } from "@igg/backend/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { toast } from "sonner"
+import { goeyToast } from "goey-toast";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -56,30 +56,30 @@ export default function EventRequestPage() {
 		event.preventDefault();
 
 		if (!form.requesterName.trim()) {
-			toast.error("Bitte geben Sie Ihren Namen ein.");
+			goeyToast.error("Bitte geben Sie Ihren Namen ein.");
 			return;
 		}
 		if (!form.requesterEmail.trim()) {
-			toast.error("Bitte geben Sie Ihre E-Mail-Adresse ein.");
+			goeyToast.error("Bitte geben Sie Ihre E-Mail-Adresse ein.");
 			return;
 		}
 		if (!form.title.trim()) {
-			toast.error("Bitte geben Sie einen Titel ein.");
+			goeyToast.error("Bitte geben Sie einen Titel ein.");
 			return;
 		}
 		if (!form.groupId) {
-			toast.error("Bitte wählen Sie eine Gruppe aus.");
+			goeyToast.error("Bitte wählen Sie eine Gruppe aus.");
 			return;
 		}
 
 		const startDate = new Date(form.start);
 		const endDate = new Date(form.end);
 		if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-			toast.error("Bitte geben Sie gültige Start- und Endzeiten ein.");
+			goeyToast.error("Bitte geben Sie gültige Start- und Endzeiten ein.");
 			return;
 		}
 		if (endDate < startDate) {
-			toast.error("Die Endzeit darf nicht vor der Startzeit liegen.");
+			goeyToast.error("Die Endzeit darf nicht vor der Startzeit liegen.");
 			return;
 		}
 
@@ -101,9 +101,9 @@ export default function EventRequestPage() {
 			});
 			setSubmitted(true);
 			setForm(getDefaultForm());
-			toast.success("Anfrage gesendet");
+			goeyToast.success("Anfrage gesendet");
 		} catch (_error) {
-			toast.error("Anfrage konnte nicht gesendet werden");
+			goeyToast.error("Anfrage konnte nicht gesendet werden");
 		} finally {
 			setIsSubmitting(false);
 		}

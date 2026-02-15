@@ -1,8 +1,8 @@
 "use client";
 
+import { goeyToast as toast } from "goey-toast";
 import { Laptop, Loader2, Monitor, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import { UAParser } from "ua-parser-js";
 import {
 	AlertDialog,

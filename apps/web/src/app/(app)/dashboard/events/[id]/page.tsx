@@ -1,18 +1,18 @@
 "use client";
 
 import { api } from "@igg/backend/convex/_generated/api";
+import type { Id } from "@igg/backend/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { goeyToast as toast } from "goey-toast";
+import { ArrowLeft } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
-import type { Id } from "@igg/backend/convex/_generated/dataModel";
-import { useState } from "react";
-import { toast } from "sonner";
 
 export default function EventDetailPage() {
 	const params = useParams();
@@ -85,7 +85,7 @@ export default function EventDetailPage() {
 		setIsEditingNotes(false);
 		setNotes("");
 	};
-	
+
 	//TODO: add confirm dialog
 	const handleEventDelete = async () => {
 		try {
@@ -112,9 +112,7 @@ export default function EventDetailPage() {
 
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
-					<h1 className="font-bold text-3xl tracking-tight">
-						{event.title}
-					</h1>
+					<h1 className="font-bold text-3xl tracking-tight">{event.title}</h1>
 					{event.group && (
 						<Badge
 							className={`${colorMap[event.group.color] || "bg-gray-500 hover:bg-gray-500"} border-none text-white`}
@@ -122,14 +120,10 @@ export default function EventDetailPage() {
 							{event.group.name}
 						</Badge>
 					)}
-					{event.allDay && (
-						<Badge variant="secondary">Ganztägig</Badge>
-					)}
+					{event.allDay && <Badge variant="secondary">Ganztägig</Badge>}
 				</div>
 				{event.description && (
-					<p className="text-muted-foreground">
-						{event.description}
-					</p>
+					<p className="text-muted-foreground">{event.description}</p>
 				)}
 			</div>
 
@@ -200,10 +194,10 @@ export default function EventDetailPage() {
 				) : (
 					<button
 						type="button"
-						className="w-full rounded-lg border bg-muted/30 p-4 hover:bg-muted/50 transition-colors text-left"
+						className="w-full rounded-lg border bg-muted/30 p-4 text-left transition-colors hover:bg-muted/50"
 						onClick={handleEditNotes}
 					>
-						<p className="text-sm whitespace-pre-wrap text-muted-foreground">
+						<p className="whitespace-pre-wrap text-muted-foreground text-sm">
 							{event.notes || "Klicken zum Hinzufügen von Notizen..."}
 						</p>
 					</button>
@@ -211,7 +205,11 @@ export default function EventDetailPage() {
 			</div>
 
 			<div className="flex items-center gap-2 pt-4">
-				<Button variant="outline" className="text-destructive hover:bg-destructive/10" onClick={handleEventDelete}>
+				<Button
+					variant="outline"
+					className="text-destructive hover:bg-destructive/10"
+					onClick={handleEventDelete}
+				>
 					Löschen
 				</Button>
 			</div>

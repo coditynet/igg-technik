@@ -1,13 +1,13 @@
 "use client";
 
 import type { User } from "better-auth";
+import { goeyToast as toast } from "goey-toast";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useRef, useState } from "react";
-import { toast } from "sonner";
-import { UserAvatar } from "@/components/auth/user-avatar";
 import { AccountDialog } from "@/components/auth/account-dialog";
+import { UserAvatar } from "@/components/auth/user-avatar";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -32,8 +32,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/hooks/use-auth";
+import { authClient } from "@/lib/auth-client";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -49,7 +49,7 @@ export function NavUser({ user }: { user?: User }) {
 	const sunMoonIconRef = useRef<IconHandle>(null);
 	const themeIconRef = useRef<IconHandle>(null);
 	const { theme, setTheme } = useTheme();
-	const {refetchSession, session } = useAuth()
+	const { refetchSession, session } = useAuth();
 
 	const router = useRouter();
 	const [openAccountDialog, setOpenAccountDialog] = useState(false);
@@ -65,7 +65,7 @@ export function NavUser({ user }: { user?: User }) {
 			return;
 		}
 		toast.success("Impersonierung beendet");
-		refetchSession()
+		refetchSession();
 		router.refresh();
 	};
 
@@ -78,7 +78,7 @@ export function NavUser({ user }: { user?: User }) {
 							size="default"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
-							<UserAvatar user={user}  />
+							<UserAvatar user={user} />
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-semibold">{user.name}</span>
 							</div>
