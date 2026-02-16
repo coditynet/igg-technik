@@ -1,11 +1,11 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
+import { goeyToast as toast } from "goey-toast";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
@@ -35,10 +35,13 @@ export default function BrutalistSignIn() {
 	const { data: session, isPending } = authClient.useSession();
 	const [showForgot, setShowForgot] = useState(false);
 	const [signInSuccess, setSignInSuccess] = useState(false);
+	const [isRedirecting, setIsRedirecting] = useState(false);
+	const [signInError, setSignInError] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!isPending && session) {
-			router.push("/dashboard" as Route);
+			setIsRedirecting(true);
+			router.replace("/dashboard" as Route);
 		}
 	}, [session, isPending, router]);
 
@@ -48,6 +51,7 @@ export default function BrutalistSignIn() {
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
+			setSignInError(null);
 			await authClient.signIn.email(
 				{
 					email: value.email,
@@ -56,15 +60,18 @@ export default function BrutalistSignIn() {
 				{
 					onSuccess: () => {
 						setSignInSuccess(true);
+						setIsRedirecting(true);
+						setSignInError(null);
 						toast.success("Erfolgreich angemeldet");
-						router.push("/dashboard" as Route);
+						router.replace("/dashboard" as Route);
 					},
 					onError: (error) => {
-						toast.error(
+						const message =
 							error.error?.message ||
-								error.error?.statusText ||
-								"Anmeldung fehlgeschlagen",
-						);
+							error.error?.statusText ||
+							"Anmeldung fehlgeschlagen";
+						setSignInError(message);
+						toast.error(message);
 					},
 				},
 			);
@@ -81,23 +88,30 @@ export default function BrutalistSignIn() {
 
 	const handlePasskeySignIn = async () => {
 		setIsSigningInWithPasskey(true);
+		setSignInError(null);
 		try {
 			const { error } = await authClient.signIn.passkey();
 			if (error) {
-				toast.error(error.message || "Passkey-Anmeldung fehlgeschlagen");
+				const message = error.message || "Passkey-Anmeldung fehlgeschlagen";
+				setSignInError(message);
+				toast.error(message);
 			} else {
 				setSignInSuccess(true);
+				setIsRedirecting(true);
+				setSignInError(null);
 				toast.success("Erfolgreich angemeldet");
-				router.push("/dashboard" as Route);
+				router.replace("/dashboard" as Route);
 			}
 		} catch (_err) {
-			toast.error("Passkey-Anmeldung fehlgeschlagen");
+			const message = "Passkey-Anmeldung fehlgeschlagen";
+			setSignInError(message);
+			toast.error(message);
 		} finally {
 			setIsSigningInWithPasskey(false);
 		}
 	};
 
-	if (isPending || signInSuccess) {
+	if (isPending || signInSuccess || isRedirecting) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
 				<BrutalistLoader />
@@ -153,6 +167,11 @@ export default function BrutalistSignIn() {
 					<p className="mb-10 text-[#666] text-sm leading-relaxed">
 						Willkommen zurück. Melde dich an um fortzufahren.
 					</p>
+					{signInError && (
+						<div className="mb-6 border border-[#ff3d00]/40 bg-[#ff3d00]/10 px-4 py-3 font-mono text-[#ff3d00] text-xs leading-relaxed">
+							{signInError}
+						</div>
+					)}
 
 					<form
 						onSubmit={(e) => {

@@ -1,24 +1,64 @@
 "use client";
 
 import { api } from "@igg/backend/convex/_generated/api";
-import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { goeyToast } from "goey-toast";
 import { AlertCircle, Mail } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+
+type FormState = {
+	title: string;
+	description: string;
+	location: string;
+	label: string;
+	startDate: string;
+	startTime: string;
+	endDate: string;
+	endTime: string;
+	allDay: boolean;
+};
+
+function getDefaultFormState(): FormState {
+	return {
+		title: "",
+		description: "",
+		location: "",
+		label: "",
+		startDate: "",
+		startTime: "",
+		endDate: "",
+		endTime: "",
+		allDay: false,
+	};
+}
+
+function BrutalistLoader() {
+	return (
+		<div className="relative h-[2px] w-16 overflow-hidden bg-[#222]">
+			<div
+				className="absolute inset-y-0 left-0 w-1/2 bg-[#ff3d00]"
+				style={{ animation: "scanBar 0.8s ease-in-out infinite" }}
+			/>
+			<style>{`
+				@keyframes scanBar {
+					0% { left: -50%; }
+					100% { left: 100%; }
+				}
+			`}</style>
+		</div>
+	);
+}
 
 export default function EmailEventPage() {
 	const params = useParams();
@@ -27,405 +67,433 @@ export default function EmailEventPage() {
 	const registration = useQuery(api.mail.publicAccess.getByAccessCode, {
 		accessId,
 	});
-
 	const updateRegistration = useMutation(
 		api.mail.publicAccess.updateByAccessCode,
 	);
 
-	const form = useForm({
-		defaultValues: {
-			title: "",
-			description: "",
-			location: "",
-			startDate: "",
-			startTime: "",
-			endDate: "",
-			endTime: "",
-			allDay: false,
-		},
-		onSubmit: async ({ value }) => {
-			try {
-				const start =
-					value.startDate && value.startTime
-						? new Date(`${value.startDate}T${value.startTime}`).getTime()
-						: value.startDate
-							? new Date(value.startDate).getTime()
-							: undefined;
-				const end =
-					value.endDate && value.endTime
-						? new Date(`${value.endDate}T${value.endTime}`).getTime()
-						: value.endDate
-							? new Date(value.endDate).getTime()
-							: undefined;
-
-				await updateRegistration({
-					accessId,
-					title: value.title.trim() || undefined,
-					description: value.description.trim() || undefined,
-					location: value.location.trim() || undefined,
-					start,
-					end,
-					allDay: value.allDay || undefined,
-				});
-
-				goeyToast.success("Event-Informationen erfolgreich gespeichert");
-			} catch (error) {
-				console.error("Failed to update registration:", error);
-				goeyToast.error("Fehler beim Speichern der Informationen");
-			}
-		},
-	});
+	const [isSaving, setIsSaving] = useState(false);
+	const [form, setForm] = useState<FormState>(getDefaultFormState);
 
 	useEffect(() => {
-		if (registration) {
-			// Use event data if it exists, otherwise use registration data
-			const data = registration.event || registration;
+		if (!registration) return;
+		const source = registration.event || registration;
 
-			form.setFieldValue("title", data.title || "");
-			form.setFieldValue("description", data.description || "");
-			form.setFieldValue("location", data.location || "");
-			form.setFieldValue("allDay", data.allDay || false);
+		setForm({
+			title: source.title || "",
+			description: source.description || "",
+			location: source.location || "",
+			label: source.label || "",
+			startDate: source.start
+				? format(new Date(source.start), "yyyy-MM-dd")
+				: "",
+			startTime: source.start ? format(new Date(source.start), "HH:mm") : "",
+			endDate: source.end ? format(new Date(source.end), "yyyy-MM-dd") : "",
+			endTime: source.end ? format(new Date(source.end), "HH:mm") : "",
+			allDay: source.allDay || false,
+		});
+	}, [registration]);
 
-			if (data.start) {
-				const startDateTime = new Date(data.start);
-				form.setFieldValue("startDate", format(startDateTime, "yyyy-MM-dd"));
-				form.setFieldValue("startTime", format(startDateTime, "HH:mm"));
-			}
-
-			if (data.end) {
-				const endDateTime = new Date(data.end);
-				form.setFieldValue("endDate", format(endDateTime, "yyyy-MM-dd"));
-				form.setFieldValue("endTime", format(endDateTime, "HH:mm"));
-			}
-		}
-	}, [registration, form]);
+	const isEventCreated = !!registration?.eventId;
 
 	const missingFields = useMemo(() => {
-		const fields: string[] = [];
-		const values = form.state.values;
+		const missing: string[] = [];
+		if (!form.title.trim()) missing.push("Titel");
+		if (!form.description.trim()) missing.push("Beschreibung");
+		if (!form.location.trim()) missing.push("Ort");
+		if (!form.startDate) missing.push("Startdatum");
+		if (!form.endDate) missing.push("Enddatum");
+		if (!form.allDay && !form.startTime) missing.push("Startzeit");
+		if (!form.allDay && !form.endTime) missing.push("Endzeit");
+		return missing;
+	}, [form]);
 
-		if (!values.title) fields.push("Titel");
-		if (!values.description) fields.push("Beschreibung");
-		if (!values.location) fields.push("Ort");
-		if (!values.startDate) fields.push("Startdatum");
-		if (!values.endDate) fields.push("Enddatum");
+	const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		if (isEventCreated) return;
 
-		return fields;
-	}, [form.state.values]);
+		const start = form.startDate
+			? form.allDay
+				? new Date(form.startDate).getTime()
+				: form.startTime
+					? new Date(`${form.startDate}T${form.startTime}`).getTime()
+					: undefined
+			: undefined;
+
+		const end = form.endDate
+			? form.allDay
+				? new Date(form.endDate).getTime()
+				: form.endTime
+					? new Date(`${form.endDate}T${form.endTime}`).getTime()
+					: undefined
+			: undefined;
+
+		if (
+			start === undefined ||
+			end === undefined ||
+			Number.isNaN(start) ||
+			Number.isNaN(end)
+		) {
+			goeyToast.error("Bitte geben Sie gültige Start- und Enddaten an.");
+			return;
+		}
+
+		if (end < start) {
+			goeyToast.error("Das Enddatum darf nicht vor dem Startdatum liegen.");
+			return;
+		}
+
+		setIsSaving(true);
+		try {
+			await updateRegistration({
+				accessId,
+				title: form.title.trim() || undefined,
+				description: form.description.trim() || undefined,
+				location: form.location.trim() || undefined,
+				label: form.label.trim() || undefined,
+				start,
+				end,
+				allDay: form.allDay || undefined,
+			});
+			goeyToast.success("Event-Informationen erfolgreich gespeichert");
+		} catch (_error) {
+			goeyToast.error("Fehler beim Speichern der Informationen");
+		} finally {
+			setIsSaving(false);
+		}
+	};
 
 	if (registration === undefined) {
 		return (
-			<div className="min-h-screen bg-background p-4 md:p-8">
-				<div className="mx-auto max-w-3xl space-y-6">
-					<Skeleton className="h-9 w-48" />
-					<Skeleton className="h-[600px] w-full" />
-				</div>
+			<div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
+				<BrutalistLoader />
 			</div>
 		);
 	}
 
 	if (!registration) {
 		return (
-			<div className="min-h-screen bg-background p-4 md:p-8">
-				<div className="mx-auto max-w-3xl">
-					<Card>
-						<CardContent className="flex h-[400px] items-center justify-center">
-							<div className="text-center">
-								<p className="text-muted-foreground">
-									Event Registrierung nicht gefunden
-								</p>
-							</div>
-						</CardContent>
-					</Card>
+			<div className="min-h-screen bg-[#0a0a0a] px-6 py-20 text-[#e8e4de]">
+				<div className="mx-auto max-w-[900px] border border-[#222] bg-[#0f0f0f] p-8">
+					<div className="mb-2 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+						Ungültig
+					</div>
+					<h1 className="font-black text-3xl uppercase tracking-tight">
+						Event Registrierung nicht gefunden
+					</h1>
+					<p className="mt-3 font-mono text-[#777] text-xs">
+						Der Link ist ungültig oder bereits abgelaufen.
+					</p>
+					<div className="mt-8">
+						<Link
+							href={"/" as Route}
+							className="inline-flex bg-[#ff3d00] px-4 py-2 font-mono text-[10px] text-black uppercase tracking-[0.2em]"
+						>
+							Zur Startseite
+						</Link>
+					</div>
 				</div>
 			</div>
 		);
 	}
 
-	const isEventCreated = !!registration.eventId;
-
 	return (
-		<div className="min-h-screen bg-background p-4 md:p-8">
-			<div className="mx-auto max-w-3xl space-y-6">
-				<div>
-					<h1 className="font-bold text-3xl tracking-tight">
-						{isEventCreated ? "Event-Details" : "Event-Details bearbeiten"}
+		<div className="min-h-screen overflow-x-hidden bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black">
+			<div
+				className="pointer-events-none fixed inset-0 z-50 opacity-[0.03]"
+				style={{
+					backgroundImage:
+						"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
+				}}
+			/>
+
+			<nav className="fixed top-0 right-0 left-0 z-40 border-[#222] border-b">
+				<div className="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-4">
+					<Link
+						href={"/" as Route}
+						className="font-mono text-[#666] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#e8e4de]"
+					>
+						Zurück
+					</Link>
+					<span className="font-mono text-sm uppercase tracking-[0.3em]">
+						IGG Technik
+					</span>
+				</div>
+			</nav>
+
+			<div className="relative z-10 mx-auto max-w-[1100px] px-6 pt-28 pb-16">
+				<div className="mb-8">
+					<div className="mb-2 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+						Event Request
+					</div>
+					<h1 className="font-black text-[clamp(2rem,5vw,3.5rem)] uppercase leading-[0.9] tracking-[-0.03em]">
+						{isEventCreated ? "Event bestätigt" : "Event Angaben prüfen"}
 					</h1>
-					<p className="mt-2 text-muted-foreground">
+					<p className="mt-3 max-w-3xl font-mono text-[#777] text-xs leading-relaxed">
 						{isEventCreated
-							? "Dieses Event wurde bereits akzeptiert und erstellt"
-							: "Vervollständigen oder korrigieren Sie die Event-Informationen"}
+							? "Dieses Event wurde bereits übernommen und ist nicht mehr bearbeitbar."
+							: "Die Daten wurden aus Ihrer E-Mail übernommen. Bitte prüfen und korrigieren Sie alle Angaben vor dem Speichern."}
 					</p>
-					{!isEventCreated && (
-						<p className="mt-2 text-muted-foreground text-sm">
-							<span className="font-medium">Hinweis:</span> Die vorausgefüllten
-							Daten wurden automatisch aus Ihrer E-Mail extrahiert und können
-							fehlerhaft sein. Bitte überprüfen Sie alle Angaben sorgfältig.
-						</p>
-					)}
 				</div>
 
-				{isEventCreated ? (
-					<Alert variant="info">
-						<AlertCircle />
-						<AlertTitle>Event bereits erstellt</AlertTitle>
-						<AlertDescription>
-							Dieses Event wurde bereits vom IGG Technik Teams akzeptiert und
-							kann nicht mehr bearbeitet werden. Falls Sie Änderungen vornehmen
-							möchten, wenden Sie sich bitte direkt an das IGG Technik Team.
-						</AlertDescription>
-					</Alert>
-				) : (
-					missingFields.length > 0 && (
-						<Alert variant="warning">
-							<AlertCircle />
-							<AlertTitle>Fehlende Informationen!</AlertTitle>
-							<AlertDescription>
-								Bitte vervollständigen Sie die folgenden Felder:{" "}
-								<strong>
-									{missingFields.map((field, idx) => (
-										<span key={field}>
-											{field}
-											{idx < missingFields.length - 1 ? ", " : ""}
-										</span>
-									))}
-								</strong>
-							</AlertDescription>
-						</Alert>
-					)
-				)}
-
-				{registration.email && (
-					<Card>
-						<CardHeader>
-							<CardTitle className="text-base">E-Mail Information</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-2">
-							<div className="flex items-center gap-2 text-sm">
-								<Mail className="h-4 w-4 text-muted-foreground" />
-								<span className="text-muted-foreground">Von:</span>
-								<span>{registration.email.from}</span>
-							</div>
-							<div className="flex items-center gap-2 text-sm">
-								<span className="text-muted-foreground">Betreff:</span>
-								<span>{registration.email.subject}</span>
-							</div>
-							<div className="flex items-center gap-2 text-sm">
-								<span className="text-muted-foreground">Empfangen:</span>
-								<span>
-									{format(new Date(registration.email.receivedAt), "PPp", {
-										locale: de,
-									})}
-								</span>
-							</div>
-						</CardContent>
-					</Card>
-				)}
-
-				<Card>
-					<CardHeader>
-						<CardTitle>Event-Informationen</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								form.handleSubmit();
-							}}
-							className="space-y-6"
-						>
-							<form.Field name="title">
-								{(field) => (
-									<div className="space-y-2">
-										<Label htmlFor={field.name}>Titel *</Label>
-										<Input
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Event-Titel"
-											disabled={isEventCreated}
-										/>
-									</div>
-								)}
-							</form.Field>
-
-							<form.Field name="description">
-								{(field) => (
-									<div className="space-y-2">
-										<Label htmlFor={field.name}>Beschreibung</Label>
-										<Textarea
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Event-Beschreibung"
-											rows={4}
-											disabled={isEventCreated}
-										/>
-									</div>
-								)}
-							</form.Field>
-
-							<form.Field name="location">
-								{(field) => (
-									<div className="space-y-2">
-										<Label htmlFor={field.name}>Ort</Label>
-										<Input
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Veranstaltungsort"
-											disabled={isEventCreated}
-										/>
-									</div>
-								)}
-							</form.Field>
-
-							<Separator />
-
-							<form.Field name="allDay">
-								{(field) => (
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id={field.name}
-											checked={field.state.value}
-											onCheckedChange={(checked) =>
-												field.handleChange(checked as boolean)
-											}
-											disabled={isEventCreated}
-										/>
-										<Label
-											htmlFor={field.name}
-											className={`font-normal text-sm ${!isEventCreated && "cursor-pointer"}`}
-										>
-											Ganztägiges Event
-										</Label>
-									</div>
-								)}
-							</form.Field>
-
-							<div className="grid gap-4 sm:grid-cols-2">
-								<form.Field name="startDate">
-									{(field) => (
-										<div className="space-y-2">
-											<Label htmlFor={field.name}>Startdatum *</Label>
-											<Input
-												id={field.name}
-												name={field.name}
-												type="date"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												disabled={isEventCreated}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field name="allDay">
-									{(allDayField) =>
-										!allDayField.state.value ? (
-											<form.Field name="startTime">
-												{(field) => (
-													<div className="space-y-2">
-														<Label htmlFor={field.name}>Startzeit</Label>
-														<Input
-															id={field.name}
-															name={field.name}
-															type="time"
-															value={field.state.value}
-															onBlur={field.handleBlur}
-															onChange={(e) =>
-																field.handleChange(e.target.value)
-															}
-															disabled={isEventCreated}
-														/>
-													</div>
-												)}
-											</form.Field>
-										) : null
-									}
-								</form.Field>
-							</div>
-
-							<div className="grid gap-4 sm:grid-cols-2">
-								<form.Field name="endDate">
-									{(field) => (
-										<div className="space-y-2">
-											<Label htmlFor={field.name}>Enddatum *</Label>
-											<Input
-												id={field.name}
-												name={field.name}
-												type="date"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												disabled={isEventCreated}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field name="allDay">
-									{(allDayField) =>
-										!allDayField.state.value ? (
-											<form.Field name="endTime">
-												{(field) => (
-													<div className="space-y-2">
-														<Label htmlFor={field.name}>Endzeit</Label>
-														<Input
-															id={field.name}
-															name={field.name}
-															type="time"
-															value={field.state.value}
-															onBlur={field.handleBlur}
-															onChange={(e) =>
-																field.handleChange(e.target.value)
-															}
-															disabled={isEventCreated}
-														/>
-													</div>
-												)}
-											</form.Field>
-										) : null
-									}
-								</form.Field>
-							</div>
-
-							<Separator />
-
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-2">
-									{registration.responseSent && (
-										<Badge variant="outline">Antwort versendet</Badge>
-									)}
-									{registration.eventId && (
-										<Badge variant="default" className="bg-emerald-500">
-											Event erstellt
-										</Badge>
-									)}
+				<div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+					<div className="border border-[#222] bg-[#0f0f0f] p-6">
+						<form onSubmit={handleSave} className="space-y-5">
+							{!isEventCreated && missingFields.length > 0 && (
+								<div className="border border-[#ff3d00]/40 bg-[#ff3d00]/10 p-3 font-mono text-[#ff3d00] text-xs">
+									<AlertCircle className="mr-2 inline h-4 w-4 align-text-top" />
+									Fehlende Felder: {missingFields.join(", ")}
 								</div>
+							)}
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="title"
+									className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+								>
+									Titel
+								</Label>
+								<Input
+									id="title"
+									value={form.title}
+									onChange={(e) =>
+										setForm((prev) => ({ ...prev, title: e.target.value }))
+									}
+									className="border-[#222] bg-[#111] font-mono"
+									disabled={isEventCreated || isSaving}
+								/>
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="description"
+									className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+								>
+									Beschreibung
+								</Label>
+								<Textarea
+									id="description"
+									value={form.description}
+									onChange={(e) =>
+										setForm((prev) => ({
+											...prev,
+											description: e.target.value,
+										}))
+									}
+									className="border-[#222] bg-[#111] font-mono"
+									disabled={isEventCreated || isSaving}
+								/>
+							</div>
+
+							<div className="grid gap-4 sm:grid-cols-2">
+								<div className="space-y-2">
+									<Label
+										htmlFor="location"
+										className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+									>
+										Ort
+									</Label>
+									<Input
+										id="location"
+										value={form.location}
+										onChange={(e) =>
+											setForm((prev) => ({ ...prev, location: e.target.value }))
+										}
+										className="border-[#222] bg-[#111] font-mono"
+										disabled={isEventCreated || isSaving}
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label
+										htmlFor="label"
+										className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+									>
+										Label
+									</Label>
+									<Input
+										id="label"
+										value={form.label}
+										onChange={(e) =>
+											setForm((prev) => ({ ...prev, label: e.target.value }))
+										}
+										className="border-[#222] bg-[#111] font-mono"
+										disabled={isEventCreated || isSaving}
+									/>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-2">
+								<Checkbox
+									id="all-day"
+									checked={form.allDay}
+									onCheckedChange={(checked) =>
+										setForm((prev) => ({ ...prev, allDay: checked === true }))
+									}
+									disabled={isEventCreated || isSaving}
+								/>
+								<Label
+									htmlFor="all-day"
+									className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+								>
+									Ganztägig
+								</Label>
+							</div>
+
+							<div className="grid gap-4 sm:grid-cols-2">
+								<div className="space-y-2">
+									<Label
+										htmlFor="start-date"
+										className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+									>
+										Startdatum
+									</Label>
+									<Input
+										id="start-date"
+										type="date"
+										value={form.startDate}
+										onChange={(e) =>
+											setForm((prev) => ({
+												...prev,
+												startDate: e.target.value,
+											}))
+										}
+										className="border-[#222] bg-[#111] font-mono"
+										disabled={isEventCreated || isSaving}
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label
+										htmlFor="end-date"
+										className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+									>
+										Enddatum
+									</Label>
+									<Input
+										id="end-date"
+										type="date"
+										value={form.endDate}
+										onChange={(e) =>
+											setForm((prev) => ({ ...prev, endDate: e.target.value }))
+										}
+										className="border-[#222] bg-[#111] font-mono"
+										disabled={isEventCreated || isSaving}
+									/>
+								</div>
+							</div>
+
+							{!form.allDay && (
+								<div className="grid gap-4 sm:grid-cols-2">
+									<div className="space-y-2">
+										<Label
+											htmlFor="start-time"
+											className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+										>
+											Startzeit
+										</Label>
+										<Input
+											id="start-time"
+											type="time"
+											value={form.startTime}
+											onChange={(e) =>
+												setForm((prev) => ({
+													...prev,
+													startTime: e.target.value,
+												}))
+											}
+											className="border-[#222] bg-[#111] font-mono"
+											disabled={isEventCreated || isSaving}
+										/>
+									</div>
+									<div className="space-y-2">
+										<Label
+											htmlFor="end-time"
+											className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+										>
+											Endzeit
+										</Label>
+										<Input
+											id="end-time"
+											type="time"
+											value={form.endTime}
+											onChange={(e) =>
+												setForm((prev) => ({
+													...prev,
+													endTime: e.target.value,
+												}))
+											}
+											className="border-[#222] bg-[#111] font-mono"
+											disabled={isEventCreated || isSaving}
+										/>
+									</div>
+								</div>
+							)}
+
+							<div className="flex items-center justify-end gap-2 border-[#222] border-t pt-5">
+								{registration.eventId && (
+									<span className="inline-flex border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 font-mono text-[10px] text-emerald-300 uppercase tracking-[0.15em]">
+										Event erstellt
+									</span>
+								)}
 								{!isEventCreated && (
-									<form.Subscribe>
-										{(state) => (
-											<Button type="submit" disabled={state.isSubmitting}>
-												{state.isSubmitting
-													? "Wird gespeichert..."
-													: "Speichern"}
-											</Button>
-										)}
-									</form.Subscribe>
+									<Button
+										type="submit"
+										disabled={isSaving}
+										className="bg-[#ff3d00] font-mono text-[10px] text-black uppercase tracking-[0.2em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ff3d00] hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
+									>
+										{isSaving ? "Speichert..." : "Speichern"}
+									</Button>
 								)}
 							</div>
 						</form>
-					</CardContent>
-				</Card>
+					</div>
+
+					<div className="space-y-6">
+						<div className="border border-[#222] bg-[#0f0f0f] p-5">
+							<div className="mb-3 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+								E-Mail Quelle
+							</div>
+							{registration.email ? (
+								<div className="space-y-3 font-mono text-[#888] text-xs">
+									<div className="flex items-start gap-2">
+										<Mail className="mt-0.5 h-4 w-4 text-[#ff3d00]" />
+										<div>
+											<p className="text-[#666]">Von</p>
+											<p className="text-[#e8e4de]">
+												{registration.email.from}
+											</p>
+										</div>
+									</div>
+									<div>
+										<p className="text-[#666]">Betreff</p>
+										<p className="text-[#e8e4de]">
+											{registration.email.subject}
+										</p>
+									</div>
+									<div>
+										<p className="text-[#666]">Empfangen</p>
+										<p className="text-[#e8e4de]">
+											{format(new Date(registration.email.receivedAt), "PPp", {
+												locale: de,
+											})}
+										</p>
+									</div>
+								</div>
+							) : (
+								<Skeleton className="h-20 w-full bg-[#111]" />
+							)}
+						</div>
+
+						<div className="border border-[#222] bg-[#0f0f0f] p-5">
+							<div className="mb-3 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+								Hinweis
+							</div>
+							<p className="font-mono text-[#777] text-xs leading-relaxed">
+								Wenn Ihr Event bereits erstellt wurde, sind Änderungen hier
+								nicht mehr möglich. Kontaktieren Sie in diesem Fall direkt das
+								IGG Technik Team.
+							</p>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
