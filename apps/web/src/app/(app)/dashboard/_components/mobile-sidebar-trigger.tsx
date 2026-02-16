@@ -25,6 +25,7 @@ export function MobileSidebarTrigger() {
             <Button
               size="icon-lg"
               variant="secondary"
+              className="rounded-none border border-[#333] bg-[#111] text-[#ff3d00] hover:bg-[#1a1a1a]"
               onClick={() => {
                 haptic();
               }}
@@ -41,6 +42,7 @@ export function MobileSidebarTrigger() {
           data-slot="sidebar-trigger"
           size="icon-lg"
           variant="secondary"
+          className="rounded-none border border-[#333] bg-[#0a0a0a] text-[#ff3d00] hover:bg-[#1a1a1a]"
           onClick={() => {
             haptic();
             toggleSidebar();

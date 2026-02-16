@@ -11,6 +11,7 @@ import { authClient } from "@/lib/auth-client";
 import { AuthProvider } from "./auth/provider";
 import { ThemeProvider } from "./theme-provider";
 import { GoeyToaster } from "./ui/goey-toaster";
+import { TooltipProvider } from "./ui/tooltip";
 
 const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL);
 const convexQueryClient = new ConvexQueryClient(convex);
@@ -57,7 +58,7 @@ export default function Providers({
 			>
 				<QueryClientProvider client={queryClient}>
 					<AuthProvider>
-						{children}
+						<TooltipProvider delayDuration={0}>{children}</TooltipProvider>
 						<GoeyToaster />
 					</AuthProvider>
 				</QueryClientProvider>

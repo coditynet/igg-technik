@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
 	experimental: {
 		viewTransition: true,
 	},
+	async rewrites() {
+		return [{ source: "/", destination: "/1" }];
+	},
 };
 
 export default nextConfig;

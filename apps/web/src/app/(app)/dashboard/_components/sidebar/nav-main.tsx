@@ -55,9 +55,14 @@ function NavItemWithIcon({ item }: NavItemProps) {
 					isActive={isActive}
 					onMouseEnter={() => iconRef.current?.startAnimation()}
 					onMouseLeave={() => iconRef.current?.stopAnimation()}
+					className={`font-mono uppercase tracking-[0.15em] transition-all ${
+						isActive
+							? "text-[#ff3d00] border-l-2 border-[#ff3d00]"
+							: ""
+					}`}
 				>
 					<Link href={item.url}>
-						{item.icon && <item.icon ref={iconRef} />}
+						{item.icon && <item.icon ref={iconRef} className={isActive ? "text-[#ff3d00]" : ""} />}
 						<span>{item.title}</span>
 					</Link>
 				</SidebarMenuButton>
@@ -82,10 +87,13 @@ function NavItemWithIcon({ item }: NavItemProps) {
 						tooltip={item.title}
 						onMouseEnter={() => iconRef.current?.startAnimation()}
 						onMouseLeave={() => iconRef.current?.stopAnimation()}
+						className={`font-mono uppercase tracking-[0.15em] transition-all ${
+							hasActiveSubItem ? "text-[#ff3d00]" : ""
+						}`}
 					>
-						{item.icon && <item.icon ref={iconRef} />}
+						{item.icon && <item.icon ref={iconRef} className={hasActiveSubItem ? "text-[#ff3d00]" : ""} />}
 						<span>{item.title}</span>
-						<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+						<ChevronRight className="ml-auto h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
 					</SidebarMenuButton>
 				</CollapsibleTrigger>
 				<CollapsibleContent>
@@ -94,7 +102,15 @@ function NavItemWithIcon({ item }: NavItemProps) {
 							const isSubItemActive = pathname === subItem.url;
 							return (
 								<SidebarMenuSubItem key={subItem.title}>
-									<SidebarMenuSubButton asChild isActive={isSubItemActive}>
+									<SidebarMenuSubButton
+										asChild
+										isActive={isSubItemActive}
+										className={`font-mono text-[10px] uppercase tracking-[0.15em] ${
+											isSubItemActive
+												? "text-[#ff3d00]"
+												: ""
+										}`}
+									>
 										<Link href={subItem.url}>
 											<span>{subItem.title}</span>
 										</Link>
@@ -126,8 +142,10 @@ export function NavMain({
 }) {
 	return (
 		<SidebarGroup>
-			<SidebarGroupLabel>Platform</SidebarGroupLabel>
-			<SidebarMenu>
+			<SidebarGroupLabel className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#555]">
+				Platform
+			</SidebarGroupLabel>
+			<SidebarMenu className="gap-1">
 				{items.map((item) => (
 					<NavItemWithIcon key={item.title} item={item} />
 				))}
