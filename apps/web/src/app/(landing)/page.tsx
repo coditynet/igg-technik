@@ -222,13 +222,13 @@ export default function Design1() {
 					</div>
 					<div className="flex items-center gap-6">
 						<Link
-							href={"/1/sign-in" as Route}
+							href={"/sign-in" as Route}
 							className="font-mono text-[#666] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#ff3d00]"
 						>
 							Anmelden
 						</Link>
 						<Link
-							href={"/1/event-request" as Route}
+							href={"/event-request" as Route}
 							className="bg-[#ff3d00] px-4 py-2 font-mono text-black text-xs uppercase tracking-[0.2em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
 						>
 							Event anfragen
@@ -278,7 +278,7 @@ export default function Design1() {
 							style={{ animationDelay: "0.5s" }}
 						>
 							<Link
-								href={"/1/event-request" as Route}
+								href={"/event-request" as Route}
 								className="group inline-flex items-center gap-3 bg-[#ff3d00] px-8 py-4 font-mono text-black text-sm uppercase tracking-[0.1em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
 							>
 								Event anfragen
@@ -550,7 +550,7 @@ export default function Design1() {
 								Keine Lust auf E-Mails?
 							</span>
 							<Link
-								href={"/1/event-request" as Route}
+								href={"/event-request" as Route}
 								className="group inline-flex items-center gap-2 font-mono text-[#ff3d00] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#ff5722]"
 							>
 								Formular ausfüllen

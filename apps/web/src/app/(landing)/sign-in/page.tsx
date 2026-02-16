@@ -117,7 +117,7 @@ export default function BrutalistSignIn() {
 			<nav className="fixed top-0 right-0 left-0 z-40 border-[#222] border-b">
 				<div className="mx-auto flex max-w-[900px] items-center justify-between px-6 py-4">
 					<Link
-						href={"/1" as Route}
+						href={"/" as Route}
 						className="group flex items-center gap-3 font-mono text-[#666] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#e8e4de]"
 					>
 						<svg

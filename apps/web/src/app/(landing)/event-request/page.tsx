@@ -21,7 +21,7 @@ export default function EventRequest1() {
 			<nav className="fixed top-0 right-0 left-0 z-40 border-[#222] border-b bg-[#0a0a0a]/90 backdrop-blur-sm">
 				<div className="mx-auto flex max-w-[900px] items-center justify-between px-6 py-4">
 					<Link
-						href={"/1" as Route}
+						href={"/" as Route}
 						className="group flex items-center gap-3 font-mono text-[#666] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#e8e4de]"
 					>
 						<svg
@@ -69,7 +69,7 @@ export default function EventRequest1() {
 							Wir melden uns bald bei Ihnen.
 						</p>
 						<Link
-							href={"/1" as Route}
+							href={"/" as Route}
 							className="inline-flex items-center gap-3 bg-[#ff3d00] px-6 py-3 font-mono text-black text-sm uppercase tracking-[0.1em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
 						>
 							Zurück zur Startseite
