@@ -26,7 +26,6 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
@@ -153,11 +152,16 @@ export default function EventsPage() {
 	};
 
 	return (
-		<div className="max-w-6xl space-y-4">
-			<div className="flex flex-wrap items-start justify-between gap-3">
+		<div className="max-w-6xl space-y-6">
+			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div>
-					<h1 className="font-bold text-3xl tracking-tight">Veranstaltungen</h1>
-					<p className="text-muted-foreground">
+					<div className="mb-2 font-mono text-[10px] uppercase tracking-[0.3em] text-[#ff3d00]">
+						Verwaltung
+					</div>
+					<h1 className="font-black text-3xl uppercase tracking-tight">
+						Veranstaltungen
+					</h1>
+					<p className="mt-1 font-mono text-xs text-[#777]">
 						Verwalten und anzeigen Sie Veranstaltungen.
 					</p>
 				</div>
@@ -171,14 +175,20 @@ export default function EventsPage() {
 					}}
 				>
 					<SheetTrigger asChild>
-						<Button>Neue Veranstaltung</Button>
+						<Button className="bg-[#ff3d00] font-mono text-xs uppercase tracking-[0.1em] text-black transition-all hover:bg-[#ff3d00] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]">
+							Neue Veranstaltung
+						</Button>
 					</SheetTrigger>
-					<SheetContent side="right" className="w-full p-0 sm:max-w-xl">
-						<SheetHeader>
-							<SheetTitle>Veranstaltung erstellen</SheetTitle>
-							<SheetDescription>
-								Füllen Sie alle notwendigen Felder aus, um eine neue
-								Veranstaltung zu erstellen.
+					<SheetContent side="right" className="w-full border-[#222] border-l bg-[#0a0a0a] p-0 text-[#e8e4de] sm:max-w-xl">
+						<SheetHeader className="border-[#222] border-b">
+							<div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#ff3d00]">
+								Neu
+							</div>
+							<SheetTitle className="font-mono font-bold uppercase tracking-tight text-[#e8e4de]">
+								Veranstaltung erstellen
+							</SheetTitle>
+							<SheetDescription className="font-mono text-xs text-[#777]">
+								Füllen Sie alle notwendigen Felder aus, um eine neue Veranstaltung zu erstellen.
 							</SheetDescription>
 						</SheetHeader>
 
@@ -188,7 +198,7 @@ export default function EventsPage() {
 						>
 							<div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-4">
 								<div className="space-y-2">
-									<Label htmlFor="create-event-title">Titel</Label>
+									<Label htmlFor="create-event-title" className="font-mono text-[10px] uppercase tracking-[0.2em]">Titel</Label>
 									<Input
 										id="create-event-title"
 										value={form.title}
@@ -196,24 +206,25 @@ export default function EventsPage() {
 											setForm((prev) => ({ ...prev, title: e.target.value }))
 										}
 										placeholder="Titel der Veranstaltung"
+										className="border-[#222] bg-[#111] font-mono"
 										required
 									/>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-group">Gruppe</Label>
+									<Label htmlFor="create-event-group" className="font-mono text-[10px] uppercase tracking-[0.2em]">Gruppe</Label>
 									<Select
 										value={form.groupId}
 										onValueChange={(value) =>
 											setForm((prev) => ({ ...prev, groupId: value }))
 										}
 									>
-										<SelectTrigger id="create-event-group">
+										<SelectTrigger id="create-event-group" className="border-[#222] bg-[#111] font-mono">
 											<SelectValue placeholder="Gruppe auswählen" />
 										</SelectTrigger>
-										<SelectContent>
+										<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
 											{groups?.map((group) => (
-												<SelectItem key={group._id} value={group._id}>
+												<SelectItem key={group._id} value={group._id} className="font-mono">
 													{group.name}
 												</SelectItem>
 											))}
@@ -223,7 +234,7 @@ export default function EventsPage() {
 
 								<div className="grid gap-4 sm:grid-cols-2">
 									<div className="space-y-2">
-										<Label htmlFor="create-event-start">Start</Label>
+										<Label htmlFor="create-event-start" className="font-mono text-[10px] uppercase tracking-[0.2em]">Start</Label>
 										<Input
 											id="create-event-start"
 											type="datetime-local"
@@ -231,11 +242,12 @@ export default function EventsPage() {
 											onChange={(e) =>
 												setForm((prev) => ({ ...prev, start: e.target.value }))
 											}
+											className="border-[#222] bg-[#111] font-mono"
 											required
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="create-event-end">Ende</Label>
+										<Label htmlFor="create-event-end" className="font-mono text-[10px] uppercase tracking-[0.2em]">Ende</Label>
 										<Input
 											id="create-event-end"
 											type="datetime-local"
@@ -243,6 +255,7 @@ export default function EventsPage() {
 											onChange={(e) =>
 												setForm((prev) => ({ ...prev, end: e.target.value }))
 											}
+											className="border-[#222] bg-[#111] font-mono"
 											required
 										/>
 									</div>
@@ -255,12 +268,13 @@ export default function EventsPage() {
 										onCheckedChange={(checked) =>
 											setForm((prev) => ({ ...prev, allDay: checked === true }))
 										}
+										className="data-[state=checked]:bg-[#ff3d00] data-[state=checked]:border-[#ff3d00]"
 									/>
-									<Label htmlFor="create-event-all-day">Ganztägig</Label>
+									<Label htmlFor="create-event-all-day" className="font-mono text-xs uppercase tracking-[0.1em]">Ganztägig</Label>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-location">Ort</Label>
+									<Label htmlFor="create-event-location" className="font-mono text-[10px] uppercase tracking-[0.2em]">Ort</Label>
 									<Input
 										id="create-event-location"
 										value={form.location}
@@ -268,11 +282,12 @@ export default function EventsPage() {
 											setForm((prev) => ({ ...prev, location: e.target.value }))
 										}
 										placeholder="z. B. Raum 3.12"
+										className="border-[#222] bg-[#111] font-mono"
 									/>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-teacher">Lehrer</Label>
+									<Label htmlFor="create-event-teacher" className="font-mono text-[10px] uppercase tracking-[0.2em]">Lehrer</Label>
 									<Input
 										id="create-event-teacher"
 										value={form.teacher}
@@ -280,11 +295,12 @@ export default function EventsPage() {
 											setForm((prev) => ({ ...prev, teacher: e.target.value }))
 										}
 										placeholder="Name des Lehrers"
+										className="border-[#222] bg-[#111] font-mono"
 									/>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-label">Label</Label>
+									<Label htmlFor="create-event-label" className="font-mono text-[10px] uppercase tracking-[0.2em]">Label</Label>
 									<Input
 										id="create-event-label"
 										value={form.label}
@@ -292,11 +308,12 @@ export default function EventsPage() {
 											setForm((prev) => ({ ...prev, label: e.target.value }))
 										}
 										placeholder="z. B. Prüfung"
+										className="border-[#222] bg-[#111] font-mono"
 									/>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-description">Beschreibung</Label>
+									<Label htmlFor="create-event-description" className="font-mono text-[10px] uppercase tracking-[0.2em]">Beschreibung</Label>
 									<Textarea
 										id="create-event-description"
 										value={form.description}
@@ -307,11 +324,12 @@ export default function EventsPage() {
 											}))
 										}
 										placeholder="Beschreibung der Veranstaltung"
+										className="border-[#222] bg-[#111] font-mono"
 									/>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-notes">Notizen</Label>
+									<Label htmlFor="create-event-notes" className="font-mono text-[10px] uppercase tracking-[0.2em]">Notizen</Label>
 									<Textarea
 										id="create-event-notes"
 										value={form.notes}
@@ -319,21 +337,27 @@ export default function EventsPage() {
 											setForm((prev) => ({ ...prev, notes: e.target.value }))
 										}
 										placeholder="Interne Notizen"
+										className="border-[#222] bg-[#111] font-mono"
 									/>
 								</div>
 							</div>
 
-							<SheetFooter className="border-t pt-4">
+							<SheetFooter className="border-[#222] border-t pt-4">
 								<SheetClose asChild>
 									<Button
 										type="button"
 										variant="outline"
 										disabled={isCreatingEvent}
+										className="border-[#222] bg-[#111] font-mono text-xs uppercase tracking-[0.1em]"
 									>
 										Abbrechen
 									</Button>
 								</SheetClose>
-								<Button type="submit" disabled={isCreatingEvent}>
+								<Button
+									type="submit"
+									disabled={isCreatingEvent}
+									className="bg-[#ff3d00] font-mono text-xs uppercase tracking-[0.1em] text-black transition-all hover:bg-[#ff3d00] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
+								>
 									{isCreatingEvent
 										? "Wird erstellt..."
 										: "Veranstaltung erstellen"}
@@ -344,12 +368,14 @@ export default function EventsPage() {
 				</Sheet>
 			</div>
 
-			<div className="flex flex-wrap items-center gap-4">
+			<div className="h-px bg-[#222]" />
+
+			<div className="flex flex-wrap items-center gap-3">
 				<Input
-					placeholder="Veranstaltungen suchen..."
+					placeholder="Suchen..."
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
-					className="max-w-sm"
+					className="max-w-sm border-[#222] bg-[#111] font-mono text-xs"
 				/>
 
 				<Select
@@ -358,24 +384,24 @@ export default function EventsPage() {
 						setTimeFilter(value)
 					}
 				>
-					<SelectTrigger className="w-[180px]">
+					<SelectTrigger className="w-[180px] border-[#222] bg-[#111] font-mono text-xs">
 						<SelectValue placeholder="Nach Zeit filtern" />
 					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="upcoming">Kommende</SelectItem>
-						<SelectItem value="past">Vergangene</SelectItem>
-						<SelectItem value="all">Alle</SelectItem>
+					<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
+						<SelectItem value="upcoming" className="font-mono text-xs">Kommende</SelectItem>
+						<SelectItem value="past" className="font-mono text-xs">Vergangene</SelectItem>
+						<SelectItem value="all" className="font-mono text-xs">Alle</SelectItem>
 					</SelectContent>
 				</Select>
 
 				<Select value={selectedGroup} onValueChange={setSelectedGroup}>
-					<SelectTrigger className="w-[200px]">
+					<SelectTrigger className="w-[200px] border-[#222] bg-[#111] font-mono text-xs">
 						<SelectValue placeholder="Nach Gruppe filtern" />
 					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">Alle Gruppen</SelectItem>
+					<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
+						<SelectItem value="all" className="font-mono text-xs">Alle Gruppen</SelectItem>
 						{groups?.map((group) => (
-							<SelectItem key={group._id} value={group._id}>
+							<SelectItem key={group._id} value={group._id} className="font-mono text-xs">
 								{group.name}
 							</SelectItem>
 						))}
@@ -394,11 +420,7 @@ export default function EventsPage() {
 					onPageChange={handlePageChange}
 				/>
 			) : (
-				<div className="space-y-2">
-					<Skeleton className="h-10 w-full" />
-					<Skeleton className="h-20 w-full" />
-					<Skeleton className="h-20 w-full" />
-				</div>
+				<DataTable columns={columns} data={[]} loading />
 			)}
 		</div>
 	);

@@ -34,7 +34,7 @@ export const columns: ColumnDef<Event>[] = [
 			return (
 				<Link
 					href={`/dashboard/events/${row.original._id}` as any}
-					className="font-medium hover:underline"
+					className="font-medium text-[#ff3d00] hover:underline"
 				>
 					{row.getValue("title")}
 				</Link>
@@ -46,7 +46,11 @@ export const columns: ColumnDef<Event>[] = [
 		header: "Start",
 		cell: ({ row }) => {
 			const date = new Date(row.getValue("start"));
-			return format(date, "PP p", { locale: de });
+			return (
+				<span className="text-muted-foreground">
+					{format(date, "PP p", { locale: de })}
+				</span>
+			);
 		},
 	},
 	{
@@ -54,7 +58,11 @@ export const columns: ColumnDef<Event>[] = [
 		header: "Ende",
 		cell: ({ row }) => {
 			const date = new Date(row.getValue("end"));
-			return format(date, "PP p", { locale: de });
+			return (
+				<span className="text-muted-foreground">
+					{format(date, "PP p", { locale: de })}
+				</span>
+			);
 		},
 	},
 	{
@@ -63,14 +71,14 @@ export const columns: ColumnDef<Event>[] = [
 		cell: ({ row }) => {
 			const group = row.original.group;
 			if (!group) {
-				return <span className="text-muted-foreground">-</span>;
+				return <span className="text-muted-foreground">&mdash;</span>;
 			}
 
 			const colorClass = colorMap[group.color] || "bg-gray-500 hover:bg-gray-500";
 
 			return (
 				<Badge
-					className={`${colorClass} border-none text-white`}
+					className={`${colorClass} border-none font-mono text-[10px] uppercase tracking-[0.1em] text-white`}
 				>
 					{group.name}
 				</Badge>
@@ -80,5 +88,12 @@ export const columns: ColumnDef<Event>[] = [
 	{
 		accessorKey: "location",
 		header: "Ort",
+		cell: ({ row }) => {
+			const location = row.getValue("location") as string | undefined;
+			if (!location) {
+				return <span className="text-muted-foreground">&mdash;</span>;
+			}
+			return <span className="text-muted-foreground">{location}</span>;
+		},
 	},
 ];
