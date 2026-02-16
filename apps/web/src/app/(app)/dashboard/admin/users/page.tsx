@@ -709,12 +709,12 @@ export default function AdminUsersPage() {
 				return (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="size-8 p-0">
+							<Button variant="ghost" className="size-8 p-0 text-[#888] hover:bg-[#ff3d00]/10 hover:text-[#ff3d00]">
 								<span className="sr-only">Menü öffnen</span>
 								<MoreHorizontal className="size-4" />
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-48">
+						<DropdownMenuContent align="end" className="w-48 border-[#222] bg-[#111] text-[#e8e4de]">
 							<DropdownMenuLabel>Aktionen</DropdownMenuLabel>
 							<DropdownMenuItem
 								onClick={() => {
@@ -821,7 +821,7 @@ export default function AdminUsersPage() {
 					<Skeleton className="h-10 w-full" />
 				</div>
 
-				<div className="rounded-md border">
+				<div className="border border-[#222] bg-[#0f0f0f]">
 					<Table>
 						<TableHeader>
 							<TableRow>
@@ -882,10 +882,13 @@ export default function AdminUsersPage() {
 		<div className="container mx-auto py-10">
 			<div className="mb-8 flex items-center justify-between">
 				<div>
-					<h1 className="font-bold text-3xl tracking-tight">
+					<div className="mb-2 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
+						Verwaltung
+					</div>
+					<h1 className="font-black text-3xl uppercase tracking-tight">
 						Benutzerverwaltung
 					</h1>
-					<p className="text-muted-foreground">
+					<p className="font-mono text-[#777] text-xs">
 						Verwalten Sie Benutzer, Rollen und Berechtigungen
 					</p>
 				</div>
@@ -897,6 +900,7 @@ export default function AdminUsersPage() {
 									variant="destructive"
 									onClick={() => stopImpersonatingMutation.mutate()}
 									disabled={stopImpersonatingMutation.isPending}
+									className="border border-red-500/40 bg-red-500/15 font-mono text-[10px] uppercase tracking-[0.12em] text-red-300 hover:bg-red-500/20"
 								>
 									{stopImpersonatingMutation.isPending ? (
 										<Loader2 className="mr-2 size-4 animate-spin" />
@@ -906,22 +910,29 @@ export default function AdminUsersPage() {
 									Impersonierung beenden
 								</Button>
 							)}
-							<Button>
+							<Button className="bg-[#ff3d00] font-mono text-[10px] uppercase tracking-[0.12em] text-black transition-all hover:bg-[#ff3d00] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]">
 								<Plus className="mr-2 size-4" />
 								Neuer Benutzer
 							</Button>
 						</div>
 					</DialogTrigger>
-					<DialogContent>
+					<DialogContent className="border-[#222] bg-[#0a0a0a] text-[#e8e4de]">
 						<DialogHeader>
-							<DialogTitle>Neuen Benutzer erstellen</DialogTitle>
-							<DialogDescription>
+							<DialogTitle className="font-black uppercase tracking-tight">
+								Neuen Benutzer erstellen
+							</DialogTitle>
+							<DialogDescription className="font-mono text-[#777] text-xs">
 								Erstellen Sie einen neuen Benutzer mit E-Mail und Passwort.
 							</DialogDescription>
 						</DialogHeader>
 						<div className="grid gap-4 py-4">
 							<div className="grid gap-2">
-								<Label htmlFor="name">Name</Label>
+								<Label
+									htmlFor="name"
+									className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+								>
+									Name
+								</Label>
 								<Input
 									id="name"
 									value={newUser.name}
@@ -929,10 +940,16 @@ export default function AdminUsersPage() {
 										setNewUser({ ...newUser, name: e.target.value })
 									}
 									placeholder="Max Mustermann"
+									className="border-[#222] bg-[#111] font-mono text-xs placeholder:text-[#444]"
 								/>
 							</div>
 							<div className="grid gap-2">
-								<Label htmlFor="email">E-Mail</Label>
+								<Label
+									htmlFor="email"
+									className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+								>
+									E-Mail
+								</Label>
 								<Input
 									id="email"
 									type="email"
@@ -941,10 +958,11 @@ export default function AdminUsersPage() {
 										setNewUser({ ...newUser, email: e.target.value })
 									}
 									placeholder="max@beispiel.de"
+									className="border-[#222] bg-[#111] font-mono text-xs placeholder:text-[#444]"
 								/>
 							</div>
 							<div className="grid gap-2">
-								<Label htmlFor="password">Passwort</Label>
+								<Label htmlFor="password" className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]">Passwort</Label>
 								<Input
 									id="password"
 									type="password"
@@ -953,22 +971,28 @@ export default function AdminUsersPage() {
 										setNewUser({ ...newUser, password: e.target.value })
 									}
 									placeholder="••••••••"
+									className="border-[#222] bg-[#111] font-mono text-xs placeholder:text-[#444]"
 								/>
 							</div>
 							<div className="grid gap-2">
-								<Label htmlFor="role">Rolle</Label>
+								<Label
+									htmlFor="role"
+									className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]"
+								>
+									Rolle
+								</Label>
 								<Select
 									value={newUser.role}
 									onValueChange={(value: "user" | "admin") =>
 										setNewUser({ ...newUser, role: value })
 									}
 								>
-									<SelectTrigger>
+									<SelectTrigger className="border-[#222] bg-[#111] font-mono text-xs">
 										<SelectValue />
 									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="user">Benutzer</SelectItem>
-										<SelectItem value="admin">Admin</SelectItem>
+									<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
+										<SelectItem value="user" className="font-mono text-xs">Benutzer</SelectItem>
+										<SelectItem value="admin" className="font-mono text-xs">Admin</SelectItem>
 									</SelectContent>
 								</Select>
 							</div>
@@ -977,12 +1001,14 @@ export default function AdminUsersPage() {
 							<Button
 								variant="outline"
 								onClick={() => setCreateDialogOpen(false)}
+								className="border-[#222] bg-[#111] font-mono text-[10px] uppercase tracking-[0.1em]"
 							>
 								Abbrechen
 							</Button>
 							<Button
 								onClick={handleCreateUser}
 								disabled={createUserMutation.isPending}
+								className="bg-[#ff3d00] font-mono text-[10px] uppercase tracking-[0.12em] text-black"
 							>
 								{createUserMutation.isPending && (
 									<Loader2 className="mr-2 size-4 animate-spin" />
@@ -996,24 +1022,24 @@ export default function AdminUsersPage() {
 
 			<div className="mb-4">
 				<div className="relative">
-					<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+					<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#666]" />
 					<Input
 						placeholder="Name oder E-Mail suchen..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-9"
+						className="border-[#222] bg-[#111] pl-9 font-mono text-xs placeholder:text-[#444]"
 					/>
 				</div>
 			</div>
 
-			<div className="rounded-md border">
+			<div className="border border-[#222] bg-[#0f0f0f]">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
+							<TableRow key={headerGroup.id} className="border-[#222] hover:bg-transparent">
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id}>
+										<TableHead key={header.id} className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]">
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -1054,9 +1080,10 @@ export default function AdminUsersPage() {
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
+									className="border-[#1c1c1c] hover:bg-[#ff3d00]/5"
 								>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
+										<TableCell key={cell.id} className="text-[#e8e4de]">
 											{flexRender(
 												cell.column.columnDef.cell,
 												cell.getContext(),
@@ -1082,7 +1109,10 @@ export default function AdminUsersPage() {
 										</EmptyHeader>
 										{!searchQuery && (
 											<EmptyContent>
-												<Button onClick={() => setCreateDialogOpen(true)}>
+												<Button
+													onClick={() => setCreateDialogOpen(true)}
+													className="bg-[#ff3d00] font-mono text-[10px] uppercase tracking-[0.12em] text-black"
+												>
 													<Plus className="mr-2 size-4" />
 													Neuer Benutzer
 												</Button>
@@ -1097,7 +1127,7 @@ export default function AdminUsersPage() {
 			</div>
 
 			<div className="flex items-center justify-between space-x-2 py-4">
-				<div className="text-muted-foreground text-sm">
+				<div className="font-mono text-[#777] text-xs">
 					{total} Benutzer insgesamt
 				</div>
 				<div className="flex items-center space-x-2">
@@ -1106,10 +1136,11 @@ export default function AdminUsersPage() {
 						size="sm"
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
+						className="border-[#222] bg-[#111] font-mono text-[10px] uppercase tracking-[0.1em]"
 					>
 						Zurück
 					</Button>
-					<div className="flex items-center gap-1 text-sm">
+					<div className="flex items-center gap-1 font-mono text-[#777] text-xs">
 						<span>
 							Seite {table.getState().pagination.pageIndex + 1} von{" "}
 							{table.getPageCount()}
@@ -1120,6 +1151,7 @@ export default function AdminUsersPage() {
 						size="sm"
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
+						className="border-[#222] bg-[#111] font-mono text-[10px] uppercase tracking-[0.1em]"
 					>
 						Weiter
 					</Button>
@@ -1130,7 +1162,7 @@ export default function AdminUsersPage() {
 				open={deleteUserId !== null}
 				onOpenChange={(open) => !open && setDeleteUserId(null)}
 			>
-				<AlertDialogContent>
+				<AlertDialogContent className="border-[#222] bg-[#0a0a0a] text-[#e8e4de]">
 					<AlertDialogHeader>
 						<AlertDialogTitle>Benutzer löschen</AlertDialogTitle>
 						<AlertDialogDescription>
@@ -1164,7 +1196,7 @@ export default function AdminUsersPage() {
 					}
 				}}
 			>
-				<DialogContent>
+				<DialogContent className="border-[#222] bg-[#0a0a0a] text-[#e8e4de]">
 					<DialogHeader>
 						<DialogTitle>Passwort zurücksetzen</DialogTitle>
 						<DialogDescription>
@@ -1214,7 +1246,7 @@ export default function AdminUsersPage() {
 					}
 				}}
 			>
-				<DialogContent>
+				<DialogContent className="border-[#222] bg-[#0a0a0a] text-[#e8e4de]">
 					<DialogHeader>
 						<DialogTitle>Benutzer bearbeiten</DialogTitle>
 						<DialogDescription>
