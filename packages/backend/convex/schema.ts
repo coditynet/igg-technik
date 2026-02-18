@@ -80,6 +80,14 @@ export default defineSchema({
 		location: v.optional(v.string()),
 		teacher: v.optional(v.string()),
 		notes: v.optional(v.string()),
+		inventory: v.optional(
+			v.array(
+				v.object({
+					itemId: v.id("inventoryItems"),
+					count: v.number(),
+				}),
+			),
+		),
 		status: v.union(
 			v.literal("pending"),
 			v.literal("approved"),
@@ -97,4 +105,4 @@ export default defineSchema({
 		name: v.string(),
 		count: v.number(),
 	}),
-Y);
+});

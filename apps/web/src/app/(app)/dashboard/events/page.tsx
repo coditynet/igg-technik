@@ -29,6 +29,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
+import {
+	EventEquipmentSelector,
+	eventEquipmentToMutationInput,
+} from "./_components/event-equipment-selector";
 
 function toDateTimeLocalValue(date: Date) {
 	const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -50,6 +54,7 @@ function getInitialFormState(selectedGroup?: string) {
 		location: "",
 		notes: "",
 		teacher: "",
+		equipment: {},
 	};
 }
 
@@ -66,6 +71,7 @@ export default function EventsPage() {
 	const [form, setForm] = useState(() => getInitialFormState());
 
 	const groups = useQuery(api.groups.list);
+	const inventoryItems = useQuery(api.inventory.list, {});
 	const createEvent = useMutation(api.events.create);
 
 	const todayStart = useMemo(() => {
@@ -139,6 +145,7 @@ export default function EventsPage() {
 				location: form.location.trim() || undefined,
 				notes: form.notes.trim() || undefined,
 				teacher: form.teacher.trim() || undefined,
+				inventory: eventEquipmentToMutationInput(form.equipment),
 			});
 
 			goeyToast.success("Veranstaltung erstellt");
@@ -155,13 +162,13 @@ export default function EventsPage() {
 		<div className="max-w-6xl space-y-6">
 			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div>
-					<div className="mb-2 font-mono text-[10px] uppercase tracking-[0.3em] text-[#ff3d00]">
+					<div className="mb-2 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
 						Verwaltung
 					</div>
 					<h1 className="font-black text-3xl uppercase tracking-tight">
 						Veranstaltungen
 					</h1>
-					<p className="mt-1 font-mono text-xs text-[#777]">
+					<p className="mt-1 font-mono text-[#777] text-xs">
 						Verwalten und anzeigen Sie Veranstaltungen.
 					</p>
 				</div>
@@ -175,20 +182,24 @@ export default function EventsPage() {
 					}}
 				>
 					<SheetTrigger asChild>
-						<Button className="bg-[#ff3d00] font-mono text-xs uppercase tracking-[0.1em] text-black transition-all hover:bg-[#ff3d00] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]">
+						<Button className="bg-[#ff3d00] font-mono text-black text-xs uppercase tracking-[0.1em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ff3d00] hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]">
 							Neue Veranstaltung
 						</Button>
 					</SheetTrigger>
-					<SheetContent side="right" className="w-full border-[#222] border-l bg-[#0a0a0a] p-0 text-[#e8e4de] sm:max-w-xl">
+					<SheetContent
+						side="right"
+						className="w-full border-[#222] border-l bg-[#0a0a0a] p-0 text-[#e8e4de] sm:max-w-xl"
+					>
 						<SheetHeader className="border-[#222] border-b">
-							<div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#ff3d00]">
+							<div className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
 								Neu
 							</div>
-							<SheetTitle className="font-mono font-bold uppercase tracking-tight text-[#e8e4de]">
+							<SheetTitle className="font-bold font-mono text-[#e8e4de] uppercase tracking-tight">
 								Veranstaltung erstellen
 							</SheetTitle>
-							<SheetDescription className="font-mono text-xs text-[#777]">
-								Füllen Sie alle notwendigen Felder aus, um eine neue Veranstaltung zu erstellen.
+							<SheetDescription className="font-mono text-[#777] text-xs">
+								Füllen Sie alle notwendigen Felder aus, um eine neue
+								Veranstaltung zu erstellen.
 							</SheetDescription>
 						</SheetHeader>
 
@@ -198,7 +209,12 @@ export default function EventsPage() {
 						>
 							<div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-4">
 								<div className="space-y-2">
-									<Label htmlFor="create-event-title" className="font-mono text-[10px] uppercase tracking-[0.2em]">Titel</Label>
+									<Label
+										htmlFor="create-event-title"
+										className="font-mono text-[10px] uppercase tracking-[0.2em]"
+									>
+										Titel
+									</Label>
 									<Input
 										id="create-event-title"
 										value={form.title}
@@ -212,19 +228,31 @@ export default function EventsPage() {
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-group" className="font-mono text-[10px] uppercase tracking-[0.2em]">Gruppe</Label>
+									<Label
+										htmlFor="create-event-group"
+										className="font-mono text-[10px] uppercase tracking-[0.2em]"
+									>
+										Gruppe
+									</Label>
 									<Select
 										value={form.groupId}
 										onValueChange={(value) =>
 											setForm((prev) => ({ ...prev, groupId: value }))
 										}
 									>
-										<SelectTrigger id="create-event-group" className="border-[#222] bg-[#111] font-mono">
+										<SelectTrigger
+											id="create-event-group"
+											className="border-[#222] bg-[#111] font-mono"
+										>
 											<SelectValue placeholder="Gruppe auswählen" />
 										</SelectTrigger>
 										<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
 											{groups?.map((group) => (
-												<SelectItem key={group._id} value={group._id} className="font-mono">
+												<SelectItem
+													key={group._id}
+													value={group._id}
+													className="font-mono"
+												>
 													{group.name}
 												</SelectItem>
 											))}
@@ -234,7 +262,12 @@ export default function EventsPage() {
 
 								<div className="grid gap-4 sm:grid-cols-2">
 									<div className="space-y-2">
-										<Label htmlFor="create-event-start" className="font-mono text-[10px] uppercase tracking-[0.2em]">Start</Label>
+										<Label
+											htmlFor="create-event-start"
+											className="font-mono text-[10px] uppercase tracking-[0.2em]"
+										>
+											Start
+										</Label>
 										<Input
 											id="create-event-start"
 											type="datetime-local"
@@ -247,7 +280,12 @@ export default function EventsPage() {
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="create-event-end" className="font-mono text-[10px] uppercase tracking-[0.2em]">Ende</Label>
+										<Label
+											htmlFor="create-event-end"
+											className="font-mono text-[10px] uppercase tracking-[0.2em]"
+										>
+											Ende
+										</Label>
 										<Input
 											id="create-event-end"
 											type="datetime-local"
@@ -268,13 +306,23 @@ export default function EventsPage() {
 										onCheckedChange={(checked) =>
 											setForm((prev) => ({ ...prev, allDay: checked === true }))
 										}
-										className="data-[state=checked]:bg-[#ff3d00] data-[state=checked]:border-[#ff3d00]"
+										className="data-[state=checked]:border-[#ff3d00] data-[state=checked]:bg-[#ff3d00]"
 									/>
-									<Label htmlFor="create-event-all-day" className="font-mono text-xs uppercase tracking-[0.1em]">Ganztägig</Label>
+									<Label
+										htmlFor="create-event-all-day"
+										className="font-mono text-xs uppercase tracking-[0.1em]"
+									>
+										Ganztägig
+									</Label>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-location" className="font-mono text-[10px] uppercase tracking-[0.2em]">Ort</Label>
+									<Label
+										htmlFor="create-event-location"
+										className="font-mono text-[10px] uppercase tracking-[0.2em]"
+									>
+										Ort
+									</Label>
 									<Input
 										id="create-event-location"
 										value={form.location}
@@ -287,7 +335,12 @@ export default function EventsPage() {
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-teacher" className="font-mono text-[10px] uppercase tracking-[0.2em]">Lehrer</Label>
+									<Label
+										htmlFor="create-event-teacher"
+										className="font-mono text-[10px] uppercase tracking-[0.2em]"
+									>
+										Lehrer
+									</Label>
 									<Input
 										id="create-event-teacher"
 										value={form.teacher}
@@ -300,7 +353,12 @@ export default function EventsPage() {
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-label" className="font-mono text-[10px] uppercase tracking-[0.2em]">Label</Label>
+									<Label
+										htmlFor="create-event-label"
+										className="font-mono text-[10px] uppercase tracking-[0.2em]"
+									>
+										Label
+									</Label>
 									<Input
 										id="create-event-label"
 										value={form.label}
@@ -313,7 +371,12 @@ export default function EventsPage() {
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-description" className="font-mono text-[10px] uppercase tracking-[0.2em]">Beschreibung</Label>
+									<Label
+										htmlFor="create-event-description"
+										className="font-mono text-[10px] uppercase tracking-[0.2em]"
+									>
+										Beschreibung
+									</Label>
 									<Textarea
 										id="create-event-description"
 										value={form.description}
@@ -329,7 +392,12 @@ export default function EventsPage() {
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="create-event-notes" className="font-mono text-[10px] uppercase tracking-[0.2em]">Notizen</Label>
+									<Label
+										htmlFor="create-event-notes"
+										className="font-mono text-[10px] uppercase tracking-[0.2em]"
+									>
+										Notizen
+									</Label>
 									<Textarea
 										id="create-event-notes"
 										value={form.notes}
@@ -340,6 +408,15 @@ export default function EventsPage() {
 										className="border-[#222] bg-[#111] font-mono"
 									/>
 								</div>
+
+								<EventEquipmentSelector
+									idPrefix="create-event"
+									items={inventoryItems}
+									value={form.equipment}
+									onChange={(equipment) =>
+										setForm((prev) => ({ ...prev, equipment }))
+									}
+								/>
 							</div>
 
 							<SheetFooter className="border-[#222] border-t pt-4">
@@ -356,7 +433,7 @@ export default function EventsPage() {
 								<Button
 									type="submit"
 									disabled={isCreatingEvent}
-									className="bg-[#ff3d00] font-mono text-xs uppercase tracking-[0.1em] text-black transition-all hover:bg-[#ff3d00] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
+									className="bg-[#ff3d00] font-mono text-black text-xs uppercase tracking-[0.1em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ff3d00] hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
 								>
 									{isCreatingEvent
 										? "Wird erstellt..."
@@ -388,9 +465,15 @@ export default function EventsPage() {
 						<SelectValue placeholder="Nach Zeit filtern" />
 					</SelectTrigger>
 					<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
-						<SelectItem value="upcoming" className="font-mono text-xs">Kommende</SelectItem>
-						<SelectItem value="past" className="font-mono text-xs">Vergangene</SelectItem>
-						<SelectItem value="all" className="font-mono text-xs">Alle</SelectItem>
+						<SelectItem value="upcoming" className="font-mono text-xs">
+							Kommende
+						</SelectItem>
+						<SelectItem value="past" className="font-mono text-xs">
+							Vergangene
+						</SelectItem>
+						<SelectItem value="all" className="font-mono text-xs">
+							Alle
+						</SelectItem>
 					</SelectContent>
 				</Select>
 
@@ -399,9 +482,15 @@ export default function EventsPage() {
 						<SelectValue placeholder="Nach Gruppe filtern" />
 					</SelectTrigger>
 					<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
-						<SelectItem value="all" className="font-mono text-xs">Alle Gruppen</SelectItem>
+						<SelectItem value="all" className="font-mono text-xs">
+							Alle Gruppen
+						</SelectItem>
 						{groups?.map((group) => (
-							<SelectItem key={group._id} value={group._id} className="font-mono text-xs">
+							<SelectItem
+								key={group._id}
+								value={group._id}
+								className="font-mono text-xs"
+							>
 								{group.name}
 							</SelectItem>
 						))}

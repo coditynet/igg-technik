@@ -160,6 +160,28 @@ export default function IncomingRequestsPage() {
 														Ort: {request.location}
 													</p>
 												)}
+												{request.inventory && request.inventory.length > 0 ? (
+													<div className="pt-1">
+														<p className="mb-1 font-mono text-[#777] text-[10px] uppercase tracking-[0.15em]">
+															Technik
+														</p>
+														<div className="flex flex-wrap gap-1.5">
+															{request.inventory.map((item) => (
+																<span
+																	key={item.itemId}
+																	className="inline-flex items-center gap-1 border border-[#333] bg-[#111] px-2 py-1 font-mono text-[#b9b1a8] text-[10px] uppercase tracking-[0.08em]"
+																>
+																	{item.name} ({item.count})
+																	{item.isDeleted ? (
+																		<span className="text-red-300">
+																			gelöscht
+																		</span>
+																	) : null}
+																</span>
+															))}
+														</div>
+													</div>
+												) : null}
 											</div>
 										</TableCell>
 										<TableCell>
