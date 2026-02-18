@@ -30,6 +30,18 @@ function AdminNavItem({
 	const iconRef = useRef<IconHandle>(null);
 	const pathname = usePathname();
 	const isActive = pathname === item.url;
+	const startIconAnimation = () => {
+		const icon = iconRef.current as Partial<IconHandle> | null;
+		if (typeof icon?.startAnimation === "function") {
+			icon.startAnimation();
+		}
+	};
+	const stopIconAnimation = () => {
+		const icon = iconRef.current as Partial<IconHandle> | null;
+		if (typeof icon?.stopAnimation === "function") {
+			icon.stopAnimation();
+		}
+	};
 
 	return (
 		<SidebarMenuItem>
@@ -37,16 +49,17 @@ function AdminNavItem({
 				asChild
 				tooltip={item.name}
 				isActive={isActive}
-				onMouseEnter={() => iconRef.current?.startAnimation()}
-				onMouseLeave={() => iconRef.current?.stopAnimation()}
+				onMouseEnter={startIconAnimation}
+				onMouseLeave={stopIconAnimation}
 				className={`font-mono uppercase tracking-[0.15em] transition-all ${
-					isActive
-						? "text-[#ff3d00] border-l-2 border-[#ff3d00]"
-						: ""
+					isActive ? "border-[#ff3d00] border-l-2 text-[#ff3d00]" : ""
 				}`}
 			>
 				<Link href={item.url}>
-					<item.icon ref={iconRef} className={isActive ? "text-[#ff3d00]" : ""} />
+					<item.icon
+						ref={iconRef}
+						className={isActive ? "text-[#ff3d00]" : ""}
+					/>
 					<span>{item.name}</span>
 				</Link>
 			</SidebarMenuButton>
@@ -66,7 +79,7 @@ export function NavAdmin({
 }) {
 	return (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-			<SidebarGroupLabel className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#555]">
+			<SidebarGroupLabel className="font-mono text-[#555] text-[9px] uppercase tracking-[0.3em]">
 				Admin
 			</SidebarGroupLabel>
 			<SidebarMenu className="gap-1">

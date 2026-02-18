@@ -4,6 +4,7 @@ import Link from "next/link";
 import type * as React from "react";
 import { AtSignIcon } from "@/components/ui/icons/at-sign";
 import { CalendarIcon } from "@/components/ui/icons/calendar";
+import { ClipboardListIcon } from "@/components/ui/icons/clipboard-list";
 import { DashboardIcon } from "@/components/ui/icons/dashboard";
 import { MailIcon } from "@/components/ui/icons/mail";
 import { PartyPopperIcon } from "@/components/ui/icons/party-popper";
@@ -50,6 +51,11 @@ const data = {
 			title: "Kalender",
 			url: "/dashboard/calendar",
 			icon: CalendarIcon,
+		},
+		{
+			title: "Inventory",
+			url: "/dashboard/inventory",
+			icon: ClipboardListIcon,
 		},
 		{
 			title: "Settings",
