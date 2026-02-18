@@ -33,14 +33,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import {
-	Empty,
-	EmptyContent,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -162,10 +154,12 @@ export function PasskeyFrame() {
 
 	if (isPending) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Passkeys</CardTitle>
-					<CardDescription>
+			<Card className="rounded-none border-[#222] bg-[#0f0f0f] text-[#e8e4de] shadow-none">
+				<CardHeader className="border-[#222] border-b">
+					<CardTitle className="font-mono text-[10px] uppercase tracking-[0.3em]">
+						Passkeys
+					</CardTitle>
+					<CardDescription className="text-[#8a8a8a]">
 						Use your fingerprint, face, or device PIN for secure passwordless
 						authentication.
 					</CardDescription>
@@ -175,18 +169,18 @@ export function PasskeyFrame() {
 						{[1, 2, 3].map((i) => (
 							<div
 								key={i}
-								className="flex items-center justify-between rounded-lg border p-4"
+								className="flex items-center justify-between border border-[#222] bg-[#111] p-4"
 							>
 								<div className="flex items-center gap-4">
-									<Skeleton className="size-[58px] rounded-lg" />
+									<Skeleton className="size-[58px] rounded-none bg-[#1b1b1b]" />
 									<div className="space-y-2">
-										<Skeleton className="h-5 w-32" />
-										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-5 w-32 bg-[#1b1b1b]" />
+										<Skeleton className="h-4 w-24 bg-[#1b1b1b]" />
 									</div>
 								</div>
 								<div className="flex items-center gap-1">
-									<Skeleton className="size-10 rounded-md" />
-									<Skeleton className="size-10 rounded-md" />
+									<Skeleton className="size-10 rounded-none bg-[#1b1b1b]" />
+									<Skeleton className="size-10 rounded-none bg-[#1b1b1b]" />
 								</div>
 							</div>
 						))}
@@ -198,45 +192,45 @@ export function PasskeyFrame() {
 
 	if (!passkeys || passkeys.length === 0) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Passkeys</CardTitle>
-					<CardDescription>
+			<Card className="rounded-none border-[#222] bg-[#0f0f0f] text-[#e8e4de] shadow-none">
+				<CardHeader className="border-[#222] border-b">
+					<CardTitle className="font-mono text-[10px] uppercase tracking-[0.3em]">
+						Passkeys
+					</CardTitle>
+					<CardDescription className="text-[#8a8a8a]">
 						Verwende deinen Fingerabdruck, Gesichtserkennung oder Gerät-PIN für
 						sichere passwortlose Authentifizierung.
 					</CardDescription>
 				</CardHeader>
-				<CardContent>
-					<Empty>
-						<EmptyHeader>
-							<EmptyMedia variant="icon">
-								<Fingerprint />
-							</EmptyMedia>
-							<EmptyTitle>Keine Passkeys hinzugefügt</EmptyTitle>
-							<EmptyDescription>
-								Füge einen Passkey hinzu für schnellere und sicherere Anmeldung
-							</EmptyDescription>
-						</EmptyHeader>
-						<EmptyContent>
-							<Button
-								onClick={handleAddPasskey}
-								disabled={isAddingPasskey}
-								size="sm"
-							>
-								{isAddingPasskey ? (
-									<>
-										<Loader2 className="mr-2 size-4 animate-spin" />
-										Wird hinzugefügt...
-									</>
-								) : (
-									<>
-										<Plus className="mr-2 size-4" />
-										Passkey hinzufügen
-									</>
-								)}
-							</Button>
-						</EmptyContent>
-					</Empty>
+				<CardContent className="space-y-4">
+					<div className="grid place-items-center border border-[#2a2a2a] border-dashed bg-[#111] px-6 py-10 text-center">
+						<Fingerprint className="mb-3 size-7 text-[#ff3d00]" />
+						<p className="font-black text-xl uppercase tracking-tight">
+							Keine Passkeys hinterlegt
+						</p>
+						<p className="mt-2 max-w-md font-mono text-[#8a8a8a] text-xs">
+							Füge einen Passkey hinzu, um dich schneller und sicherer
+							anzumelden.
+						</p>
+						<Button
+							onClick={handleAddPasskey}
+							disabled={isAddingPasskey}
+							size="sm"
+							className="mt-5 rounded-none border border-[#ff3d00] bg-[#ff3d00] font-mono text-[10px] text-black uppercase tracking-[0.2em] hover:bg-[#ff521f]"
+						>
+							{isAddingPasskey ? (
+								<>
+									<Loader2 className="mr-2 size-4 animate-spin" />
+									Wird hinzugefügt...
+								</>
+							) : (
+								<>
+									<Plus className="mr-2 size-4" />
+									Passkey hinzufügen
+								</>
+							)}
+						</Button>
+					</div>
 				</CardContent>
 			</Card>
 		);
@@ -244,10 +238,12 @@ export function PasskeyFrame() {
 
 	return (
 		<>
-			<Card>
-				<CardHeader>
-					<CardTitle>Passkeys</CardTitle>
-					<CardDescription>
+			<Card className="rounded-none border-[#222] bg-[#0f0f0f] text-[#e8e4de] shadow-none">
+				<CardHeader className="border-[#222] border-b">
+					<CardTitle className="font-mono text-[10px] uppercase tracking-[0.3em]">
+						Passkeys
+					</CardTitle>
+					<CardDescription className="text-[#8a8a8a]">
 						Verwende deinen Fingerabdruck, Gesichtserkennung oder Gerät-PIN für
 						sichere passwortlose Authentifizierung.
 					</CardDescription>
@@ -257,7 +253,7 @@ export function PasskeyFrame() {
 						{passkeys.map((passkey) => (
 							<div
 								key={passkey.id}
-								className="flex items-center justify-between rounded-lg border p-4"
+								className="flex items-center justify-between border border-[#222] bg-[#111] p-4"
 							>
 								<div className="flex items-center gap-4">
 									<PasskeyIcon aaguid={passkey.aaguid} />
@@ -265,7 +261,7 @@ export function PasskeyFrame() {
 										<p className="font-medium text-sm">
 											{passkey.name || "Unbenannter Passkey"}
 										</p>
-										<p className="text-muted-foreground text-xs">
+										<p className="font-mono text-[#8a8a8a] text-xs">
 											Hinzugefügt am{" "}
 											{passkey.createdAt
 												? new Date(passkey.createdAt).toLocaleDateString(
@@ -284,8 +280,8 @@ export function PasskeyFrame() {
 									<Tooltip>
 										<TooltipTrigger asChild>
 											<Button
-												variant="ghost"
 												size="icon"
+												className="rounded-none border border-[#4a4a4a] bg-[#1a1a1a] text-[#f3efe8] hover:border-[#ff3d00] hover:bg-[#22150f]"
 												onClick={() =>
 													openEditDialog({
 														...passkey,
@@ -304,8 +300,11 @@ export function PasskeyFrame() {
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<AlertDialogTrigger asChild>
-													<Button variant="ghost" size="icon">
-														<Trash2 className="size-4 text-destructive" />
+													<Button
+														size="icon"
+														className="rounded-none border border-[#3a1f1f] bg-[#181010] hover:bg-[#261515]"
+													>
+														<Trash2 className="size-4 text-[#ff6b6b]" />
 													</Button>
 												</AlertDialogTrigger>
 											</TooltipTrigger>
@@ -339,12 +338,12 @@ export function PasskeyFrame() {
 					</div>
 				</CardContent>
 
-				<CardFooter className="flex justify-end border-t pt-6">
+				<CardFooter className="flex justify-end border-[#222] border-t pt-6">
 					<Button
 						onClick={handleAddPasskey}
 						disabled={isAddingPasskey}
-						variant="outline"
 						size="sm"
+						className="rounded-none border border-[#ff3d00] bg-[#ff3d00] font-mono text-[10px] text-black uppercase tracking-[0.2em] hover:bg-[#ff521f]"
 					>
 						{isAddingPasskey ? (
 							<>
@@ -365,35 +364,44 @@ export function PasskeyFrame() {
 				open={!!editingPasskey}
 				onOpenChange={(open) => !open && setEditingPasskey(null)}
 			>
-				<DialogContent>
+				<DialogContent className="rounded-none border-[#222] bg-[#0f0f0f] text-[#e8e4de]">
 					<DialogHeader>
-						<DialogTitle>Passkey-Name bearbeiten</DialogTitle>
-						<DialogDescription>
+						<DialogTitle className="font-mono text-[11px] uppercase tracking-[0.25em]">
+							Passkey-Name bearbeiten
+						</DialogTitle>
+						<DialogDescription className="text-[#8a8a8a]">
 							Gib deinem Passkey einen einprägsamen Namen zur einfachen
 							Identifizierung.
 						</DialogDescription>
 					</DialogHeader>
 					<div className="space-y-4 py-4">
 						<div className="space-y-2">
-							<Label htmlFor="passkey-name">Passkey-Name</Label>
+							<Label
+								htmlFor="passkey-name"
+								className="font-mono text-[10px] uppercase tracking-[0.2em]"
+							>
+								Passkey-Name
+							</Label>
 							<Input
 								id="passkey-name"
 								value={newPasskeyName}
 								onChange={(e) => setNewPasskeyName(e.target.value)}
 								placeholder="z.B. Mein iPhone, Arbeits-Laptop"
+								className="rounded-none border-[#222] bg-[#111]"
 								autoFocus
 							/>
 						</div>
 					</div>
 					<DialogFooter>
 						<Button
-							variant="ghost"
+							className="rounded-none border border-[#222] bg-[#111] font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-[#181818]"
 							onClick={() => setEditingPasskey(null)}
 							disabled={isUpdatingName}
 						>
 							Abbrechen
 						</Button>
 						<Button
+							className="rounded-none border border-[#ff3d00] bg-[#ff3d00] font-mono text-[10px] text-black uppercase tracking-[0.2em] hover:bg-[#ff521f]"
 							onClick={handleUpdatePasskeyName}
 							disabled={isUpdatingName || !newPasskeyName.trim()}
 						>
@@ -420,14 +428,14 @@ function PasskeyIcon({ aaguid }: { aaguid?: string | null }) {
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
-				<div className="cursor-help rounded-lg bg-secondary p-2.5">
+				<div className="cursor-help border border-[#222] bg-[#0f0f0f] p-2.5">
 					{IconComponent ? (
 						<IconComponent
 							className="size-6"
 							theme={resolvedTheme === "dark" ? "dark" : "light"}
 						/>
 					) : (
-						<Fingerprint className="size-6 text-muted-foreground" />
+						<Fingerprint className="size-6 text-[#8a8a8a]" />
 					)}
 				</div>
 			</TooltipTrigger>
