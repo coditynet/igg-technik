@@ -285,7 +285,7 @@ export default function Design1() {
 			/>
 
 			{/* Navigation */}
-			<nav className="fixed top-0 right-0 left-0 z-40 border-[#222] border-b">
+			<nav className="fixed top-0 right-0 left-0 z-40 border-[#222] border-b backdrop-blur-xl">
 				<div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4">
 					<div className="flex items-center">
 						<span className="font-mono text-sm uppercase tracking-[0.3em]">
@@ -560,7 +560,7 @@ export default function Design1() {
 							<div className="border border-[#ff3d00]/20 bg-[#111] p-6">
 								<p className="font-mono text-[#e8e4de] text-sm leading-relaxed">
 									Bist du an Technik interessiert? Schau doch einfach mal
-									vorbei. Wir freuen uns immer über neue Mitglieder.
+									vorbei. Wir freuen uns (fast) immer über neue Mitglieder.
 								</p>
 							</div>
 						</div>
