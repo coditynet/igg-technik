@@ -48,7 +48,7 @@ export function NavUser({ user }: { user?: User }) {
 	const sunMoonIconRef = useRef<IconHandle>(null);
 	const themeIconRef = useRef<IconHandle>(null);
 	const { theme, setTheme } = useTheme();
-	const { refetchSession, session } = useAuth();
+	const { refetchSession, session, signOut } = useAuth();
 
 	const router = useRouter();
 
@@ -177,10 +177,7 @@ export function NavUser({ user }: { user?: User }) {
 							onMouseEnter={() => logoutIconRef.current?.startAnimation()}
 							onMouseLeave={() => logoutIconRef.current?.stopAnimation()}
 							onClick={async () => {
-								const { error } = await authClient.signOut();
-								if (!error) {
-									router.push("/sign-in");
-								}
+								await signOut();	
 							}}
 							className="font-mono uppercase tracking-[0.1em] text-[#888] focus:bg-[#ff3d00]/10 focus:text-[#ff3d00]"
 						>

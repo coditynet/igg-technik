@@ -138,12 +138,7 @@ export default function AdminUsersPage() {
 			return;
 		}
 
-		if (!session?.user) {
-			router.push("/sign-in");
-			return;
-		}
-
-		if (session.user.role !== "admin") {
+		if (session?.user.role !== "admin") {
 			router.push("/dashboard");
 			toast.error("Zugriff verweigert. Sie benötigen Admin-Rechte.");
 			return;
@@ -538,7 +533,7 @@ export default function AdminUsersPage() {
 			if (role) {
 				await authClient.admin.setRole({
 					userId,
-					role: role,
+					role: role as any,
 				});
 			}
 
