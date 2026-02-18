@@ -17,6 +17,7 @@ const routeLabels: Record<string, string> = {
 	history: "History",
 	starred: "Favoriten",
 	settings: "Einstellungen",
+	groups: "Gruppen",
 	general: "Allgemein",
 	admin: "Admin",
 	users: "Benutzer",

@@ -62,7 +62,7 @@ const data = {
 				},
 				{
 					title: "Gruppen",
-					url: "/dashboard/settings/gruppen",
+					url: "/dashboard/groups",
 				},
 			],
 		},
@@ -81,15 +81,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
-			<SidebarHeader className="border-b border-[#222]">
+			<SidebarHeader className="border-[#222] border-b">
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
 							<Link href="/" className="flex items-center gap-2">
-								<div className="flex aspect-square size-8 items-center justify-center bg-[#ff3d00] font-mono text-xs font-black text-black">
+								<div className="flex aspect-square size-8 items-center justify-center bg-[#ff3d00] font-black font-mono text-black text-xs">
 									T
 								</div>
-								<span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#e8e4de]">
+								<span className="font-bold font-mono text-[#e8e4de] text-xs uppercase tracking-[0.2em]">
 									IGG Technik
 								</span>
 							</Link>
