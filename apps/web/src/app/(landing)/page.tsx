@@ -5,6 +5,13 @@ import { useQuery } from "convex/react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from "@/components/ui/sheet";
 
 const WEEKDAYS = ["MO", "DI", "MI", "DO", "FR", "SA", "SO"];
 
@@ -69,7 +76,6 @@ function useReveal() {
 }
 
 export default function Design1() {
-	const topRef = useRef<HTMLDivElement>(null);
 	const calendarData = useQuery(api.events.list);
 
 	const now = new Date();
@@ -174,19 +180,12 @@ export default function Design1() {
 	// Konami code easter egg
 	const [glitch, setGlitch] = useState(false);
 	const [konamiIndex, setKonamiIndex] = useState(0);
+	const [isAiInfoOpen, setIsAiInfoOpen] = useState(false);
 
 	const triggerGlitch = useCallback(() => {
 		setGlitch(true);
 		setTimeout(() => setGlitch(false), 2000);
 	}, []);
-
-	const handleCopyrightClick = useCallback(() => {
-		topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-		window.scrollTo({ top: 0, behavior: "smooth" });
-		setTimeout(() => {
-			triggerGlitch();
-		}, 450);
-	}, [triggerGlitch]);
 
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
@@ -206,6 +205,22 @@ export default function Design1() {
 		return () => window.removeEventListener("keydown", handler);
 	}, [konamiIndex, triggerGlitch]);
 
+	useEffect(() => {
+		const secretHandler = () => {
+			triggerGlitch();
+		};
+		window.addEventListener(
+			"landing-secret-trigger",
+			secretHandler as EventListener,
+		);
+		return () => {
+			window.removeEventListener(
+				"landing-secret-trigger",
+				secretHandler as EventListener,
+			);
+		};
+	}, [triggerGlitch]);
+
 	// Scroll-triggered reveal animations
 	const infoReveal = useReveal();
 	const aboutReveal = useReveal();
@@ -223,7 +238,6 @@ export default function Design1() {
 		<div
 			className={`relative min-h-screen overflow-x-hidden bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black ${glitch ? "animate-[glitch_0.15s_ease_infinite]" : ""}`}
 		>
-			<div ref={topRef} />
 			{/* Glitch overlay */}
 			{glitch && (
 				<div className="pointer-events-none absolute inset-0 z-999">
@@ -498,7 +512,7 @@ export default function Design1() {
 				<div className="h-px bg-[#222]" />
 			</div>
 
-			{/* Info strip */}
+			{/* Info strip
 			<section
 				ref={infoReveal.ref}
 				className={`reveal-section mx-auto max-w-[1400px] px-6 py-16 ${infoReveal.visible ? "visible" : ""}`}
@@ -535,7 +549,7 @@ export default function Design1() {
 						</div>
 					))}
 				</div>
-			</section>
+			</section> */}
 
 			{/* About / Behind the Scenes */}
 			<section
@@ -599,6 +613,22 @@ export default function Design1() {
 							<br />
 							E-Mail anfragen
 						</h2>
+						<div className="mt-4 border border-[#ff3d00]/40 bg-[#ff3d00]/10 p-3">
+							<div className="mb-1 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.18em]">
+								Hinweis
+							</div>
+							<p className="font-mono text-[#ff3d00] text-[11px] leading-relaxed">
+								E-Mails werden zur Verarbeitung der Anfrage über OpenAI
+								verarbeitet.
+							</p>
+							<button
+								type="button"
+								onClick={() => setIsAiInfoOpen(true)}
+								className="mt-2 border border-[#ff3d00]/40 px-2 py-1 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.14em] transition-colors hover:bg-[#ff3d00]/20"
+							>
+								Mehr Infos
+							</button>
+						</div>
 						<p className="mt-4 text-[#666] text-sm leading-relaxed">
 							Sie können auch ohne Account ein Event bei uns anfragen. Schicken
 							Sie einfach eine E-Mail mit den wichtigsten Infos.
@@ -658,27 +688,48 @@ export default function Design1() {
 					</div>
 				</div>
 			</section>
-
-			{/* Footer */}
-			<footer className="border-[#222] border-t px-6 py-8">
-				<div className="mx-auto flex max-w-[1400px] items-center justify-between">
-					<button
-						type="button"
-						onClick={handleCopyrightClick}
-						className="cursor-pointer bg-transparent p-0 font-mono text-[#444] text-[10px] uppercase tracking-[0.3em] transition-colors hover:text-[#ff3d00]"
-					>
-						IGG Technik {new Date().getFullYear()}
-					</button>
-					<a
-						href="https://codity.app"
-						target="_blank"
-					>
-						<span className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em] hover:text-[#ff3d00]">
-							Made by Codity
-						</span>
-					</a>
-				</div>
-			</footer>
+			<Sheet open={isAiInfoOpen} onOpenChange={setIsAiInfoOpen}>
+				<SheetContent
+					side="right"
+					className="w-full border-[#222] border-l bg-[#0a0a0a] text-[#e8e4de] sm:max-w-xl"
+				>
+					<SheetHeader>
+						<SheetTitle className="font-bold font-mono text-[#e8e4de] text-sm uppercase tracking-[0.15em]">
+							Datenschutzhinweis
+						</SheetTitle>
+						<SheetDescription className="font-mono text-[#777] text-xs">
+							Wie wir Ihre E-Mail-Inhalte mit OpenAI verarbeiten.
+						</SheetDescription>
+					</SheetHeader>
+					<div className="space-y-4 px-4 pb-4 font-mono text-[#c9c4be] text-xs leading-relaxed">
+						<p>
+							Zur automatischen Verarbeitung Ihrer Event-Anfrage senden wir den
+							Betreff und den Inhalt Ihrer E-Mail an OpenAI.
+						</p>
+						<p>
+							Wir senden dafür keine zusätzlichen personenbezogenen Daten wie
+							Ihre E-Mail-Adresse oder andere Metadaten.
+						</p>
+						<div className="border border-[#ff3d00]/40 bg-[#ff3d00]/10 p-3 text-[#ff3d00]">
+							Bitte senden Sie keine sensiblen Daten in Ihrer Anfrage-E-Mail.
+						</div>
+						<div className="border border-[#333] bg-[#111] p-3">
+							<p className="text-[#e8e4de]">
+								Wenn Ihr Event sensible Daten enthält oder Sie keine
+								Verarbeitung durch KI möchten, nutzen Sie bitte stattdessen das
+								Formular:
+							</p>
+							<Link
+								href={"/event-request" as Route}
+								onClick={() => setIsAiInfoOpen(false)}
+								className="mt-2 inline-flex border border-[#ff3d00]/40 bg-[#ff3d00]/10 px-2 py-1 text-[#ff3d00] text-[10px] uppercase tracking-[0.14em] transition-colors hover:bg-[#ff3d00]/20"
+							>
+								Zum Formular
+							</Link>
+						</div>
+					</div>
+				</SheetContent>
+			</Sheet>
 		</div>
 	);
 }

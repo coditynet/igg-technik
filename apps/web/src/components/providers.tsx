@@ -50,6 +50,7 @@ export default function Providers({
 			defaultTheme="system"
 			enableSystem
 			disableTransitionOnChange
+			forcedTheme="dark"
 		>
 			<ConvexBetterAuthProvider
 				client={convex}

@@ -279,16 +279,6 @@ export default function EventRequest2() {
 						</form>
 					)}
 				</div>
-
-				{/* Footer */}
-				<footer className="border-[#e8e8e8] border-t">
-					<div className="mx-auto flex max-w-[700px] items-center justify-between px-8 py-6">
-						<span className="text-[#bbb] text-[12px]">
-							IGG Technik {new Date().getFullYear()}
-						</span>
-						<span className="text-[#ccc] text-[12px]">Made by Codity</span>
-					</div>
-				</footer>
 			</div>
 		</div>
 	);
