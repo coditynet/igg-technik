@@ -2,7 +2,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { DashboardHeader } from "./_components/dashboard-header";
 import { MobileSidebarTrigger } from "./_components/mobile-sidebar-trigger";
 import { AppSidebar } from "./_components/sidebar/app-sidebar";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
@@ -29,8 +28,7 @@ export default function DashboardLayout({
 				<SidebarProvider>
 					<AppSidebar />
 					<SidebarInset>
-						<DashboardHeader />
-						<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+						<div className="flex flex-1 flex-col gap-4 p-4">
 							<div className="mx-auto h-full w-full max-w-7xl">
 								{children}
 							</div>
