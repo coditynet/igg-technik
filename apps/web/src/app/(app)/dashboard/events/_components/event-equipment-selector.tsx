@@ -148,7 +148,7 @@ export function EventEquipmentSelector({
 				) : items.length === 0 ? (
 					<div className="flex items-center gap-2 border border-[#222] bg-[#111] px-3 py-3 font-mono text-[#777] text-xs">
 						<Wrench className="size-4 text-[#555]" />
-						Keine Inventory-Items vorhanden
+						Keine Inventar-Items vorhanden
 					</div>
 				) : (
 					items.map((item) => {

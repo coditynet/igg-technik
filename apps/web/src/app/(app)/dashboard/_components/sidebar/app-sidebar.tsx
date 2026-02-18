@@ -53,7 +53,7 @@ const data = {
 			icon: CalendarIcon,
 		},
 		{
-			title: "Inventory",
+			title: "Inventar",
 			url: "/dashboard/inventory",
 			icon: ClipboardListIcon,
 		},
@@ -62,10 +62,6 @@ const data = {
 			url: "#",
 			icon: SettingsIcon,
 			items: [
-				{
-					title: "Allgemein",
-					url: "#",
-				},
 				{
 					title: "Gruppen",
 					url: "/dashboard/groups",

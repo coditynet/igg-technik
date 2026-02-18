@@ -21,7 +21,7 @@ export function UniversalFooter() {
 				<button
 					type="button"
 					onClick={handleSecretClick}
-					className="bg-transparent p-0 font-mono text-[#444] text-[10px] uppercase tracking-[0.3em] transition-colors hover:text-[#ff3d00]"
+					className="bg-transparent p-0 font-mono text-[#444] text-[10px] uppercase tracking-[0.3em]"
 				>
 					IGG Technik {new Date().getFullYear()}
 				</button>
@@ -29,7 +29,7 @@ export function UniversalFooter() {
 					href="https://codity.app"
 					target="_blank"
 					rel="noreferrer"
-					className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em]"
+					className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em] transition-colors hover:text-[#ff3d00]"
 				>
 					Made by Codity
 				</Link>

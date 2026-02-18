@@ -14,11 +14,11 @@ const routeLabels: Record<string, string> = {
 	dashboard: "Dashboard",
 	calendar: "Kalender",
 	events: "Events",
+	inventory: "Inventar",
 	history: "History",
 	starred: "Favoriten",
 	settings: "Einstellungen",
 	groups: "Gruppen",
-	general: "Allgemein",
 	admin: "Admin",
 	users: "Benutzer",
 };
