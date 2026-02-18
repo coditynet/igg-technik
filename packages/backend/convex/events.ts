@@ -1,10 +1,62 @@
 import { PostHog } from "@samhoque/convex-posthog";
 import { ConvexError, v } from "convex/values";
 import { components } from "./_generated/api";
-import { mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import { type MutationCtx, mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
 
 const posthog = new PostHog(components.posthog, {});
+
+type EventInventoryInput = {
+	itemId: Id<"inventoryItems">;
+	count: number;
+};
+
+async function normalizeInventory(
+	ctx: MutationCtx,
+	inventory: EventInventoryInput[] | undefined,
+) {
+	if (!inventory) {
+		return undefined;
+	}
+
+	const normalized = inventory
+		.map((item) => ({
+			itemId: item.itemId,
+			count: Math.trunc(item.count),
+		}))
+		.filter((item) => Number.isInteger(item.count) && item.count > 0);
+
+	if (normalized.length === 0) {
+		return undefined;
+	}
+
+	const uniqueItemIds = new Set<Id<"inventoryItems">>();
+	for (const item of normalized) {
+		if (uniqueItemIds.has(item.itemId)) {
+			throw new ConvexError("Duplicate inventory item");
+		}
+		uniqueItemIds.add(item.itemId);
+	}
+
+	const inventoryItems = await Promise.all(
+		normalized.map(async (item) => {
+			const inventoryItem = await ctx.db.get(item.itemId);
+			return { item, inventoryItem };
+		}),
+	);
+
+	for (const { item, inventoryItem } of inventoryItems) {
+		if (!inventoryItem) {
+			throw new ConvexError("Inventory item not found");
+		}
+		if (item.count > inventoryItem.count) {
+			throw new ConvexError("Inventory count exceeds available inventory");
+		}
+	}
+
+	return normalized;
+}
 
 export const list = query({
 	args: {},
@@ -78,12 +130,23 @@ export const getWithGroup = query({
 		if (!event) return null;
 
 		const group = event.groupId ? await ctx.db.get(event.groupId) : undefined;
+		const inventory = await Promise.all(
+			(event.inventory ?? []).map(async (item) => {
+				const inventoryItem = await ctx.db.get(item.itemId);
+				return {
+					...item,
+					name: inventoryItem?.name ?? "Gelöschtes Item",
+					isDeleted: !inventoryItem,
+				};
+			}),
+		);
 
 		return {
 			...event,
 			start: new Date(event.start).toISOString(),
 			end: new Date(event.end).toISOString(),
 			group,
+			inventory,
 		};
 	},
 });
@@ -101,12 +164,22 @@ export const create = mutation({
 		assignees: v.optional(v.array(v.id("user"))),
 		notes: v.optional(v.string()),
 		teacher: v.optional(v.string()),
+		inventory: v.optional(
+			v.array(
+				v.object({
+					itemId: v.id("inventoryItems"),
+					count: v.number(),
+				}),
+			),
+		),
 	},
 	handler: async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			throw new ConvexError("Not authenticated");
 		}
+		const normalizedInventory = await normalizeInventory(ctx, args.inventory);
+
 		const eventId = await ctx.db.insert("events", {
 			title: args.title,
 			description: args.description,
@@ -119,6 +192,7 @@ export const create = mutation({
 			assignees: args.assignees,
 			notes: args.notes,
 			teacher: args.teacher,
+			inventory: normalizedInventory,
 		});
 		await posthog.trackUserEvent(ctx, {
 			userId: authUser._id,
@@ -148,6 +222,14 @@ export const update = mutation({
 		assignees: v.optional(v.array(v.id("user"))),
 		notes: v.optional(v.string()),
 		teacher: v.optional(v.string()),
+		inventory: v.optional(
+			v.array(
+				v.object({
+					itemId: v.id("inventoryItems"),
+					count: v.number(),
+				}),
+			),
+		),
 	},
 	handler: async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
@@ -156,7 +238,7 @@ export const update = mutation({
 				message: "Not authenticated",
 			};
 		}
-		const { id, start, end, ...otherUpdates } = args;
+		const { id, start, end, inventory, ...otherUpdates } = args;
 
 		const updates: Record<string, unknown> = { ...otherUpdates };
 
@@ -165,6 +247,9 @@ export const update = mutation({
 		}
 		if (end) {
 			updates.end = new Date(end).getTime();
+		}
+		if (inventory !== undefined) {
+			updates.inventory = await normalizeInventory(ctx, inventory);
 		}
 
 		await ctx.db.patch(id, updates);
@@ -200,6 +285,7 @@ export const listForCalendarFeed = query({
 			label: event.label,
 			assignees: event.assignees,
 			teacher: event.teacher,
+			inventory: event.inventory,
 		}));
 	},
 });
@@ -223,6 +309,7 @@ export const listForCalendarFeedByGroup = query({
 			label: event.label,
 			assignees: event.assignees,
 			teacher: event.teacher,
+			inventory: event.inventory,
 		}));
 	},
 });
