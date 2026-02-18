@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@igg/backend/convex/_generated/api";
+import { useQuery } from "convex/react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -19,17 +21,12 @@ const KONAMI = [
 	"a",
 ];
 
-const MOCK_EVENTS: Record<number, string> = {
-	3: "Theaterprobe",
-	7: "Aufbau",
-	8: "Konzert",
-	12: "Technik AG",
-	15: "Elternabend",
-	19: "Technik AG",
-	22: "Aufführung",
-	23: "Aufführung",
-	26: "Technik AG",
-	28: "Wartung",
+const GROUP_EVENT_COLORS: Record<string, string> = {
+	blue: "border-blue-400 bg-blue-500/12 text-blue-300",
+	orange: "border-orange-400 bg-orange-500/12 text-orange-300",
+	violet: "border-violet-400 bg-violet-500/12 text-violet-300",
+	rose: "border-rose-400 bg-rose-500/12 text-rose-300",
+	emerald: "border-emerald-400 bg-emerald-500/12 text-emerald-300",
 };
 
 const STEPS = [
@@ -72,6 +69,8 @@ function useReveal() {
 }
 
 export default function Design1() {
+	const calendarData = useQuery(api.events.list);
+
 	const now = new Date();
 	const year = now.getFullYear();
 	const month = now.getMonth();
@@ -95,8 +94,81 @@ export default function Design1() {
 		const remaining = 42 - cells.length;
 		for (let i = 1; i <= remaining; i++)
 			cells.push({ day: i, current: false, today: false });
-		return cells;
+		return cells.map((cell, index) => ({
+			...cell,
+			gridIndex: index,
+			key: `${cell.current ? "cur" : "adj"}-${cell.day}-${index}`,
+		}));
 	}, [year, month, today]);
+
+	const calendarEventsByDay = useMemo(() => {
+		const eventsByDay = new Map<
+			number,
+			{ title: string; className: string; count: number }
+		>();
+		if (!calendarData?.events) {
+			return eventsByDay;
+		}
+
+		const groupsById = new Map(
+			(calendarData.groups ?? []).map((group) => [String(group._id), group]),
+		);
+		const monthStart = new Date(year, month, 1);
+		const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+		const events = [...calendarData.events].sort(
+			(a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+		);
+
+		for (const event of events) {
+			const eventStart = new Date(event.start);
+			const eventEnd = new Date(event.end);
+			if (
+				Number.isNaN(eventStart.getTime()) ||
+				Number.isNaN(eventEnd.getTime()) ||
+				eventEnd < monthStart ||
+				eventStart > monthEnd
+			) {
+				continue;
+			}
+
+			const start = new Date(
+				Math.max(eventStart.getTime(), monthStart.getTime()),
+			);
+			start.setHours(0, 0, 0, 0);
+			const end = new Date(Math.min(eventEnd.getTime(), monthEnd.getTime()));
+			end.setHours(0, 0, 0, 0);
+
+			const group = groupsById.get(String(event.groupId));
+			const eventClass =
+				GROUP_EVENT_COLORS[group?.color ?? ""] ??
+				"border-[#ff3d00] bg-[#ff3d00]/10 text-[#ff3d00]";
+
+			for (
+				const cursor = new Date(start);
+				cursor <= end;
+				cursor.setDate(cursor.getDate() + 1)
+			) {
+				if (cursor.getFullYear() !== year || cursor.getMonth() !== month) {
+					continue;
+				}
+
+				const day = cursor.getDate();
+				const existing = eventsByDay.get(day);
+				if (existing) {
+					existing.count += 1;
+				} else {
+					eventsByDay.set(day, {
+						title: event.title,
+						className: eventClass,
+						count: 1,
+					});
+				}
+			}
+		}
+
+		return eventsByDay;
+	}, [calendarData, year, month]);
 
 	// Konami code easter egg
 	const [glitch, setGlitch] = useState(false);
@@ -288,6 +360,7 @@ export default function Design1() {
 									viewBox="0 0 24 24"
 									stroke="currentColor"
 									strokeWidth={2}
+									aria-hidden="true"
 								>
 									<path d="M5 12h14M12 5l7 7-7 7" />
 								</svg>
@@ -342,14 +415,16 @@ export default function Design1() {
 
 								{/* Days grid */}
 								<div className="grid grid-cols-7">
-									{days.map((cell, i) => {
-										const event = cell.current ? MOCK_EVENTS[cell.day] : null;
+									{days.map((cell) => {
+										const event = cell.current
+											? calendarEventsByDay.get(cell.day)
+											: null;
 										return (
 											<div
-												key={i}
+												key={cell.key}
 												className={`relative flex flex-col border-[#191919] border-r border-b p-1.5 ${
-													i % 7 === 6 ? "border-r-0" : ""
-												} ${i >= 35 ? "border-b-0" : ""}`}
+													cell.gridIndex % 7 === 6 ? "border-r-0" : ""
+												} ${cell.gridIndex >= 35 ? "border-b-0" : ""}`}
 												style={{ minHeight: "44px" }}
 											>
 												<span
@@ -369,9 +444,12 @@ export default function Design1() {
 													{!cell.today && cell.day}
 												</span>
 												{event && (
-													<div className="mt-1 border-[#ff3d00] border-l bg-[#ff3d00]/10 px-1 py-px">
-														<span className="block truncate font-mono text-[#ff3d00] text-[7px] uppercase leading-tight tracking-wider">
-															{event}
+													<div
+														className={`mt-1 border-l px-1 py-px ${event.className}`}
+													>
+														<span className="block truncate font-mono text-[7px] uppercase leading-tight tracking-wider">
+															{event.title}
+															{event.count > 1 ? ` +${event.count - 1}` : ""}
 														</span>
 													</div>
 												)}
@@ -395,6 +473,7 @@ export default function Design1() {
 									viewBox="0 0 24 24"
 									stroke="currentColor"
 									strokeWidth={2}
+									aria-hidden="true"
 								>
 									<path d="M5 12h14M12 5l7 7-7 7" />
 								</svg>
@@ -560,6 +639,7 @@ export default function Design1() {
 									viewBox="0 0 24 24"
 									stroke="currentColor"
 									strokeWidth={2}
+									aria-hidden="true"
 								>
 									<path d="M5 12h14M12 5l7 7-7 7" />
 								</svg>
