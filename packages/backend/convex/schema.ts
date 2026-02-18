@@ -97,4 +97,4 @@ export default defineSchema({
 		name: v.string(),
 		count: v.number(),
 	}),
-});
+Y);

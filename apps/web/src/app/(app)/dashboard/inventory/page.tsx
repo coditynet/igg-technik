@@ -64,12 +64,12 @@ export default function InventoryPage() {
 		const count = Number(newItemQuantity);
 
 		if (!name) {
-			goeyToast.error("Bitte geben Sie einen Item-Namen ein.");
+			goeyToast.error("Bitte gib einen Item-Namen ein.");
 			return;
 		}
 
 		if (!Number.isInteger(count) || count < 0) {
-			goeyToast.error("Bitte geben Sie eine gultige Menge ein.");
+			goeyToast.error("Bitte gib eine gültige Menge ein.");
 			return;
 		}
 
@@ -77,9 +77,9 @@ export default function InventoryPage() {
 			await createItem({ name, count });
 			setNewItemName("");
 			setNewItemQuantity("1");
-			goeyToast.success("Item hinzugefugt.");
+			goeyToast.success("Item hinzugefügt.");
 		} catch {
-			goeyToast.error("Item konnte nicht hinzugefugt werden.");
+			goeyToast.error("Item konnte nicht hinzugefügt werden.");
 		}
 	};
 
@@ -91,7 +91,7 @@ export default function InventoryPage() {
 		const nextCount = Number(nextValue);
 
 		if (!Number.isInteger(nextCount) || nextCount < 0) {
-			goeyToast.error("Bitte geben Sie eine gultige Menge ein.");
+			goeyToast.error("Bitte gib eine gültige Menge ein.");
 			setDraftCounts((prev) => ({ ...prev, [id]: String(currentCount) }));
 			return;
 		}
@@ -159,7 +159,7 @@ export default function InventoryPage() {
 		const name = editName.trim();
 
 		if (!name) {
-			goeyToast.error("Bitte geben Sie einen Item-Namen ein.");
+			goeyToast.error("Bitte gib einen Item-Namen ein.");
 			return;
 		}
 
@@ -191,10 +191,10 @@ export default function InventoryPage() {
 							Verwaltung
 						</div>
 						<h1 className="font-black text-3xl uppercase tracking-tight">
-							Inventory
+							Inventar
 						</h1>
 						<p className="mt-1 font-mono text-[#777] text-xs">
-							Markieren Sie, wie viele Gerate verfugbar sind.
+							Markiere, wie viele Geräte verfügbar sind.
 						</p>
 					</div>
 				</div>
@@ -203,7 +203,7 @@ export default function InventoryPage() {
 
 				<div className="grid gap-3 md:grid-cols-[2fr_1fr_auto]">
 					<Input
-						placeholder="Neues item (z. B. Microphones)"
+						placeholder="Neues Gerät (z. B. Microphones)"
 						value={newItemName}
 						onChange={(event) => setNewItemName(event.target.value)}
 						className="border-[#222] bg-[#111] font-mono text-xs"
@@ -222,7 +222,7 @@ export default function InventoryPage() {
 						onClick={handleAddItem}
 						className="bg-[#ff3d00] font-mono text-black text-xs uppercase tracking-[0.1em] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ff3d00] hover:shadow-[5px_5px_0_0_rgba(255,61,0,0.3)]"
 					>
-						Item hinzufugen
+						Gerät hinzüfugen
 					</Button>
 				</div>
 
@@ -240,7 +240,7 @@ export default function InventoryPage() {
 						<TableHeader>
 							<TableRow className="border-[#222] hover:bg-transparent">
 								<TableHead className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]">
-									Item
+									Gerät
 								</TableHead>
 								<TableHead className="font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.2em]">
 									Menge
@@ -274,7 +274,7 @@ export default function InventoryPage() {
 										colSpan={3}
 										className="h-36 text-center font-mono text-[#777] text-xs"
 									>
-										Keine Inventory-Items gefunden.
+										Keine Inventar-Items gefunden.
 									</TableCell>
 								</TableRow>
 							) : (
@@ -389,8 +389,8 @@ export default function InventoryPage() {
 													disabled={savingIds[item._id]}
 													onClick={() => openEditDialog(item._id, item.name)}
 													className="border-[#222] bg-[#111] text-[#888] hover:bg-[#111] hover:text-[#ff3d00]"
-													aria-label="Item bearbeiten"
-													title="Item bearbeiten"
+													aria-label="Gerät bearbeiten"
+													title="Gerät bearbeiten"
 												>
 													<Pencil className="h-3.5 w-3.5" />
 												</Button>
@@ -401,8 +401,8 @@ export default function InventoryPage() {
 													disabled={savingIds[item._id]}
 													onClick={() => void handleRemoveItem(item._id)}
 													className="border border-[#ff3d00]/40 bg-[#ff3d00]/10 text-[#ff3d00] hover:bg-[#ff3d00]/20"
-													aria-label="Item loschen"
-													title="Item loschen"
+													aria-label="Gerät löschen"
+													title="Gerät löschen"
 												>
 													<Trash2 className="h-3.5 w-3.5" />
 												</Button>
@@ -425,7 +425,7 @@ export default function InventoryPage() {
 							Item bearbeiten
 						</DialogTitle>
 						<DialogDescription className="font-mono text-[#777] text-xs">
-							Aktualisieren Sie den Namen des Inventory-Items.
+							Aktualisiere den Namen des Inventar-Items.
 						</DialogDescription>
 					</DialogHeader>
 					<Input
