@@ -58,6 +58,52 @@ async function normalizeInventory(
 	return normalized;
 }
 
+async function normalizeRegistrationInventory(
+	ctx: MutationCtx,
+	inventory: EventInventoryInput[] | undefined,
+) {
+	if (!inventory) {
+		return undefined;
+	}
+
+	const normalized = inventory
+		.map((item) => ({
+			itemId: item.itemId,
+			count: Math.trunc(item.count),
+		}))
+		.filter((item) => Number.isInteger(item.count) && item.count > 0);
+
+	if (normalized.length === 0) {
+		return undefined;
+	}
+
+	const uniqueItemIds = new Set<Id<"inventoryItems">>();
+	for (const item of normalized) {
+		if (uniqueItemIds.has(item.itemId)) {
+			throw new ConvexError("Duplicate inventory item");
+		}
+		uniqueItemIds.add(item.itemId);
+	}
+
+	const inventoryItems = await Promise.all(
+		normalized.map(async (item) => {
+			const inventoryItem = await ctx.db.get(item.itemId);
+			return { item, inventoryItem };
+		}),
+	);
+
+	for (const { item, inventoryItem } of inventoryItems) {
+		if (!inventoryItem) {
+			throw new ConvexError("Inventory item not found");
+		}
+		if (item.count > inventoryItem.count) {
+			throw new ConvexError("Requested inventory exceeds available inventory");
+		}
+	}
+
+	return normalized;
+}
+
 export const list = query({
 	args: {},
 	handler: async (ctx) => {
@@ -412,6 +458,14 @@ export const submitRegistration = mutation({
 		location: v.optional(v.string()),
 		teacher: v.optional(v.string()),
 		notes: v.optional(v.string()),
+		inventory: v.optional(
+			v.array(
+				v.object({
+					itemId: v.id("inventoryItems"),
+					count: v.number(),
+				}),
+			),
+		),
 	},
 	handler: async (ctx, args) => {
 		const start = new Date(args.start).getTime();
@@ -422,6 +476,11 @@ export const submitRegistration = mutation({
 		if (end < start) {
 			throw new ConvexError("Event end must be after start");
 		}
+
+		const normalizedInventory = await normalizeRegistrationInventory(
+			ctx,
+			args.inventory,
+		);
 
 		const now = Date.now();
 		return await ctx.db.insert("eventRegistrations", {
@@ -437,6 +496,7 @@ export const submitRegistration = mutation({
 			location: args.location,
 			teacher: args.teacher,
 			notes: args.notes,
+			inventory: normalizedInventory,
 			status: "pending",
 			createdAt: now,
 			updatedAt: now,
@@ -466,14 +526,30 @@ export const listRegistrations = query({
 		const groups = await ctx.db.query("groups").collect();
 		const groupsById = new Map(groups.map((group) => [group._id, group]));
 
-		return registrations
-			.sort((a, b) => b.createdAt - a.createdAt)
-			.map((registration) => ({
-				...registration,
-				start: new Date(registration.start).toISOString(),
-				end: new Date(registration.end).toISOString(),
-				group: groupsById.get(registration.groupId),
-			}));
+		return await Promise.all(
+			registrations
+				.sort((a, b) => b.createdAt - a.createdAt)
+				.map(async (registration) => {
+					const inventory = await Promise.all(
+						(registration.inventory ?? []).map(async (item) => {
+							const inventoryItem = await ctx.db.get(item.itemId);
+							return {
+								...item,
+								name: inventoryItem?.name ?? "Gelöschtes Item",
+								isDeleted: !inventoryItem,
+							};
+						}),
+					);
+
+					return {
+						...registration,
+						start: new Date(registration.start).toISOString(),
+						end: new Date(registration.end).toISOString(),
+						group: groupsById.get(registration.groupId),
+						inventory,
+					};
+				}),
+		);
 	},
 });
 
@@ -507,6 +583,7 @@ export const createEventFromRegistration = mutation({
 			location: registration.location,
 			notes: registration.notes,
 			teacher: registration.teacher,
+			inventory: registration.inventory,
 		});
 
 		await ctx.db.patch(registration._id, {
