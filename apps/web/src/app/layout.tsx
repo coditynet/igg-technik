@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "../index.css";
-import { UniversalFooter } from "@/components/layout/universal-footer";
 import Providers from "@/components/providers";
 import { getToken } from "@/lib/auth-server";
 
@@ -33,12 +32,7 @@ export default async function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<Providers initialToken={token}>
-					<div className="grid min-h-svh grid-rows-[auto_1fr_auto]">
-						{children}
-						<UniversalFooter />
-					</div>
-				</Providers>
+				<Providers initialToken={token}>{children}</Providers>
 			</body>
 		</html>
 	);

@@ -1,7 +1,7 @@
 "use client";
 
-import { CalendarWithSidebar } from "@/components/calendar-with-sidebar";
+import { PublicCalendarV2 } from "@/components/calendar-v2/public-calendar-v2";
 
 export default function Page() {
-	return <CalendarWithSidebar />;
+	return <PublicCalendarV2 />;
 }
