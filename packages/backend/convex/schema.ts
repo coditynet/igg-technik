@@ -26,6 +26,14 @@ export default defineSchema({
 		assignees: v.optional(v.array(v.id("user"))),
 		notes: v.optional(v.string()),
 		teacher: v.optional(v.string()),
+		inventory: v.optional(
+			v.array(
+				v.object({
+					itemId: v.id("inventoryItems"),
+					count: v.number(),
+				}),
+			),
+		),
 	}).index("by_group", ["groupId"]),
 
 	emails: defineTable({
@@ -84,4 +92,9 @@ export default defineSchema({
 		.index("by_status", ["status"])
 		.index("by_createdAt", ["createdAt"])
 		.index("by_eventId", ["eventId"]),
+
+	inventoryItems: defineTable({
+		name: v.string(),
+		count: v.number(),
+	}),
 });

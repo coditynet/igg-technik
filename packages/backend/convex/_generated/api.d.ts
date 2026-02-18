@@ -14,6 +14,7 @@ import type * as events from "../events.js";
 import type * as groups from "../groups.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
+import type * as inventory from "../inventory.js";
 import type * as mail_emailTemplates from "../mail/emailTemplates.js";
 import type * as mail_incomingEmailWorkflow from "../mail/incomingEmailWorkflow.js";
 import type * as mail_index from "../mail/index.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   groups: typeof groups;
   healthCheck: typeof healthCheck;
   http: typeof http;
+  inventory: typeof inventory;
   "mail/emailTemplates": typeof mail_emailTemplates;
   "mail/incomingEmailWorkflow": typeof mail_incomingEmailWorkflow;
   "mail/index": typeof mail_index;

@@ -43,6 +43,18 @@ type NavItemProps = {
 function NavItemWithIcon({ item }: NavItemProps) {
 	const iconRef = useRef<IconHandle>(null);
 	const pathname = usePathname();
+	const startIconAnimation = () => {
+		const icon = iconRef.current as Partial<IconHandle> | null;
+		if (typeof icon?.startAnimation === "function") {
+			icon.startAnimation();
+		}
+	};
+	const stopIconAnimation = () => {
+		const icon = iconRef.current as Partial<IconHandle> | null;
+		if (typeof icon?.stopAnimation === "function") {
+			icon.stopAnimation();
+		}
+	};
 
 	if (!item.items || item.items.length === 0) {
 		const isActive = pathname === item.url;
@@ -53,16 +65,19 @@ function NavItemWithIcon({ item }: NavItemProps) {
 					asChild
 					tooltip={item.title}
 					isActive={isActive}
-					onMouseEnter={() => iconRef.current?.startAnimation()}
-					onMouseLeave={() => iconRef.current?.stopAnimation()}
+					onMouseEnter={startIconAnimation}
+					onMouseLeave={stopIconAnimation}
 					className={`font-mono uppercase tracking-[0.15em] transition-all ${
-						isActive
-							? "text-[#ff3d00] border-l-2 border-[#ff3d00]"
-							: ""
+						isActive ? "border-[#ff3d00] border-l-2 text-[#ff3d00]" : ""
 					}`}
 				>
 					<Link href={item.url}>
-						{item.icon && <item.icon ref={iconRef} className={isActive ? "text-[#ff3d00]" : ""} />}
+						{item.icon && (
+							<item.icon
+								ref={iconRef}
+								className={isActive ? "text-[#ff3d00]" : ""}
+							/>
+						)}
 						<span>{item.title}</span>
 					</Link>
 				</SidebarMenuButton>
@@ -85,13 +100,18 @@ function NavItemWithIcon({ item }: NavItemProps) {
 				<CollapsibleTrigger asChild>
 					<SidebarMenuButton
 						tooltip={item.title}
-						onMouseEnter={() => iconRef.current?.startAnimation()}
-						onMouseLeave={() => iconRef.current?.stopAnimation()}
+						onMouseEnter={startIconAnimation}
+						onMouseLeave={stopIconAnimation}
 						className={`font-mono uppercase tracking-[0.15em] transition-all ${
 							hasActiveSubItem ? "text-[#ff3d00]" : ""
 						}`}
 					>
-						{item.icon && <item.icon ref={iconRef} className={hasActiveSubItem ? "text-[#ff3d00]" : ""} />}
+						{item.icon && (
+							<item.icon
+								ref={iconRef}
+								className={hasActiveSubItem ? "text-[#ff3d00]" : ""}
+							/>
+						)}
 						<span>{item.title}</span>
 						<ChevronRight className="ml-auto h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
 					</SidebarMenuButton>
@@ -106,9 +126,7 @@ function NavItemWithIcon({ item }: NavItemProps) {
 										asChild
 										isActive={isSubItemActive}
 										className={`font-mono text-[10px] uppercase tracking-[0.15em] ${
-											isSubItemActive
-												? "text-[#ff3d00]"
-												: ""
+											isSubItemActive ? "text-[#ff3d00]" : ""
 										}`}
 									>
 										<Link href={subItem.url}>
@@ -142,7 +160,7 @@ export function NavMain({
 }) {
 	return (
 		<SidebarGroup>
-			<SidebarGroupLabel className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#555]">
+			<SidebarGroupLabel className="font-mono text-[#555] text-[9px] uppercase tracking-[0.3em]">
 				Platform
 			</SidebarGroupLabel>
 			<SidebarMenu className="gap-1">
