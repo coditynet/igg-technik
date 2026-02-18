@@ -197,6 +197,45 @@ export const getWithGroup = query({
 	},
 });
 
+export const getPublicById = query({
+	args: { id: v.id("events") },
+	handler: async (ctx, args) => {
+		const event = await ctx.db.get(args.id);
+		if (!event) return null;
+
+		const group = event.groupId ? await ctx.db.get(event.groupId) : null;
+		const inventory = await Promise.all(
+			(event.inventory ?? []).map(async (item) => {
+				const inventoryItem = await ctx.db.get(item.itemId);
+				return {
+					...item,
+					name: inventoryItem?.name ?? "Gelöschtes Item",
+					isDeleted: !inventoryItem,
+				};
+			}),
+		);
+
+		return {
+			_id: event._id,
+			title: event.title,
+			description: event.description,
+			start: new Date(event.start).toISOString(),
+			end: new Date(event.end).toISOString(),
+			allDay: event.allDay,
+			label: event.label,
+			location: event.location,
+			teacher: event.teacher,
+			group: group
+				? {
+						name: group.name,
+						color: group.color,
+					}
+				: null,
+			inventory,
+		};
+	},
+});
+
 export const create = mutation({
 	args: {
 		title: v.string(),

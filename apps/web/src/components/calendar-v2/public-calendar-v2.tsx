@@ -362,6 +362,7 @@ function CalendarMainV2({ events }: { events: CalendarEvent[] }) {
 					onSave={() => undefined}
 					onDelete={() => undefined}
 					readOnly
+					publicEventBasePath="/event"
 				/>
 			</CalendarDndProvider>
 		</div>

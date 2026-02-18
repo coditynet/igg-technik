@@ -49,6 +49,7 @@ interface EventDialogProps {
 	onSave: (event: CalendarEvent) => void;
 	onDelete: (eventId: string) => void;
 	readOnly?: boolean;
+	publicEventBasePath?: string;
 }
 
 export function EventDialog({
@@ -58,6 +59,7 @@ export function EventDialog({
 	onSave,
 	onDelete,
 	readOnly = false,
+	publicEventBasePath,
 }: EventDialogProps) {
 	const { getAllGroups } = useCalendarContext();
 	const allGroups = getAllGroups();
@@ -503,9 +505,17 @@ export function EventDialog({
 								}}
 							/>
 						)}
-						<Button variant="outline" onClick={onClose}>
-							{readOnly ? "Schließen" : "Abbrechen"}
-						</Button>
+						{readOnly && event?.id && publicEventBasePath ? (
+							<Button asChild variant="outline">
+								<a
+									href={`${publicEventBasePath}/${event.id}`}
+									target="_blank"
+									rel="noreferrer"
+								>
+									Mehr Infos
+								</a>
+							</Button>
+						) : null}
 						{!readOnly && <Button onClick={handleSave}>Speichern</Button>}
 					</div>
 				</DialogFooter>

@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { EventShareDialog } from "./event-share-dialog";
 
 export type Event = {
 	_id: string;
@@ -74,7 +75,8 @@ export const columns: ColumnDef<Event>[] = [
 				return <span className="text-muted-foreground">&mdash;</span>;
 			}
 
-			const colorClass = colorMap[group.color] || "bg-gray-500 hover:bg-gray-500";
+			const colorClass =
+				colorMap[group.color] || "bg-gray-500 hover:bg-gray-500";
 
 			return (
 				<Badge
@@ -94,6 +96,18 @@ export const columns: ColumnDef<Event>[] = [
 				return <span className="text-muted-foreground">&mdash;</span>;
 			}
 			return <span className="text-muted-foreground">{location}</span>;
+		},
+	},
+	{
+		id: "share",
+		header: "Teilen",
+		cell: ({ row }) => {
+			return (
+				<EventShareDialog
+					eventId={row.original._id}
+					title={row.original.title}
+				/>
+			);
 		},
 	},
 ];
