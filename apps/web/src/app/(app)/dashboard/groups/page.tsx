@@ -470,26 +470,28 @@ export default function GroupsPage() {
 										{group._id}
 									</TableCell>
 									<TableCell>
-										<div className="flex items-center justify-end gap-2">
+										<div className="flex justify-end gap-2">
 											<Button
 												type="button"
 												variant="outline"
-												size="sm"
+												size="icon-sm"
 												onClick={() => openEditDialog(group)}
-												className="border-[#333] bg-[#111] font-mono text-[10px] uppercase tracking-[0.1em]"
+												className="border-[#222] bg-[#111] text-[#888] hover:bg-[#111] hover:text-[#ff3d00]"
+												aria-label="Gruppe bearbeiten"
+												title="Gruppe bearbeiten"
 											>
-												<Edit3 className="size-3.5" />
-												Bearbeiten
+												<Edit3 className="h-3.5 w-3.5" />
 											</Button>
 											<Button
 												type="button"
 												variant="destructive"
-												size="sm"
+												size="icon-sm"
 												onClick={() => setDeleteGroupId(group._id)}
-												className="font-mono text-[10px] uppercase tracking-[0.1em]"
+												className="border border-[#ff3d00]/40 bg-[#ff3d00]/10 text-[#ff3d00] hover:bg-[#ff3d00]/20"
+												aria-label="Gruppe löschen"
+												title="Gruppe löschen"
 											>
-												<Trash2 className="size-3.5" />
-												Löschen
+												<Trash2 className="h-3.5 w-3.5" />
 											</Button>
 										</div>
 									</TableCell>
