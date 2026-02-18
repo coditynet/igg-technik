@@ -69,7 +69,6 @@ function useReveal() {
 }
 
 export default function Design1() {
-	const topRef = useRef<HTMLDivElement>(null);
 	const calendarData = useQuery(api.events.list);
 
 	const now = new Date();
@@ -180,14 +179,6 @@ export default function Design1() {
 		setTimeout(() => setGlitch(false), 2000);
 	}, []);
 
-	const handleCopyrightClick = useCallback(() => {
-		topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-		window.scrollTo({ top: 0, behavior: "smooth" });
-		setTimeout(() => {
-			triggerGlitch();
-		}, 450);
-	}, [triggerGlitch]);
-
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
 			if (e.key === KONAMI[konamiIndex]) {
@@ -206,6 +197,22 @@ export default function Design1() {
 		return () => window.removeEventListener("keydown", handler);
 	}, [konamiIndex, triggerGlitch]);
 
+	useEffect(() => {
+		const secretHandler = () => {
+			triggerGlitch();
+		};
+		window.addEventListener(
+			"landing-secret-trigger",
+			secretHandler as EventListener,
+		);
+		return () => {
+			window.removeEventListener(
+				"landing-secret-trigger",
+				secretHandler as EventListener,
+			);
+		};
+	}, [triggerGlitch]);
+
 	// Scroll-triggered reveal animations
 	const infoReveal = useReveal();
 	const aboutReveal = useReveal();
@@ -223,7 +230,6 @@ export default function Design1() {
 		<div
 			className={`relative min-h-screen overflow-x-hidden bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black ${glitch ? "animate-[glitch_0.15s_ease_infinite]" : ""}`}
 		>
-			<div ref={topRef} />
 			{/* Glitch overlay */}
 			{glitch && (
 				<div className="pointer-events-none absolute inset-0 z-999">
@@ -658,27 +664,6 @@ export default function Design1() {
 					</div>
 				</div>
 			</section>
-
-			{/* Footer */}
-			<footer className="border-[#222] border-t px-6 py-8">
-				<div className="mx-auto flex max-w-[1400px] items-center justify-between">
-					<button
-						type="button"
-						onClick={handleCopyrightClick}
-						className="cursor-pointer bg-transparent p-0 font-mono text-[#444] text-[10px] uppercase tracking-[0.3em] transition-colors hover:text-[#ff3d00]"
-					>
-						IGG Technik {new Date().getFullYear()}
-					</button>
-					<a
-						href="https://codity.app"
-						target="_blank"
-					>
-						<span className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em] hover:text-[#ff3d00]">
-							Made by Codity
-						</span>
-					</a>
-				</div>
-			</footer>
 		</div>
 	);
 }

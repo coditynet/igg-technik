@@ -338,17 +338,6 @@ export default function BrutalistSignIn() {
 				</div>
 			</div>
 
-			<footer className="border-[#222] border-t px-6 py-8">
-				<div className="mx-auto flex max-w-[900px] items-center justify-between">
-					<div className="font-mono text-[#444] text-[10px] uppercase tracking-[0.3em]">
-						IGG Technik {new Date().getFullYear()}
-					</div>
-					<span className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em]">
-						Made by Codity
-					</span>
-				</div>
-			</footer>
-
 			{showForgot && (
 				<div
 					className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm"
