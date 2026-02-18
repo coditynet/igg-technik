@@ -69,6 +69,7 @@ function useReveal() {
 }
 
 export default function Design1() {
+	const topRef = useRef<HTMLDivElement>(null);
 	const calendarData = useQuery(api.events.list);
 
 	const now = new Date();
@@ -179,6 +180,14 @@ export default function Design1() {
 		setTimeout(() => setGlitch(false), 2000);
 	}, []);
 
+	const handleCopyrightClick = useCallback(() => {
+		topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+		window.scrollTo({ top: 0, behavior: "smooth" });
+		setTimeout(() => {
+			triggerGlitch();
+		}, 450);
+	}, [triggerGlitch]);
+
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
 			if (e.key === KONAMI[konamiIndex]) {
@@ -212,14 +221,15 @@ export default function Design1() {
 
 	return (
 		<div
-			className={`min-h-screen overflow-x-hidden bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black ${glitch ? "animate-[glitch_0.15s_ease_infinite]" : ""}`}
+			className={`relative min-h-screen overflow-x-hidden bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black ${glitch ? "animate-[glitch_0.15s_ease_infinite]" : ""}`}
 		>
+			<div ref={topRef} />
 			{/* Glitch overlay */}
 			{glitch && (
-				<div className="pointer-events-none fixed inset-0 z-[999]">
-					<div className="absolute inset-0 animate-pulse bg-[#ff3d00] opacity-20 mix-blend-multiply" />
+				<div className="pointer-events-none absolute inset-0 z-999">
+					<div className="inset-0 animate-pulse bg-[#ff3d00] opacity-20 mix-blend-multiply" />
 					<div
-						className="absolute inset-0"
+						className="inset-0"
 						style={{
 							background:
 								"repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,61,0,0.03) 2px, rgba(255,61,0,0.03) 4px)",
@@ -652,12 +662,21 @@ export default function Design1() {
 			{/* Footer */}
 			<footer className="border-[#222] border-t px-6 py-8">
 				<div className="mx-auto flex max-w-[1400px] items-center justify-between">
-					<div className="font-mono text-[#444] text-[10px] uppercase tracking-[0.3em]">
+					<button
+						type="button"
+						onClick={handleCopyrightClick}
+						className="cursor-pointer bg-transparent p-0 font-mono text-[#444] text-[10px] uppercase tracking-[0.3em] transition-colors hover:text-[#ff3d00]"
+					>
 						IGG Technik {new Date().getFullYear()}
-					</div>
-					<span className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em]">
-						Made by Codity
-					</span>
+					</button>
+					<a
+						href="https://codity.app"
+						target="_blank"
+					>
+						<span className="font-mono text-[#444] text-[10px] uppercase tracking-[0.2em] hover:text-[#ff3d00]">
+							Made by Codity
+						</span>
+					</a>
 				</div>
 			</footer>
 		</div>
