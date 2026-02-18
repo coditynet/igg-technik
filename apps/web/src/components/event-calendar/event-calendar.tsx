@@ -252,8 +252,8 @@ export function EventCalendar({
 			return format(currentDate, "MMMM yyyy", { locale: de });
 		}
 		if (view === "week") {
-			const start = startOfWeek(currentDate, { weekStartsOn: 0 });
-			const end = endOfWeek(currentDate, { weekStartsOn: 0 });
+			const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+			const end = endOfWeek(currentDate, { weekStartsOn: 1 });
 			if (isSameMonth(start, end)) {
 				return format(start, "MMMM yyyy", { locale: de });
 			}
