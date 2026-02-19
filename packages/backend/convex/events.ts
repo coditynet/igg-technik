@@ -2,8 +2,9 @@ import { PostHog } from "@samhoque/convex-posthog";
 import { ConvexError, v } from "convex/values";
 import { components } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
-import { type MutationCtx, mutation, query } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { authComponent } from "./auth";
+import { convex } from "./fluent";
 
 const posthog = new PostHog(components.posthog, {});
 
@@ -104,9 +105,9 @@ async function normalizeRegistrationInventory(
 	return normalized;
 }
 
-export const list = query({
-	args: {},
-	handler: async (ctx) => {
+export const list = convex
+	.query()
+	.handler(async (ctx) => {
 		const events = await ctx.db.query("events").collect();
 		const groups = await ctx.db.query("groups").collect();
 
@@ -118,12 +119,13 @@ export const list = query({
 			})),
 			groups,
 		};
-	},
-});
+	})
+	.public();
 
-export const listByGroup = query({
-	args: { groupId: v.id("groups") },
-	handler: async (ctx, args) => {
+export const listByGroup = convex
+	.query()
+	.input({ groupId: v.id("groups") })
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			return {
@@ -140,12 +142,13 @@ export const listByGroup = query({
 			start: new Date(event.start).toISOString(),
 			end: new Date(event.end).toISOString(),
 		}));
-	},
-});
+	})
+	.public();
 
-export const get = query({
-	args: { id: v.id("events") },
-	handler: async (ctx, args) => {
+export const get = convex
+	.query()
+	.input({ id: v.id("events") })
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			return {
@@ -161,12 +164,13 @@ export const get = query({
 			start: new Date(event.start).toISOString(),
 			end: new Date(event.end).toISOString(),
 		};
-	},
-});
+	})
+	.public();
 
-export const getWithGroup = query({
-	args: { id: v.id("events") },
-	handler: async (ctx, args) => {
+export const getWithGroup = convex
+	.query()
+	.input({ id: v.id("events") })
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			return null;
@@ -194,12 +198,13 @@ export const getWithGroup = query({
 			group,
 			inventory,
 		};
-	},
-});
+	})
+	.public();
 
-export const getPublicById = query({
-	args: { id: v.id("events") },
-	handler: async (ctx, args) => {
+export const getPublicById = convex
+	.query()
+	.input({ id: v.id("events") })
+	.handler(async (ctx, args) => {
 		const event = await ctx.db.get(args.id);
 		if (!event) return null;
 
@@ -233,11 +238,12 @@ export const getPublicById = query({
 				: null,
 			inventory,
 		};
-	},
-});
+	})
+	.public();
 
-export const create = mutation({
-	args: {
+export const create = convex
+	.mutation()
+	.input({
 		title: v.string(),
 		description: v.optional(v.string()),
 		start: v.string(),
@@ -257,8 +263,8 @@ export const create = mutation({
 				}),
 			),
 		),
-	},
-	handler: async (ctx, args) => {
+	})
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			throw new ConvexError("Not authenticated");
@@ -290,11 +296,12 @@ export const create = mutation({
 		});
 
 		return eventId;
-	},
-});
+	})
+	.public();
 
-export const update = mutation({
-	args: {
+export const update = convex
+	.mutation()
+	.input({
 		id: v.id("events"),
 		title: v.optional(v.string()),
 		description: v.optional(v.string()),
@@ -315,8 +322,8 @@ export const update = mutation({
 				}),
 			),
 		),
-	},
-	handler: async (ctx, args) => {
+	})
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			return {
@@ -338,12 +345,13 @@ export const update = mutation({
 		}
 
 		await ctx.db.patch(id, updates);
-	},
-});
+	})
+	.public();
 
-export const remove = mutation({
-	args: { id: v.id("events") },
-	handler: async (ctx, args) => {
+export const remove = convex
+	.mutation()
+	.input({ id: v.id("events") })
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			return {
@@ -351,12 +359,12 @@ export const remove = mutation({
 			};
 		}
 		await ctx.db.delete(args.id);
-	},
-});
+	})
+	.public();
 
-export const listForCalendarFeed = query({
-	args: {},
-	handler: async (ctx) => {
+export const listForCalendarFeed = convex
+	.query()
+	.handler(async (ctx) => {
 		const events = await ctx.db.query("events").collect();
 
 		return events.map((event) => ({
@@ -372,12 +380,13 @@ export const listForCalendarFeed = query({
 			teacher: event.teacher,
 			inventory: event.inventory,
 		}));
-	},
-});
+	})
+	.public();
 
-export const listForCalendarFeedByGroup = query({
-	args: { groupId: v.id("groups") },
-	handler: async (ctx, args) => {
+export const listForCalendarFeedByGroup = convex
+	.query()
+	.input({ groupId: v.id("groups") })
+	.handler(async (ctx, args) => {
 		const events = await ctx.db
 			.query("events")
 			.withIndex("by_group", (q) => q.eq("groupId", args.groupId))
@@ -396,19 +405,20 @@ export const listForCalendarFeedByGroup = query({
 			teacher: event.teacher,
 			inventory: event.inventory,
 		}));
-	},
-});
+	})
+	.public();
 
-export const search = query({
-	args: {
+export const search = convex
+	.query()
+	.input({
 		query: v.optional(v.string()),
 		groupId: v.optional(v.id("groups")),
 		start: v.optional(v.number()),
 		end: v.optional(v.number()),
 		page: v.optional(v.number()),
 		pageSize: v.optional(v.number()),
-	},
-	handler: async (ctx, args) => {
+	})
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			return {
@@ -474,8 +484,8 @@ export const search = query({
 			totalCount,
 			hasMore,
 		};
-	},
-});
+	})
+	.public();
 
 const eventRegistrationStatus = v.union(
 	v.literal("pending"),
@@ -483,8 +493,9 @@ const eventRegistrationStatus = v.union(
 	v.literal("rejected"),
 );
 
-export const submitRegistration = mutation({
-	args: {
+export const submitRegistration = convex
+	.mutation()
+	.input({
 		requesterName: v.string(),
 		requesterEmail: v.string(),
 		title: v.string(),
@@ -505,8 +516,8 @@ export const submitRegistration = mutation({
 				}),
 			),
 		),
-	},
-	handler: async (ctx, args) => {
+	})
+	.handler(async (ctx, args) => {
 		const start = new Date(args.start).getTime();
 		const end = new Date(args.end).getTime();
 		if (Number.isNaN(start) || Number.isNaN(end)) {
@@ -540,14 +551,15 @@ export const submitRegistration = mutation({
 			createdAt: now,
 			updatedAt: now,
 		});
-	},
-});
+	})
+	.public();
 
-export const listRegistrations = query({
-	args: {
+export const listRegistrations = convex
+	.query()
+	.input({
 		status: v.optional(eventRegistrationStatus),
-	},
-	handler: async (ctx, args) => {
+	})
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			return [];
@@ -589,14 +601,15 @@ export const listRegistrations = query({
 					};
 				}),
 		);
-	},
-});
+	})
+	.public();
 
-export const createEventFromRegistration = mutation({
-	args: {
+export const createEventFromRegistration = convex
+	.mutation()
+	.input({
 		registrationId: v.id("eventRegistrations"),
-	},
-	handler: async (ctx, args) => {
+	})
+	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
 			throw new ConvexError("Not authenticated");
@@ -632,5 +645,5 @@ export const createEventFromRegistration = mutation({
 		});
 
 		return eventId;
-	},
-});
+	})
+	.public();

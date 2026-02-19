@@ -1,10 +1,10 @@
 import { createClient, type GenericCtx } from "@convex-dev/better-auth";
-import { convex } from "@convex-dev/better-auth/plugins";
+import { convex as convexBetterAuth } from "@convex-dev/better-auth/plugins";
+import { convex } from "./fluent";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { v } from "convex/values";
 import { passkey } from "@better-auth/passkey"
-
 
 import type { DataModel } from "./_generated/dataModel";
 import authSchema from "./betterAuth/schema";
@@ -35,7 +35,7 @@ export function createAuthOptions(ctx: GenericCtx<DataModel>) {
 			requireEmailVerification: false,
 		},
 		plugins: [
-			convex({
+			convexBetterAuth({
 				authConfig,
 				jwksRotateOnTokenGenerationError: true,
 			}),
@@ -49,20 +49,20 @@ export function createAuth(ctx: GenericCtx<DataModel>) {
 	return betterAuth(createAuthOptions(ctx));
 }
 
-export const getCurrentUser = query({
-	args: {},
-	handler: async (ctx) => {
+export const getCurrentUser = convex.query()
+	.handler(async (ctx) => {
 		return await authComponent.safeGetAuthUser(ctx);
-	},
-});
+	})
+	.public();
 
-export const createUser = internalMutation({
-	args: {
+export const createUser = convex
+  .mutation()
+  .input({
 		name: v.string(),
 		password: v.string(),
 		email: v.string(),
-	},
-	handler: async (ctx, args) => {
+	})
+  .handler( async (ctx, args) => {
 		const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
 		await auth.api.createUser({
 			body: {
@@ -71,5 +71,5 @@ export const createUser = internalMutation({
 				email: args.email,
 			},
 		});
-	},
-});
+  })
+  .internal();

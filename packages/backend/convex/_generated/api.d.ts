@@ -11,6 +11,7 @@
 import type * as ai_email from "../ai/email.js";
 import type * as auth from "../auth.js";
 import type * as events from "../events.js";
+import type * as fluent from "../fluent.js";
 import type * as groups from "../groups.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
@@ -21,9 +22,8 @@ import type * as mail_index from "../mail/index.js";
 import type * as mail_processEmail from "../mail/processEmail.js";
 import type * as mail_publicAccess from "../mail/publicAccess.js";
 import type * as mail_queries from "../mail/queries.js";
+import type * as middleware_auth from "../middleware/auth.js";
 import type * as posthog from "../posthog.js";
-import type * as privateData from "../privateData.js";
-import type * as seed from "../seed.js";
 import type * as workflow from "../workflow.js";
 
 import type {
@@ -36,6 +36,7 @@ declare const fullApi: ApiFromModules<{
   "ai/email": typeof ai_email;
   auth: typeof auth;
   events: typeof events;
+  fluent: typeof fluent;
   groups: typeof groups;
   healthCheck: typeof healthCheck;
   http: typeof http;
@@ -46,9 +47,8 @@ declare const fullApi: ApiFromModules<{
   "mail/processEmail": typeof mail_processEmail;
   "mail/publicAccess": typeof mail_publicAccess;
   "mail/queries": typeof mail_queries;
+  "middleware/auth": typeof middleware_auth;
   posthog: typeof posthog;
-  privateData: typeof privateData;
-  seed: typeof seed;
   workflow: typeof workflow;
 }>;
 
