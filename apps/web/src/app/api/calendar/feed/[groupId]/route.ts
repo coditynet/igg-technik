@@ -1,17 +1,17 @@
-import { fetchQuery } from "convex/nextjs";
 import { api } from "@igg/backend/convex/_generated/api";
-import { generateICS } from "@/lib/ics";
-import { NextResponse } from "next/server";
 import type { Id } from "@igg/backend/convex/_generated/dataModel";
+import { fetchQuery } from "convex/nextjs";
+import { type NextRequest, NextResponse } from "next/server";
+import { generateICS } from "@/lib/ics";
 
 export const runtime = "edge";
 
 export async function GET(
-	request: Request,
-	{ params }: { params: { groupId: string } },
+	_request: NextRequest,
+	context: { params: Promise<{ groupId: string }> },
 ) {
 	try {
-		const groupId = params.groupId as Id<"groups">;
+		const groupId = (await context.params).groupId as Id<"groups">;
 
 		const events = await fetchQuery(api.events.listForCalendarFeedByGroup, {
 			groupId,
