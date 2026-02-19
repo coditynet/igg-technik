@@ -16,8 +16,8 @@ const phClient = new PostHog(
 	{ host: process.env.POSTHOG_HOST }
   );
 
-const model = withTracing(gateway("openai/gpt-5-nano"), phClient, {
-	posthogPrivacyMode: false, 
+const model = withTracing(gateway("mistral/mistral-small"), phClient, {
+	posthogPrivacyMode: false,
 });
 
 /**

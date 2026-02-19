@@ -753,7 +753,7 @@ export function LandingPageContent({
 								Hinweis
 							</div>
 							<p className="font-mono text-[#ff3d00] text-[11px] leading-relaxed">
-								E-Mails werden zur Verarbeitung der Anfrage über OpenAI
+								E-Mails werden zur Verarbeitung der Anfrage über Mistral
 								verarbeitet.
 							</p>
 							<button
@@ -833,13 +833,13 @@ export function LandingPageContent({
 							Datenschutzhinweis
 						</SheetTitle>
 						<SheetDescription className="font-mono text-[#777] text-xs">
-							Wie wir Ihre E-Mail-Inhalte mit OpenAI verarbeiten.
+							Wie wir Ihre E-Mail-Inhalte mit Mistral verarbeiten.
 						</SheetDescription>
 					</SheetHeader>
 					<div className="space-y-4 px-4 pb-4 font-mono text-[#c9c4be] text-xs leading-relaxed">
 						<p>
 							Zur automatischen Verarbeitung Ihrer Event-Anfrage senden wir den
-							Betreff und den Inhalt Ihrer E-Mail an OpenAI.
+							Betreff und den Inhalt Ihrer E-Mail an Mistral.
 						</p>
 						<p>
 							Wir senden dafür keine zusätzlichen personenbezogenen Daten wie
