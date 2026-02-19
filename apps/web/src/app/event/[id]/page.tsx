@@ -184,9 +184,9 @@ export default function PublicEventPage() {
 					</div>
 				</div>
 
-				<a href="https://codity.app" target="_blank" className="fixed right-4 bottom-3 font-mono text-[#777] text-[10px] uppercase tracking-[0.14em] hover:text-[#ff3d00]">
+				{/*<a href="https://codity.app" target="_blank" className="fixed right-4 bottom-3 font-mono text-[#777] text-[10px] uppercase tracking-[0.14em] hover:text-[#ff3d00]">
 					Made by Codity
-				</a>
+				</a>*/}
 			</div>
 		</div>
 	);
