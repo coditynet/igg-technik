@@ -169,7 +169,7 @@ export default function PublicEventPage() {
 												{item.name ?? "Gelöschtes Item"}
 											</div>
 											{item.isDeleted ? (
-												<Badge className="border-none bg-[#331614] font-mono text-[10px] text-red-300 uppercase tracking-[0.1em]">
+												<Badge className="border-none bg-[#331614] font-mono text-[10px] text-red-300 uppercase tracking-widest">
 													Gelöscht
 												</Badge>
 											) : null}

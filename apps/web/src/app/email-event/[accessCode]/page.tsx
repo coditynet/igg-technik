@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { PageLoader } from "@/components/page-loader";
 
 type FormState = {
 	title: string;
@@ -41,23 +42,6 @@ function getDefaultFormState(): FormState {
 		endTime: "",
 		allDay: false,
 	};
-}
-
-function BrutalistLoader() {
-	return (
-		<div className="relative h-[2px] w-16 overflow-hidden bg-[#222]">
-			<div
-				className="absolute inset-y-0 left-0 w-1/2 bg-[#ff3d00]"
-				style={{ animation: "scanBar 0.8s ease-in-out infinite" }}
-			/>
-			<style>{`
-				@keyframes scanBar {
-					0% { left: -50%; }
-					100% { left: 100%; }
-				}
-			`}</style>
-		</div>
-	);
 }
 
 export default function EmailEventPage() {
@@ -164,16 +148,14 @@ export default function EmailEventPage() {
 
 	if (registration === undefined) {
 		return (
-			<div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
-				<BrutalistLoader />
-			</div>
+		  <PageLoader />
 		);
 	}
 
 	if (!registration) {
 		return (
 			<div className="min-h-screen bg-[#0a0a0a] px-6 py-20 text-[#e8e4de]">
-				<div className="mx-auto max-w-[900px] border border-[#222] bg-[#0f0f0f] p-8">
+				<div className="mx-auto max-w-225 border border-[#222] bg-[#0f0f0f] p-8">
 					<div className="mb-2 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
 						Ungültig
 					</div>
@@ -207,7 +189,7 @@ export default function EmailEventPage() {
 			/>
 
 			<nav className="fixed top-0 right-0 left-0 z-40 border-[#222] border-b">
-				<div className="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-4">
+				<div className="mx-auto flex max-w-275 items-center justify-between px-6 py-4">
 					<Link
 						href={"/" as Route}
 						className="font-mono text-[#666] text-xs uppercase tracking-[0.2em] transition-colors hover:text-[#e8e4de]"
@@ -220,7 +202,7 @@ export default function EmailEventPage() {
 				</div>
 			</nav>
 
-			<div className="relative z-10 mx-auto max-w-[1100px] px-6 pt-28 pb-16">
+			<div className="relative z-10 mx-auto max-w-275 px-6 pt-28 pb-16">
 				<div className="mb-8">
 					<div className="mb-2 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]">
 						Event Request
