@@ -185,12 +185,6 @@ function LandingHero({
 									{monthName}
 								</span>
 								<div className="flex gap-px">
-									<div className="bg-[#222] px-2 py-1 font-mono text-[#666] text-[10px]">
-										&larr;
-									</div>
-									<div className="bg-[#222] px-2 py-1 font-mono text-[#666] text-[10px]">
-										&rarr;
-									</div>
 								</div>
 							</div>
 
