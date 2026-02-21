@@ -53,6 +53,9 @@ export default function EventRequestPage() {
 	const [requestedInventory, setRequestedInventory] = useState<
 		Record<string, number>
 	>({});
+	const [requestedInventoryInput, setRequestedInventoryInput] = useState<
+		Record<string, string>
+	>({});
 
 	const setRequestedCount = (itemId: string, max: number, value: number) => {
 		const count = Math.max(0, Math.min(max, Math.trunc(value || 0)));
@@ -60,6 +63,14 @@ export default function EventRequestPage() {
 			...prev,
 			[itemId]: count,
 		}));
+	};
+
+	const clearRequestedInputDraft = (itemId: string) => {
+		setRequestedInventoryInput((prev) => {
+			const next = { ...prev };
+			delete next[itemId];
+			return next;
+		});
 	};
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -139,6 +150,7 @@ export default function EventRequestPage() {
 			setSubmitted(true);
 			setForm(getInitialFormState());
 			setRequestedInventory({});
+			setRequestedInventoryInput({});
 			goeyToast.success("Anfrage erfolgreich gesendet.");
 		} catch (_error) {
 			goeyToast.error("Anfrage konnte nicht gesendet werden.");
@@ -434,6 +446,8 @@ export default function EventRequestPage() {
 									{inventoryItems.map((item) => {
 										const count = requestedInventory[item._id] ?? 0;
 										const checked = count > 0;
+										const draftInput = requestedInventoryInput[item._id];
+										const amountInputValue = draftInput ?? String(count);
 										return (
 											<div
 												key={item._id}
@@ -455,13 +469,20 @@ export default function EventRequestPage() {
 														id={`inventory-item-${item._id}`}
 														type="checkbox"
 														checked={checked}
-														onChange={(event) =>
-															setRequestedCount(
-																item._id,
-																item.count,
-																event.target.checked ? Math.max(1, count) : 0,
-															)
-														}
+														onChange={(event) => {
+															if (event.target.checked) {
+																setRequestedCount(
+																	item._id,
+																	item.count,
+																	Math.max(1, count),
+																);
+																clearRequestedInputDraft(item._id);
+																return;
+															}
+
+															setRequestedCount(item._id, item.count, 0);
+															clearRequestedInputDraft(item._id);
+														}}
 														className="h-4 w-4 accent-[#ff3d00]"
 													/>
 												</label>
@@ -475,14 +496,43 @@ export default function EventRequestPage() {
 															min={1}
 															max={item.count}
 															step={1}
-															value={String(count)}
-															onChange={(event) =>
-																setRequestedCount(
-																	item._id,
-																	item.count,
-																	Number(event.target.value),
-																)
-															}
+															value={amountInputValue}
+															onChange={(event) => {
+																const raw = event.target.value;
+																setRequestedInventoryInput((prev) => ({
+																	...prev,
+																	[item._id]: raw,
+																}));
+
+																const parsed = Number(raw);
+																if (
+																	raw !== "" &&
+																	Number.isFinite(parsed) &&
+																	parsed > 0
+																) {
+																	setRequestedCount(item._id, item.count, parsed);
+																}
+															}}
+															onBlur={() => {
+																const raw = requestedInventoryInput[item._id];
+																if (raw === undefined) {
+																	return;
+																}
+
+																const parsed = Number(raw);
+																if (
+																	raw === "" ||
+																	!Number.isFinite(parsed) ||
+																	parsed <= 0
+																) {
+																	setRequestedCount(item._id, item.count, 0);
+																	clearRequestedInputDraft(item._id);
+																	return;
+																}
+
+																setRequestedCount(item._id, item.count, parsed);
+																clearRequestedInputDraft(item._id);
+															}}
 															className="w-20 border border-[#222] bg-[#0d0d0d] px-2 py-1 text-center font-mono text-xs"
 														/>
 													</div>
