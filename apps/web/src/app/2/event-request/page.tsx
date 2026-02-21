@@ -212,7 +212,7 @@ export default function EventRequest2() {
 									].map((item) => (
 										<label
 											key={item.name}
-											className="group flex cursor-pointer items-center gap-3 rounded-lg border border-[#e8e8e8] bg-white px-4 py-3 transition-all hover:border-[#ccc] has-[:checked]:border-transparent has-[:checked]:shadow-[inset_0_0_0_2px_var(--check-color)]"
+											className="group flex cursor-pointer items-center gap-3 rounded-lg border border-[#e8e8e8] bg-white px-4 py-3 transition-all hover:border-[#ccc] has-checked:border-transparent has-checked:shadow-[inset_0_0_0_2px_var(--check-color)]"
 											style={
 												{
 													"--check-color": item.color,
@@ -221,7 +221,7 @@ export default function EventRequest2() {
 										>
 											<input type="checkbox" className="sr-only" />
 											<div
-												className="flex h-4 w-4 items-center justify-center rounded border border-[#ddd] transition-all group-has-[:checked]:border-transparent group-has-[:checked]:bg-[var(--check-color)]"
+												className="flex h-4 w-4 items-center justify-center rounded border border-[#ddd] transition-all group-has-checked:border-transparent group-has-checked:bg-(--check-color)"
 												style={
 													{
 														"--check-color": item.color,
@@ -229,7 +229,7 @@ export default function EventRequest2() {
 												}
 											>
 												<svg
-													className="h-3 w-3 text-white opacity-0 group-has-[:checked]:opacity-100"
+													className="h-3 w-3 text-white opacity-0 group-has-checked:opacity-100"
 													fill="none"
 													viewBox="0 0 24 24"
 													stroke="currentColor"
@@ -238,7 +238,7 @@ export default function EventRequest2() {
 													<path d="M5 13l4 4L19 7" />
 												</svg>
 											</div>
-											<span className="text-[#666] text-[13px] transition-colors group-has-[:checked]:font-medium group-has-[:checked]:text-[#111]">
+											<span className="text-[#666] text-[13px] transition-colors group-has-checked:font-medium group-has-checked:text-[#111]">
 												{item.name}
 											</span>
 										</label>
