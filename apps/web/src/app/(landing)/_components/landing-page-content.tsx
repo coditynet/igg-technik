@@ -2,6 +2,8 @@
 
 import { api } from "@igg/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
+import { addMonths, subMonths } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -12,6 +14,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 const WEEKDAYS = ["MO", "DI", "MI", "DO", "FR", "SA", "SO"];
 
@@ -271,7 +274,12 @@ function LandingCalendarFullscreenHero({
 	monthName,
 	days,
 	calendarEventsByDay,
-}: Pick<LandingHeroProps, "monthName" | "days" | "calendarEventsByDay">) {
+	onPrevious,
+	onNext,
+}: Pick<LandingHeroProps, "monthName" | "days" | "calendarEventsByDay"> & {
+	onPrevious: () => void;
+	onNext: () => void;
+}) {
 	return (
 		<section className="mx-auto flex min-h-[calc(100svh-4.5rem)] max-w-[1400px] flex-col px-6 pt-20 pb-6">
 			<div className="mb-6 flex flex-col items-center text-center">
@@ -293,12 +301,24 @@ function LandingCalendarFullscreenHero({
 						{monthName}
 					</span>
 					<div className="flex gap-px">
-						<div className="bg-[#222] px-2 py-1 font-mono text-[#666] text-[10px]">
-							&larr;
-						</div>
-						<div className="bg-[#222] px-2 py-1 font-mono text-[#666] text-[10px]">
-							&rarr;
-						</div>
+						<Button
+							type="button"
+							variant="outline"
+							size="icon-sm"
+							onClick={onPrevious}
+							className="border-[#222] bg-[#151515]"
+						>
+							<ChevronLeft className="size-3.5" />
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							size="icon-sm"
+							onClick={onNext}
+							className="border-[#222] bg-[#151515]"
+						>
+							<ChevronRight className="size-3.5" />
+						</Button>
 					</div>
 				</div>
 
@@ -364,12 +384,15 @@ export function LandingPageContent({
 	showFullscreenCalendarHero,
 }: LandingPageContentProps) {
 	const calendarData = useQuery(api.events.list);
+	const [currentDate, setCurrentDate] = useState(() => new Date());
 
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = now.getMonth();
-	const today = now.getDate();
-	const monthName = now.toLocaleDateString("de-DE", {
+	const year = currentDate.getFullYear();
+	const month = currentDate.getMonth();
+	const todayDate = new Date();
+	const todayDay = todayDate.getDate();
+	const todayMonth = todayDate.getMonth();
+	const todayYear = todayDate.getFullYear();
+	const monthName = currentDate.toLocaleDateString("de-DE", {
 		month: "long",
 		year: "numeric",
 	});
@@ -384,7 +407,14 @@ export function LandingPageContent({
 		for (let i = startDay - 1; i >= 0; i--)
 			cells.push({ day: daysInPrevMonth - i, current: false, today: false });
 		for (let i = 1; i <= daysInMonth; i++)
-			cells.push({ day: i, current: true, today: i === today });
+			cells.push({
+				day: i,
+				current: true,
+				today:
+					i === todayDay &&
+					month === todayMonth &&
+					year === todayYear,
+			});
 		const remaining = 42 - cells.length;
 		for (let i = 1; i <= remaining; i++)
 			cells.push({ day: i, current: false, today: false });
@@ -393,7 +423,15 @@ export function LandingPageContent({
 			gridIndex: index,
 			key: `${cell.current ? "cur" : "adj"}-${cell.day}-${index}`,
 		}));
-	}, [year, month, today]);
+	}, [year, month, todayDay, todayMonth, todayYear]);
+
+	const handlePreviousMonth = useCallback(() => {
+		setCurrentDate((prev) => subMonths(prev, 1));
+	}, []);
+
+	const handleNextMonth = useCallback(() => {
+		setCurrentDate((prev) => addMonths(prev, 1));
+	}, []);
 
 	const calendarEventsByDay = useMemo(() => {
 		const eventsByDay = new Map<
@@ -509,7 +547,6 @@ export function LandingPageContent({
 	}, [triggerGlitch]);
 
 	// Scroll-triggered reveal animations
-	const infoReveal = useReveal();
 	const aboutReveal = useReveal();
 	const tutorialReveal = useReveal();
 	const calendarReveal = useReveal();
@@ -625,6 +662,8 @@ export function LandingPageContent({
 					monthName={monthName}
 					days={days}
 					calendarEventsByDay={calendarEventsByDay}
+					onPrevious={handlePreviousMonth}
+					onNext={handleNextMonth}
 				/>
 			) : (
 				<LandingHero
