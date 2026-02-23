@@ -749,7 +749,7 @@ export function LandingPageContent({
 							<div className="">
 							<p className="font-mono text-[#ff3d00] text-[11px] leading-relaxed">
 								E-Mails werden zur Verarbeitung der Anfrage über 
-								<a href="https://legal.mistral.ai/terms/privacy-policy" className="underline text-[12px] bold"> Mistral </a>
+								<a href="https://legal.mistral.ai/terms/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline text-[12px]"> Mistral</a>.  
 								weitergeleitet.
 							</p>
 							</div>
@@ -837,7 +837,7 @@ export function LandingPageContent({
 						<p>
 							Zur automatischen Verarbeitung Ihrer Event-Anfrage senden wir den
 							Betreff und den Inhalt Ihrer E-Mail an 
-							<a href="https://legal.mistral.ai/terms/privacy-policy" className="underline text-[12px]"> Mistral</a>
+							<a href="https://legal.mistral.ai/terms/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline text-[12px]"> Mistral</a>.  
 							.
 						</p>
 						<p>
