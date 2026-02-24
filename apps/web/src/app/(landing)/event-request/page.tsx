@@ -100,11 +100,13 @@ export default function EventRequestPage() {
 			return;
 		}
 		if (!form.location) {
-			goeyToast.error("Bitte geben Sie einen Veranstaltungsort an")
+			goeyToast.error("Bitte geben Sie einen Veranstaltungsort an");
+			return;
 		}
-			if (form.inventory == false && form.description == "") {
-				goeyToast.error("Bitte wenn Sie keine Geräte auswählen, erklären Sie es in Infos")
-			}
+		if (form.inventory == false && form.description == "") {
+			goeyToast.error("Bitte wenn Sie keine Geräte auswählen, erklären Sie es in Infos");
+			return;
+		}
 
 		const startIso = form.allDay
 			? new Date(`${form.date}T00:00:00`).toISOString()
