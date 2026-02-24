@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { api } from "@igg/backend/convex/_generated/api";
 import type { Id } from "@igg/backend/convex/_generated/dataModel";
@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { goeyToast } from "goey-toast";
 import type { Route } from "next";
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useState } from "react";
 
 type FormState = {
 	requesterName: string;
@@ -17,9 +17,10 @@ type FormState = {
 	endTime: string;
 	groupId: string;
 	location: string;
-	description: string;
 	notes: string;
+	description: string;
 	allDay: boolean;
+	inventory: boolean;
 };
 
 function getDefaultDate() {
@@ -32,17 +33,19 @@ function getInitialFormState(): FormState {
 		requesterEmail: "",
 		title: "",
 		date: getDefaultDate(),
-		startTime: "08:00",
-		endTime: "09:00",
+		startTime: "07:50",
+		endTime: "12:35",
 		groupId: "",
-		location: "",
+		location: "Aula",
 		description: "",
 		notes: "",
 		allDay: false,
+		inventory: false,
 	};
 }
 
 export default function EventRequestPage() {
+	const [inventorySelected, setInventorySelected] = useState(0);
 	const groups = useQuery(api.groups.list);
 	const inventoryItems = useQuery(api.inventory.list, {});
 	const submitRegistration = useMutation(api.events.submitRegistration);
@@ -88,10 +91,6 @@ export default function EventRequestPage() {
 			goeyToast.error("Bitte geben Sie einen Eventnamen ein.");
 			return;
 		}
-		if (!form.groupId) {
-			goeyToast.error("Bitte wählen Sie eine Gruppe aus.");
-			return;
-		}
 		if (!form.date) {
 			goeyToast.error("Bitte wählen Sie ein Datum aus.");
 			return;
@@ -100,6 +99,12 @@ export default function EventRequestPage() {
 			goeyToast.error("Bitte geben Sie Start- und Endzeit an.");
 			return;
 		}
+		if (!form.location) {
+			goeyToast.error("Bitte geben Sie einen Veranstaltungsort an")
+		}
+			if (form.inventory == false && form.description == "") {
+				goeyToast.error("Bitte wenn Sie keine Geräte auswählen, erklären Sie es in Infos")
+			}
 
 		const startIso = form.allDay
 			? new Date(`${form.date}T00:00:00`).toISOString()
@@ -120,6 +125,9 @@ export default function EventRequestPage() {
 			goeyToast.error("Die Endzeit muss nach der Startzeit liegen.");
 			return;
 		}
+		if (form.inventory == false && form.description == "") {
+			return;
+		}
 
 		const requestedInventoryList = Object.entries(requestedInventory)
 			.filter(([, count]) => Number.isInteger(count) && count > 0)
@@ -138,9 +146,11 @@ export default function EventRequestPage() {
 				start: startIso,
 				end: endIso,
 				allDay: form.allDay,
-				groupId: form.groupId as Id<"groups">,
-				location: form.location.trim() || undefined,
-				notes: form.notes.trim() || undefined,
+				groupId: form.groupId
+					? (form.groupId as Id<"groups">)
+					: undefined,
+				location: form.location.trim(),
+				// notes: form.notes.trim() || undefined,
 				inventory:
 					requestedInventoryList.length > 0
 						? requestedInventoryList
@@ -157,6 +167,18 @@ export default function EventRequestPage() {
 		} finally {
 			setIsSubmitting(false);
 		}
+	};
+
+	const handleFormKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+		if (event.key !== "Enter") {
+			return;
+		}
+
+		if (event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		event.preventDefault();
 	};
 
 	return (
@@ -204,6 +226,7 @@ export default function EventRequestPage() {
 					<br />
 					<span className="text-[#ff3d00]">anfragen.</span>
 				</h1>
+				<p className="text-[#ff3d00] font-mono mb-2 text-[14px]">Felder mit Sternchen müssen ausgefüllt werden</p>
 
 				{submitted ? (
 					<div className="border border-[#ff3d00]/30 bg-[#ff3d00]/5 p-10">
@@ -224,13 +247,17 @@ export default function EventRequestPage() {
 						</Link>
 					</div>
 				) : (
-					<form onSubmit={handleSubmit} className="space-y-0">
+					<form
+						onSubmit={handleSubmit}
+						onKeyDown={handleFormKeyDown}
+						className="space-y-0"
+					>
 						<div className="border-[#222] border-t py-6">
 							<label
 								htmlFor="requester-name"
 								className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 							>
-								Name
+								Name*
 							</label>
 							<input
 								id="requester-name"
@@ -253,7 +280,7 @@ export default function EventRequestPage() {
 								htmlFor="requester-email"
 								className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 							>
-								E-Mail Adresse
+								E-Mail Adresse*
 							</label>
 							<input
 								id="requester-email"
@@ -276,7 +303,7 @@ export default function EventRequestPage() {
 								htmlFor="event-title"
 								className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 							>
-								Name des Events
+								Name des Events*
 							</label>
 							<input
 								id="event-title"
@@ -291,7 +318,7 @@ export default function EventRequestPage() {
 							/>
 						</div>
 
-						<div className="border-[#222] border-t py-6">
+						{/* <div className="border-[#222] border-t py-6">
 							<label
 								htmlFor="group-id"
 								className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
@@ -316,7 +343,7 @@ export default function EventRequestPage() {
 									</option>
 								))}
 							</select>
-						</div>
+						</div> */}
 
 						<div className="grid grid-cols-1 gap-0 border-[#222] border-t md:grid-cols-3">
 							<div className="py-6 md:border-[#222] md:border-r md:pr-6">
@@ -324,7 +351,7 @@ export default function EventRequestPage() {
 									htmlFor="event-date"
 									className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 								>
-									Datum
+									Datum*
 								</label>
 								<input
 									id="event-date"
@@ -342,7 +369,7 @@ export default function EventRequestPage() {
 									htmlFor="event-start-time"
 									className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 								>
-									Startzeit
+									Startzeit*
 								</label>
 								<input
 									id="event-start-time"
@@ -364,7 +391,7 @@ export default function EventRequestPage() {
 									htmlFor="event-end-time"
 									className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 								>
-									Endzeit
+									Endzeit*
 								</label>
 								<input
 									id="event-end-time"
@@ -409,11 +436,12 @@ export default function EventRequestPage() {
 								htmlFor="event-location"
 								className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 							>
-								Veranstaltungsort
+								Veranstaltungsort*
 							</label>
 							<input
 								id="event-location"
 								type="text"
+								required
 								value={form.location}
 								onChange={(event) =>
 									setForm((prev) => ({ ...prev, location: event.target.value }))
@@ -428,7 +456,7 @@ export default function EventRequestPage() {
 								htmlFor="requested-inventory"
 								className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
 							>
-								Benötigte Technik
+								Benötigte Technik*
 							</label>
 							<div id="requested-inventory" className="sr-only">
 								Technik Auswahl
@@ -445,20 +473,29 @@ export default function EventRequestPage() {
 								<div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 									{inventoryItems.map((item) => {
 										const count = requestedInventory[item._id] ?? 0;
-										const checked = count > 0;
+										const isUnavailable = item.count === 0;
+										const checked = !isUnavailable && count > 0;
 										const draftInput = requestedInventoryInput[item._id];
 										const amountInputValue = draftInput ?? String(count);
 										return (
 											<div
 												key={item._id}
-												className="border border-[#222] bg-[#111] px-4 py-3"
+												className={`border border-[#222] bg-[#111] px-4 py-3 ${
+													isUnavailable ? "opacity-45" : ""
+												}`}
 											>
 												<label
 													htmlFor={`inventory-item-${item._id}`}
-													className="flex cursor-pointer items-center justify-between gap-3"
+													className={`flex items-center justify-between gap-3 ${
+														isUnavailable ? "cursor-not-allowed" : "cursor-pointer"
+													}`}
 												>
 													<div>
-														<div className="font-mono text-[#e8e4de] text-xs uppercase tracking-[0.12em]">
+														<div
+															className={`font-mono text-xs uppercase tracking-[0.12em] ${
+																isUnavailable ? "text-[#777]" : "text-[#e8e4de]"
+															}`}
+														>
 															{item.name}
 														</div>
 														<div className="mt-1 font-mono text-[#777] text-[10px] uppercase tracking-[0.12em]">
@@ -469,20 +506,34 @@ export default function EventRequestPage() {
 														id={`inventory-item-${item._id}`}
 														type="checkbox"
 														checked={checked}
+														disabled={isUnavailable}
 														onChange={(event) => {
-															if (event.target.checked) {
-																setRequestedCount(
-																	item._id,
-																	item.count,
-																	Math.max(1, count),
-																);
-																clearRequestedInputDraft(item._id);
-																return;
-															}
-
-															setRequestedCount(item._id, item.count, 0);
+														if (event.target.checked) {
+															setRequestedCount(
+																item._id,
+																item.count,
+																Math.max(1, count),
+															);
 															clearRequestedInputDraft(item._id);
-														}}
+
+															setInventorySelected(prev => {
+																const newValue = prev + 1;
+																form.inventory = newValue > 0;
+																return newValue;
+															});
+
+															return;
+														}
+
+														setRequestedCount(item._id, item.count, 0);
+														clearRequestedInputDraft(item._id);
+
+														setInventorySelected(prev => {
+															const newValue = prev - 1;
+															form.inventory = newValue > 0;
+															return newValue;
+														});
+													}}
 														className="h-4 w-4 accent-[#ff3d00]"
 													/>
 												</label>
@@ -566,7 +617,9 @@ export default function EventRequestPage() {
 							/>
 						</div>
 
-						<div className="border-[#222] border-t py-6">
+							{/* wird halt schon iwie durch Zusätzliche infos gemacht. Also glaub unnötig */}
+
+						{/* <div className="border-[#222] border-t py-6">
 							<label
 								htmlFor="event-notes"
 								className="mb-3 block font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.3em]"
@@ -583,7 +636,7 @@ export default function EventRequestPage() {
 								placeholder="Zusätzliche Hinweise für das Technik-Team"
 								className="w-full resize-none border border-[#222] bg-[#111] px-4 py-3 font-mono text-[#e8e4de] text-sm outline-none placeholder:text-[#444] focus:border-[#ff3d00]/50"
 							/>
-						</div>
+						</div> */}
 
 						<div className="border-[#222] border-t pt-8">
 							<button

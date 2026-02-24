@@ -149,7 +149,7 @@ export default function EventRequest2() {
 							{/* Event Name */}
 							<div className="border-[#eee] border-t py-6">
 								<label className="mb-2 block text-[#bbb] text-[11px] uppercase tracking-[0.15em]">
-									Name des Events
+									Name des Events 
 								</label>
 								<input
 									type="text"
