@@ -275,7 +275,7 @@ function LandingCalendarFullscreenHero({
 	return (
 		<section className="mx-auto flex min-h-[calc(100svh-4.5rem)] max-w-[1400px] flex-col px-6 pt-20 pb-6">
 			<div className="mb-6 flex flex-col items-center text-center">
-				<p className="font-mono text-[#666] text-[10px] uppercase tracking-[0.3em]">
+				<p className="font-mono text-[#666] text-[10px] uppercase tracking-[0.3em] select-none">
 					Kalender
 				</p>
 				<h2
@@ -746,10 +746,13 @@ export function LandingPageContent({
 							<div className="mb-1 font-mono text-[#ff3d00] text-[10px] uppercase tracking-[0.18em]">
 								Hinweis
 							</div>
+							<div className="">
 							<p className="font-mono text-[#ff3d00] text-[11px] leading-relaxed">
-								E-Mails werden zur Verarbeitung der Anfrage über Mistral
-								verarbeitet.
+								E-Mails werden zur Verarbeitung der Anfrage über 
+								<a href="https://legal.mistral.ai/terms/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline text-[12px]"> Mistral</a>.  
+								weitergeleitet.
 							</p>
+							</div>
 							<button
 								type="button"
 								onClick={() => setIsAiInfoOpen(true)}
@@ -770,7 +773,7 @@ export function LandingPageContent({
 									key={step.num}
 									className="group flex gap-6 border border-[#222] bg-[#111] p-6 transition-colors hover:border-[#ff3d00]/30"
 								>
-									<div className="font-black font-mono text-3xl text-[#222] transition-colors group-hover:text-[#ff3d00]">
+									<div className="font-black font-mono text-3xl text-[#222] transition-colors group-hover:text-[#ff3d00] select-none">
 										{step.num}
 									</div>
 									<div>
@@ -833,7 +836,9 @@ export function LandingPageContent({
 					<div className="space-y-4 px-4 pb-4 font-mono text-[#c9c4be] text-xs leading-relaxed">
 						<p>
 							Zur automatischen Verarbeitung Ihrer Event-Anfrage senden wir den
-							Betreff und den Inhalt Ihrer E-Mail an Mistral.
+							Betreff und den Inhalt Ihrer E-Mail an 
+							<a href="https://legal.mistral.ai/terms/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline text-[12px]"> Mistral</a>.  
+							.
 						</p>
 						<p>
 							Wir senden dafür keine zusätzlichen personenbezogenen Daten wie
@@ -845,7 +850,7 @@ export function LandingPageContent({
 						<div className="border border-[#333] bg-[#111] p-3">
 							<p className="text-[#e8e4de]">
 								Wenn Ihr Event sensible Daten enthält oder Sie keine
-								Verarbeitung durch KI möchten, nutzen Sie bitte stattdessen das
+								Verarbeitung durch KI möchten, nutzen Sie bitte stattdessen unser
 								Formular:
 							</p>
 							<Link
