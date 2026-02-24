@@ -19,7 +19,7 @@ export default defineSchema({
 		start: v.number(),
 		end: v.number(),
 		allDay: v.optional(v.boolean()),
-		groupId: v.id("groups"),
+		groupId: v.optional(v.id("groups")),
 		label: v.optional(v.string()),
 		location: v.optional(v.string()),
 
@@ -75,9 +75,9 @@ export default defineSchema({
 		start: v.number(),
 		end: v.number(),
 		allDay: v.optional(v.boolean()),
-		groupId: v.id("groups"),
+		groupId: v.optional(v.id("groups")),
 		label: v.optional(v.string()),
-		location: v.optional(v.string()),
+		location: v.string(),
 		teacher: v.optional(v.string()),
 		notes: v.optional(v.string()),
 		inventory: v.optional(

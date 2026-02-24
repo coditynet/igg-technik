@@ -124,7 +124,7 @@ export const list = convex
 
 export const listByGroup = convex
 	.query()
-	.input({ groupId: v.id("groups") })
+	.input({ groupId: v.optional(v.id("groups")) })
 	.handler(async (ctx, args) => {
 		const authUser = await authComponent.safeGetAuthUser(ctx);
 		if (!authUser) {
@@ -249,9 +249,9 @@ export const create = convex
 		start: v.string(),
 		end: v.string(),
 		allDay: v.optional(v.boolean()),
-		groupId: v.id("groups"),
+		groupId: v.optional(v.id("groups")),
 		label: v.optional(v.string()),
-		location: v.optional(v.string()),
+		location: v.string(),
 		assignees: v.optional(v.array(v.id("user"))),
 		notes: v.optional(v.string()),
 		teacher: v.optional(v.string()),
@@ -277,7 +277,7 @@ export const create = convex
 			start: new Date(args.start).getTime(),
 			end: new Date(args.end).getTime(),
 			allDay: args.allDay,
-			groupId: args.groupId,
+			groupId: args.groupId? args.groupId : undefined,
 			label: args.label,
 			location: args.location,
 			assignees: args.assignees,
@@ -310,7 +310,7 @@ export const update = convex
 		allDay: v.optional(v.boolean()),
 		groupId: v.optional(v.id("groups")),
 		label: v.optional(v.string()),
-		location: v.optional(v.string()),
+		location: v.string(),
 		assignees: v.optional(v.array(v.id("user"))),
 		notes: v.optional(v.string()),
 		teacher: v.optional(v.string()),
@@ -385,7 +385,7 @@ export const listForCalendarFeed = convex
 
 export const listForCalendarFeedByGroup = convex
 	.query()
-	.input({ groupId: v.id("groups") })
+	.input({ groupId: v.optional(v.id("groups")) })
 	.handler(async (ctx, args) => {
 		const events = await ctx.db
 			.query("events")
@@ -503,9 +503,9 @@ export const submitRegistration = convex
 		start: v.string(),
 		end: v.string(),
 		allDay: v.optional(v.boolean()),
-		groupId: v.id("groups"),
+		groupId: v.optional(v.id("groups")),
 		label: v.optional(v.string()),
-		location: v.optional(v.string()),
+		location: v.string(),
 		teacher: v.optional(v.string()),
 		notes: v.optional(v.string()),
 		inventory: v.optional(
@@ -541,7 +541,7 @@ export const submitRegistration = convex
 			start,
 			end,
 			allDay: args.allDay,
-			groupId: args.groupId,
+			groupId: args.groupId? args.groupId : undefined,
 			label: args.label,
 			location: args.location,
 			teacher: args.teacher,
@@ -596,7 +596,7 @@ export const listRegistrations = convex
 						...registration,
 						start: new Date(registration.start).toISOString(),
 						end: new Date(registration.end).toISOString(),
-						group: groupsById.get(registration.groupId),
+						group: registration.groupId ? groupsById.get(registration.groupId) : undefined,
 						inventory,
 					};
 				}),
@@ -630,7 +630,7 @@ export const createEventFromRegistration = convex
 			start: registration.start,
 			end: registration.end,
 			allDay: registration.allDay,
-			groupId: registration.groupId,
+			...(registration.groupId ? { groupId: registration.groupId } : {}),
 			label: registration.label,
 			location: registration.location,
 			notes: registration.notes,
