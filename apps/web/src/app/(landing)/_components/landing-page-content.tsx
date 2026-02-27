@@ -560,7 +560,7 @@ export function LandingPageContent({
 
 	return (
 		<div
-			className={`relative min-h-screen overflow-x-hidden bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black ${glitch ? "animate-[glitch_0.15s_ease_infinite]" : ""}`}
+			className={`relative min-h-screen bg-[#0a0a0a] text-[#e8e4de] selection:bg-[#ff3d00] selection:text-black ${glitch ? "animate-[glitch_0.15s_ease_infinite]" : ""}`}
 		>
 			{/* Glitch overlay */}
 			{glitch && (
