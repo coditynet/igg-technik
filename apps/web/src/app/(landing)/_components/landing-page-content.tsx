@@ -2,11 +2,29 @@
 
 import { api } from "@igg/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { addMonths, subMonths } from "date-fns";
+import {
+	addDays,
+	addMonths,
+	addWeeks,
+	endOfWeek,
+	format,
+	isSameMonth,
+	startOfWeek,
+	subMonths,
+	subWeeks,
+} from "date-fns";
+import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	type CSSProperties,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import {
 	Sheet,
 	SheetContent,
@@ -15,6 +33,25 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import {
+	CalendarProvider,
+	useCalendarContext,
+} from "@/components/event-calendar/calendar-context";
+import type { CalendarGroup, CalendarView } from "@/components/event-calendar";
+import {
+	AgendaDaysToShow,
+	AgendaView,
+	CalendarDndProvider,
+	DayView,
+	EventDialog,
+	EventGap,
+	EventHeight,
+	MonthView,
+	WeekCellsHeight,
+	WeekView,
+	type CalendarEvent,
+} from "@/components/event-calendar";
+
 
 const WEEKDAYS = ["MO", "DI", "MI", "DO", "FR", "SA", "SO"];
 
@@ -38,6 +75,15 @@ const GROUP_EVENT_COLORS: Record<string, string> = {
 	rose: "border-rose-400 bg-rose-500/12 text-rose-300",
 	emerald: "border-emerald-400 bg-emerald-500/12 text-emerald-300",
 };
+
+const FULLSCREEN_VIEWS: CalendarView[] = ["month", "week", "day", "agenda"];
+
+function fullscreenViewLabel(view: CalendarView) {
+	if (view === "month") return "Monat";
+	if (view === "week") return "Woche";
+	if (view === "day") return "Tag";
+	return "Agenda";
+}
 
 const STEPS = [
 	{
@@ -270,18 +316,73 @@ function LandingHero({
 	);
 }
 
-function LandingCalendarFullscreenHero({
-	monthName,
-	days,
-	calendarEventsByDay,
-	onPrevious,
-	onNext,
-}: Pick<LandingHeroProps, "monthName" | "days" | "calendarEventsByDay"> & {
-	onPrevious: () => void;
-	onNext: () => void;
-}) {
+function LandingCalendarFullscreenHero({ events }: { events: CalendarEvent[] }) {
+	const { currentDate, setCurrentDate } = useCalendarContext();
+	const [view, setView] = useState<CalendarView>("month");
+	const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
+	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+
+	const viewTitle = useMemo(() => {
+		if (view === "month") {
+			return format(currentDate, "MMMM yyyy", { locale: de });
+		}
+		if (view === "week") {
+			const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+			const end = endOfWeek(currentDate, { weekStartsOn: 1 });
+			if (isSameMonth(start, end)) {
+				return format(start, "MMMM yyyy", { locale: de });
+			}
+			return `${format(start, "MMM", { locale: de })} - ${format(end, "MMM yyyy", { locale: de })}`;
+		}
+		if (view === "day") {
+			return format(currentDate, "EEE, d. MMMM yyyy", { locale: de });
+		}
+		const end = addDays(currentDate, AgendaDaysToShow - 1);
+		if (isSameMonth(currentDate, end)) {
+			return format(currentDate, "MMMM yyyy", { locale: de });
+		}
+		return `${format(currentDate, "MMM", { locale: de })} - ${format(end, "MMM yyyy", { locale: de })}`;
+	}, [currentDate, view]);
+
+	const handlePrevious = () => {
+		if (view === "month") {
+			setCurrentDate(subMonths(currentDate, 1));
+			return;
+		}
+		if (view === "week") {
+			setCurrentDate(subWeeks(currentDate, 1));
+			return;
+		}
+		if (view === "day") {
+			setCurrentDate(addDays(currentDate, -1));
+			return;
+		}
+		setCurrentDate(addDays(currentDate, -AgendaDaysToShow));
+	};
+
+	const handleNext = () => {
+		if (view === "month") {
+			setCurrentDate(addMonths(currentDate, 1));
+			return;
+		}
+		if (view === "week") {
+			setCurrentDate(addWeeks(currentDate, 1));
+			return;
+		}
+		if (view === "day") {
+			setCurrentDate(addDays(currentDate, 1));
+			return;
+		}
+		setCurrentDate(addDays(currentDate, AgendaDaysToShow));
+	};
+
+	const handleEventSelect = (event: CalendarEvent) => {
+		setSelectedEvent(event);
+		setIsEventDialogOpen(true);
+	};
+
 	return (
-		<section className="mx-auto flex min-h-[calc(100svh-4.5rem)] max-w-[1400px] flex-col px-6 pt-20 pb-6">
+		<section className="mx-auto flex min-h-[calc(100svh-7rem)] max-w-[1400px] flex-col px-6 pt-20 pb-6">
 			<div className="mb-6 flex flex-col items-center text-center">
 				<p className="font-mono text-[#666] text-[10px] uppercase tracking-[0.3em] select-none">
 					Kalender
@@ -293,84 +394,154 @@ function LandingCalendarFullscreenHero({
 					Geplante Veranstaltungen
 				</h2>
 				<div className="mt-3 h-px w-36 bg-gradient-to-r from-transparent via-[#ff3d00]/70 to-transparent" />
-				</div>
+			</div>
 
-			<div className="relative flex min-h-0 flex-1 flex-col border border-[#222] bg-[#0d0d0d]">
-				<div className="flex items-center justify-between border-[#222] border-b px-4 py-3">
-					<span className="font-mono text-[#e8e4de] text-sm uppercase tracking-[0.2em]">
-						{monthName}
-					</span>
-					<div className="flex gap-px">
-						<Button
-							type="button"
-							variant="outline"
-							size="icon-sm"
-							onClick={onPrevious}
-							className="border-[#222] bg-[#151515]"
-						>
-							<ChevronLeft className="size-3.5" />
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							size="icon-sm"
-							onClick={onNext}
-							className="border-[#222] bg-[#151515]"
-						>
-							<ChevronRight className="size-3.5" />
-						</Button>
-					</div>
-				</div>
+			<div
+				className="flex min-h-0 flex-1 flex-col"
+				style={
+					{
+						"--event-height": `${view === "month" ? 18 : EventHeight}px`,
+						"--event-gap": `${view === "month" ? 2 : EventGap}px`,
+						"--week-cells-height": `${WeekCellsHeight}px`,
+					} as CSSProperties
+				}
+			>
+				<CalendarDndProvider onEventUpdate={() => undefined}>
+					<style>{`
+						.calendar-v2-surface [data-slot="month-view"] > .sticky,
+						.calendar-v2-surface [data-slot="week-view"] > .sticky {
+							top: 0 !important;
+							border-color: #222 !important;
+							background: #0d0d0d !important;
+							text-transform: uppercase;
+							letter-spacing: 0.1em;
+						}
 
-				<div className="grid grid-cols-7 border-[#222] border-b">
-					{WEEKDAYS.map((d) => (
-						<div
-							key={d}
-							className="border-[#222] border-r py-2 text-center font-mono text-[#555] text-[10px] tracking-[0.15em] last:border-r-0"
-						>
-							{d}
-						</div>
-					))}
-				</div>
+						.calendar-v2-surface [data-slot="month-view"] .group {
+							border-color: #191919 !important;
+						}
 
-				<div className="grid flex-1 grid-cols-7 [grid-auto-rows:minmax(0,1fr)]">
-					{days.map((cell) => {
-						const event = cell.current ? calendarEventsByDay.get(cell.day) : null;
-						return (
-							<div
-								key={cell.key}
-								className={`relative flex min-h-0 flex-col border-[#191919] border-r border-b p-2 ${
-									cell.gridIndex % 7 === 6 ? "border-r-0" : ""
-								} ${cell.gridIndex >= 35 ? "border-b-0" : ""}`}
-							>
-								<span
-									className={`font-mono text-xs leading-none ${
-										cell.today
-											? "font-bold text-[#0a0a0a]"
-											: cell.current
-												? "text-[#888]"
-												: "text-[#333]"
-									}`}
-								>
-									{cell.today && (
-										<span className="inline-flex h-6 w-6 items-center justify-center bg-[#ff3d00]">
-											{cell.day}
-										</span>
-									)}
-									{!cell.today && cell.day}
-								</span>
-								{event && (
-									<div className={`mt-2 border-l px-1.5 py-1 ${event.className}`}>
-										<span className="block truncate font-mono text-[8px] uppercase leading-tight tracking-wider">
-											{event.title}
-											{event.count > 1 ? ` +${event.count - 1}` : ""}
-										</span>
-									</div>
-								)}
+						.calendar-v2-surface [data-slot="month-view"] [data-outside-cell] {
+							background: #0b0b0b !important;
+							color: #3a3a3a !important;
+						}
+
+						.calendar-v2-surface [data-slot="month-view"] [data-today] .rounded-full {
+							border-radius: 0 !important;
+							background: #ff3d00 !important;
+							color: #0a0a0a !important;
+							font-weight: 700;
+						}
+
+						.calendar-v2-surface [data-slot="week-view"] [data-today] {
+							background: rgba(255, 61, 0, 0.08);
+						}
+					`}</style>
+
+					<div className="border border-[#222] bg-[#0d0d0d]">
+						<div className="flex flex-wrap items-center justify-between gap-3 border-[#222] border-b px-4 py-3">
+							<div className="font-mono text-[#e8e4de] text-sm uppercase tracking-[0.15em]">
+								{viewTitle}
 							</div>
-						);
-					})}
-				</div>
+							<div className="flex items-center gap-2">
+								<div className="flex items-center gap-1">
+									<Button
+										type="button"
+										variant="outline"
+										size="icon-sm"
+										onClick={handlePrevious}
+										className="border-[#222] bg-[#151515]"
+									>
+										<ChevronLeft className="size-3.5" />
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										size="icon-sm"
+										onClick={handleNext}
+										className="border-[#222] bg-[#151515]"
+									>
+										<ChevronRight className="size-3.5" />
+									</Button>
+								</div>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => setCurrentDate(new Date())}
+									className="border-[#222] bg-[#151515] font-mono text-[10px] uppercase tracking-[0.1em]"
+								>
+									Heute
+								</Button>
+							</div>
+						</div>
+
+						<div className="flex flex-wrap gap-px bg-[#222] p-1">
+							{FULLSCREEN_VIEWS.map((currentView) => (
+								<Button
+									key={currentView}
+									type="button"
+									size="sm"
+									variant={view === currentView ? "default" : "outline"}
+									onClick={() => setView(currentView)}
+									className={
+										view === currentView
+											? "rounded-none border-[#ff3d00] bg-[#ff3d00] font-mono text-[10px] text-black uppercase tracking-[0.1em] hover:bg-[#ff3d00]"
+											: "rounded-none border-[#222] bg-[#111] font-mono text-[10px] uppercase tracking-[0.1em] hover:bg-[#171717]"
+									}
+								>
+									{fullscreenViewLabel(currentView)}
+								</Button>
+							))}
+						</div>
+					</div>
+
+					<div className="calendar-v2-surface mt-2 min-h-0 flex-1 border border-[#222] bg-[#0d0d0d]">
+						{view === "month" && (
+							<MonthView
+								currentDate={currentDate}
+								events={events}
+								onEventSelect={handleEventSelect}
+								onEventCreate={() => undefined}
+							/>
+						)}
+						{view === "week" && (
+							<WeekView
+								currentDate={currentDate}
+								events={events}
+								onEventSelect={handleEventSelect}
+								onEventCreate={() => undefined}
+							/>
+						)}
+						{view === "day" && (
+							<DayView
+								currentDate={currentDate}
+								events={events}
+								onEventSelect={handleEventSelect}
+								onEventCreate={() => undefined}
+							/>
+						)}
+						{view === "agenda" && (
+							<AgendaView
+								currentDate={currentDate}
+								events={events}
+								onEventSelect={handleEventSelect}
+							/>
+						)}
+					</div>
+
+					<EventDialog
+						event={selectedEvent}
+						isOpen={isEventDialogOpen}
+						onClose={() => {
+							setIsEventDialogOpen(false);
+							setSelectedEvent(null);
+						}}
+						onSave={() => undefined}
+						onDelete={() => undefined}
+						readOnly
+						publicEventBasePath="/event"
+					/>
+				</CalendarDndProvider>
 			</div>
 		</section>
 	);
@@ -380,11 +551,15 @@ type LandingPageContentProps = {
 	showFullscreenCalendarHero: boolean;
 };
 
-export function LandingPageContent({
+type LandingPageContentInnerProps = {
+	showFullscreenCalendarHero: boolean;
+};
+
+function LandingPageContentInner({
 	showFullscreenCalendarHero,
-}: LandingPageContentProps) {
+}: LandingPageContentInnerProps) {
 	const calendarData = useQuery(api.events.list);
-	const [currentDate, setCurrentDate] = useState(() => new Date());
+	const { currentDate, setCurrentDate } = useCalendarContext();
 
 	const year = currentDate.getFullYear();
 	const month = currentDate.getMonth();
@@ -425,13 +600,24 @@ export function LandingPageContent({
 		}));
 	}, [year, month, todayDay, todayMonth, todayYear]);
 
-	const handlePreviousMonth = useCallback(() => {
-		setCurrentDate((prev) => subMonths(prev, 1));
-	}, []);
-
-	const handleNextMonth = useCallback(() => {
-		setCurrentDate((prev) => addMonths(prev, 1));
-	}, []);
+	const calendarEvents: CalendarEvent[] = useMemo(() => {
+		if (!calendarData?.events) {
+			return [];
+		}
+		return calendarData.events.map((event) => ({
+			id: String(event._id),
+			title: event.title,
+			description: event.description,
+			start: new Date(event.start),
+			end: new Date(event.end),
+			groupId: String(event.groupId),
+			location: event.location,
+			allDay: event.allDay,
+			label: event.label,
+			teacher: event.teacher,
+			notes: event.notes,
+		}));
+	}, [calendarData?.events]);
 
 	const calendarEventsByDay = useMemo(() => {
 		const eventsByDay = new Map<
@@ -658,13 +844,7 @@ export function LandingPageContent({
 			</nav>
 
 			{showFullscreenCalendarHero ? (
-				<LandingCalendarFullscreenHero
-					monthName={monthName}
-					days={days}
-					calendarEventsByDay={calendarEventsByDay}
-					onPrevious={handlePreviousMonth}
-					onNext={handleNextMonth}
-				/>
+				<LandingCalendarFullscreenHero events={calendarEvents} />
 			) : (
 				<LandingHero
 					heroReady={heroReady}
@@ -904,5 +1084,31 @@ export function LandingPageContent({
 				</SheetContent>
 			</Sheet>
 		</div>
+	);
+}
+
+export function LandingPageContent({
+	showFullscreenCalendarHero,
+}: LandingPageContentProps) {
+	const calendarData = useQuery(api.events.list);
+
+	const groups: CalendarGroup[] = useMemo(() => {
+		if (!calendarData?.groups) {
+			return [];
+		}
+		return calendarData.groups.map((group) => ({
+			id: String(group._id),
+			name: group.name,
+			color: group.color,
+			isActive: true,
+		}));
+	}, [calendarData?.groups]);
+
+	return (
+		<CalendarProvider groups={groups}>
+			<LandingPageContentInner
+				showFullscreenCalendarHero={showFullscreenCalendarHero}
+			/>
+		</CalendarProvider>
 	);
 }
