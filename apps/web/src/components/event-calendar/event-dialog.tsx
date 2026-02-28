@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { Authenticated } from "convex/react";
 
 interface EventDialogProps {
 	event: CalendarEvent | null;
@@ -246,14 +247,15 @@ export function EventDialog({
 							disabled={readOnly}
 						/>
 					</div>
+					<Authenticated>
 					<div className="*:not-first:mt-1.5">
-						<Label htmlFor="teacher">Lehrer</Label>
+						<Label htmlFor="teacher">Lehrer*in</Label>
 						<Input
 							id="teacher"
 							value={teacher}
 							onChange={(e) => setTeacher(e.target.value)}
 							disabled={readOnly}
-						/>
+							/>
 					</div>
 					<div className="*:not-first:mt-1.5">
 						<Label htmlFor="notes">Notizen</Label>
@@ -263,8 +265,9 @@ export function EventDialog({
 							onChange={(e) => setNotes(e.target.value)}
 							rows={3}
 							disabled={readOnly}
-						/>
+							/>
 					</div>
+							</Authenticated>
 
 					<div className="flex gap-4">
 						<div className="flex-1 *:not-first:mt-1.5">
@@ -431,13 +434,14 @@ export function EventDialog({
 							disabled={readOnly}
 						/>
 					</div>
+					<Authenticated>
 					<div className="*:not-first:mt-1.5">
 						<Label htmlFor="group">Gruppe</Label>
 						<Select
 							value={groupId}
 							onValueChange={setGroupId}
 							disabled={readOnly}
-						>
+							>
 							<SelectTrigger id="group">
 								<SelectValue placeholder="Gruppe wählen" />
 							</SelectTrigger>
@@ -450,7 +454,7 @@ export function EventDialog({
 												style={{
 													backgroundColor: `var(--color-${group.color}-400)`,
 												}}
-											/>
+												/>
 											{group.name}
 										</div>
 									</SelectItem>
@@ -458,6 +462,7 @@ export function EventDialog({
 							</SelectContent>
 						</Select>
 					</div>
+					</Authenticated>
 				</div>
 				<DialogFooter className="flex-row sm:justify-between">
 					{!readOnly && event?.id && (

@@ -2,7 +2,7 @@
 
 import { api } from "@igg/backend/convex/_generated/api";
 import type { Id } from "@igg/backend/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { Authenticated, useMutation, useQuery } from "convex/react";
 import { goeyToast } from "goey-toast";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -142,7 +142,7 @@ export default function EventsPage() {
 				allDay: form.allDay,
 				groupId: form.groupId as Id<"groups">,
 				label: form.label.trim() || undefined,
-				location: form.location.trim() || undefined,
+				location: form.location.trim(),
 				notes: form.notes.trim() || undefined,
 				teacher: form.teacher.trim() || undefined,
 				inventory: eventEquipmentToMutationInput(form.equipment),
@@ -226,7 +226,7 @@ export default function EventsPage() {
 										required
 									/>
 								</div>
-
+								<Authenticated>
 								<div className="space-y-2">
 									<Label
 										htmlFor="create-event-group"
@@ -239,7 +239,7 @@ export default function EventsPage() {
 										onValueChange={(value) =>
 											setForm((prev) => ({ ...prev, groupId: value }))
 										}
-									>
+										>
 										<SelectTrigger
 											id="create-event-group"
 											className="border-[#222] bg-[#111] font-mono"
@@ -249,9 +249,9 @@ export default function EventsPage() {
 										<SelectContent className="border-[#222] bg-[#111] text-[#e8e4de]">
 											{groups?.map((group) => (
 												<SelectItem
-													key={group._id}
-													value={group._id}
-													className="font-mono"
+												key={group._id}
+												value={group._id}
+												className="font-mono"
 												>
 													{group.name}
 												</SelectItem>
@@ -259,6 +259,7 @@ export default function EventsPage() {
 										</SelectContent>
 									</Select>
 								</div>
+								</Authenticated>
 
 								<div className="grid gap-4 sm:grid-cols-2">
 									<div className="space-y-2">
@@ -334,12 +335,13 @@ export default function EventsPage() {
 									/>
 								</div>
 
+								<Authenticated>
 								<div className="space-y-2">
 									<Label
 										htmlFor="create-event-teacher"
 										className="font-mono text-[10px] uppercase tracking-[0.2em]"
-									>
-										Lehrer
+										>
+										Lehrer*in
 									</Label>
 									<Input
 										id="create-event-teacher"
@@ -349,8 +351,9 @@ export default function EventsPage() {
 										}
 										placeholder="Name des Lehrers"
 										className="border-[#222] bg-[#111] font-mono"
-									/>
+										/>
 								</div>
+									</Authenticated>
 
 								<div className="space-y-2">
 									<Label
@@ -391,11 +394,12 @@ export default function EventsPage() {
 									/>
 								</div>
 
+								<Authenticated>
 								<div className="space-y-2">
 									<Label
 										htmlFor="create-event-notes"
 										className="font-mono text-[10px] uppercase tracking-[0.2em]"
-									>
+										>
 										Notizen
 									</Label>
 									<Textarea
@@ -406,8 +410,9 @@ export default function EventsPage() {
 										}
 										placeholder="Interne Notizen"
 										className="border-[#222] bg-[#111] font-mono"
-									/>
+										/>
 								</div>
+								</Authenticated>
 
 								<EventEquipmentSelector
 									idPrefix="create-event"
